@@ -23,7 +23,9 @@ This directory contains code used to analyze the RNA-seq data.
 
 * process\_rnaseq.py - sets up shell scripts to run the RNA-seq analysis pathway
 * rnaseq\_setup\_htcount\_data.R - uses DeSEQ to compute variance-stabilized read values
-
+* \*_cmd.sh - examples of the scripts generated for a single session
+* sum\_Reactome\_pathways.py - code to generate pathway eigengenes for Reactome pathways
+* 
 
 ### data
 
