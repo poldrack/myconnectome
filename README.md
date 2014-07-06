@@ -30,3 +30,10 @@ This directory contains code used to analyze the RNA-seq data.
 This contains various relevant data files
 
 * parcellation/parcel_data.txt - information about the parcels
+* parcellation/all\_selected\_L\_parcel.func.gii - LH parcellation, original numbering
+* parcellation/all\_selected\_R\_parcel.func.gii - RH parcellation, original numbering
+* parcellation/all\_selected\_L\_parcel_renumbered.func.gii - LH parcellation, renumbered to run consecutively
+* parcellation/all\_selected\_R\_parcel_renumbered.func.gii - RH parcellation, renumbered to run consecutively
+* parcellation/parcel_L_consensus.func.gii - LH consensus infomap clustering
+* parcellation/parcel_R_consensus.func.gii - RH consensus infomap clustering
+* 
