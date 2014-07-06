@@ -14,7 +14,8 @@ This directory contains code used to run time series analyses comparing differen
 This directory contains code used to analyze the resting state fMRI data.
 
 * rsfmri\_get\_network\_stats.py - code to compute graph-theoretic network stats
-* 
+* circos_selftracking.py - code to generate circos config files for connectograms
+* get_parcel_info.py - code to get info about parcels
 
 ### rnaseq_analyses 
 
@@ -22,4 +23,10 @@ This directory contains code used to analyze the RNA-seq data.
 
 * process\_rnaseq.py - sets up shell scripts to run the RNA-seq analysis pathway
 * rnaseq\_setup\_htcount\_data.R - uses DeSEQ to compute variance-stabilized read values
-* 
+
+
+### data
+
+This contains various relevant data files
+
+* parcellation/parcel_data.txt - information about the parcels
