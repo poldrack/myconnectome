@@ -1,5 +1,5 @@
-# by Jeanette Mumford
-# uses auto.arima to model behavioral variables against rsfmri data
+# by Jeanette Mumford and Russ Poldrack
+# uses auto.arima to model autocorrelation
 
 library(forecast)
 
@@ -26,22 +26,25 @@ cwp = function (object){
      } else return(NA)
 }
 
-print_corr_results=function(out,thresh=0.07) {
-	print('xvar  yvar r pval-FDRcorr')
+print_corr_results=function(out,thresh=0.1,rthresh=0.2) {
+	print('xvar  yvar r pval-FDRcorr n')
+	found_good_result=FALSE
 for (i in 1:dim(out)[1]) {
 	if (is.nan(out$pval_bh[i]) | is.na(out$pval_bh[i])) {
 		print('found a nan')
 		}
-	else if (out$pval_bh[i]<thresh) {
-			print(sprintf('%s %s %f %f',out$xvar[i],out$yvar[i],out$cor.val[i], out$pval_bh[i]))
+	else if (out$pval_bh[i]<thresh & abs(out$cor.val[i])>rthresh) {
+		found_good_result=TRUE
+			print(sprintf('%s %s %f %f %d',out$xvar[i],out$yvar[i],out$cor.val[i], out$pval_bh[i],out$nobs[i]))
 		}
 	}
+	if (found_good_result==FALSE) {print('no significant results')}
 }
 
-#ydata=rnaseq.dat
-#xdata=behav
 # by RP
-est_bivariate_arima_model = function (xdata,ydata,xvars=c(NA),spacing='1 day',verbose=FALSE,skip_ident=FALSE) {
+est_bivariate_arima_model = function (xdata,ydata,xvars=c(NA),spacing='1 day',verbose=FALSE,
+                                      skip_ident=FALSE,skip_reverse=FALSE,arimatest='kpss',
+                                      drop_seasonal=TRUE) {
 #
 # estimate arima model for all combinations of two sets of variables
 # xdata: x variable (must have date field)
@@ -86,23 +89,37 @@ if (verbose) {
 	print(ynames)
 }
 out=c()
-for (i in 1:dim(ydata)[2])    {
- 	print(i)
- 	for (j in 1:dim(xdata)[2]) { 
+for (j in 1:dim(xdata)[2])    {
+ 	if (verbose) { print(j) }
+ 	for (i in 1:dim(ydata)[2]) { 
+ 		# skip diagonal and avoid performing analyses twice if x and y are identical
  		if (skip_ident & i==j) 
  			next
- 		print(sprintf('%s %s',xnames[j],ynames[i]))
+ 		if (skip_reverse & i>j) 
+ 			next
+ 		if (verbose) {
+ 			print(sprintf('%s %s',xnames[j],ynames[i]))
+ 		}
  		x=as.numeric(as.character(xdata[,j]))
  		x = (x - mean(x,na.rm=TRUE))/sd(x,na.rm=TRUE)
  		x_alldays=array(NA,dim=length(alldays))
  		x_alldays[alldays %in% xdates]=x[xdates %in% alldays]
  		x=as.ts(zoo(x_alldays,alldays))
  		
+ 		y=as.numeric(as.character(ydata[,i]))
+ 		y = (y - mean(y,na.rm=TRUE))/sd(y,na.rm=TRUE)
  		y_alldays=array(NA,dim=length(alldays))
- 		y_alldays[alldays %in% ydates]=ydata[ydates %in% alldays,i]
+ 		y_alldays[alldays %in% ydates]=y[ydates %in% alldays]
  		y=as.ts(zoo(y_alldays, alldays))
- 		
- 		fit.loop = auto.arima(y, xreg = x)
+ 		fit.loop = tryCatch({
+ 	    	fit.loop = auto.arima(y, xreg = x,allowdrift=TRUE,seasonal=FALSE)
+ 	    	}, error=function(err) {
+ 	    		#print(err)
+ 	    		#print('differenced model failed, trying d=0')
+ 	  	    	fit.loop = auto.arima(y, xreg = x,allowdrift=TRUE,seasonal=FALSE,d=0)
+ 	  	    })
+ 	  	    
+   		
         p.vals = data.frame(cwp(fit.loop))
         if (verbose) {
         	print(cwp(fit.loop))
@@ -127,7 +144,7 @@ for (i in 1:dim(ydata)[2])    {
  	     	p.drift=1
  	     	t.drift=0
  	     } 
- 	     dat.loop = c(xnames[j], ynames[i], corrval,t.arima,p.arima,t.drift,p.drift,fit.loop$arma[1:5])
+ 	     dat.loop = c(xnames[j], ynames[i], corrval,t.arima,p.arima,t.drift,p.drift,fit.loop$arma[1:5],sum(!is.na(fit.loop$residuals)))
  	     out = rbind(out, dat.loop)
  	     
       }
@@ -135,12 +152,13 @@ for (i in 1:dim(ydata)[2])    {
 
 out.dat = data.frame(out)
 # AR, MA, seasonal AR and seasonal MA coefficients, plus the period and the number of non-seasonal and seasonal differences.
-names(out.dat)= c("xvar", "yvar", "cor.val","t.arima","arima.p","t.drift","drift.p","AR",'MA','sAR','sMA','period') 		
+names(out.dat)= c("xvar", "yvar", "cor.val","t.arima","arima.p","t.drift","drift.p","AR",'MA','sAR','sMA','period','nobs') 		
 out.dat$arima.p = as.numeric(as.character(out.dat$arima.p))
 out.dat$t.arima = as.numeric(as.character(out.dat$t.arima))
 out.dat$drift.p = as.numeric(as.character(out.dat$drift.p))
 out.dat$t.drift = as.numeric(as.character(out.dat$t.drift))
 out.dat$cor.val = as.numeric(as.character(out.dat$cor.val))
+out.dat$nobs = as.numeric(as.character(out.dat$nobs))
 pval_bh=p.adjust(out.dat[,5],method='BH')
 out.dat$pval_bh=pval_bh
 out.dat[,1]=as.character(out.dat[,1])
@@ -148,6 +166,10 @@ out.dat[,2]=as.character(out.dat[,2])
 for (var in 3:dim(out.dat)[2]) {
 	out.dat[,var]=as.numeric(out.dat[,var])
 	}
+# drop the ARIMA parts that we don't need
+if (drop_seasonal) {
+out.dat=subset(out.dat,select=-c(sAR,sMA,period))
+}
 return(out.dat)
 }
 
