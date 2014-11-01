@@ -19,8 +19,8 @@ Examples of the scripts used to run each specific processing step are also inclu
 #### Post-processing
 
 
-* RNAseq_data_preparation.Rmd: Rmarkdown code to generate variance-stabilized RNA-seq data and perform some QA on the results.  This code uses the htcount results located in the cloud, so it does not require downloading any additional data.  The results can be viewed at https://s3.amazonaws.com/openfmri/ds031/RNA-seq/RNAseq_data_preparation.html and the output file can be downloaded from https://s3.amazonaws.com/openfmri/ds031/RNA-seq/varstab_data.txt ; they will also become available via GEO upon publication.  
+* RNAseq_data_preparation.Rmd: Rmarkdown code to generate variance-stabilized RNA-seq data and perform some QA on the results.  This code uses the htcount results located in the cloud, so it does not require downloading any additional data.  The results can be viewed at https://s3.amazonaws.com/openfmri/ds031/RNA-seq/RNAseq_data_preparation.html and the output file can be downloaded from https://s3.amazonaws.com/openfmri/ds031/RNA-seq/varstab_data.txt or loaded directly within R using load_rnaseq_data(use_ME=FALSE) from  load_myconnectome_data.R; they will also become available via GEO upon publication.  
 
-* regress_rin.py: Python code to regress out RIN values for each gene.  All subsequent analyses use these "rinregressed" values.  RIN data can be obtained from https://s3.amazonaws.com/openfmri/ds031/RNA-seq/rin.txt
+* regress_rin.py: Python code to regress out RIN values for each gene.  All subsequent analyses use these "rinregressed" values.  RIN data can be obtained from https://s3.amazonaws.com/openfmri/ds031/RNA-seq/rin.txt.  
 
 * Run_WGCNA.Rmd: Rmarkdown code to run WGCNA and save the results.  The results can be viewed at https://s3.amazonaws.com/openfmri/ds031/RNA-seq/Run_WGCNA.html - in addition, the results from the WGCNA run used in the published analyses can be obtained from https://s3.amazonaws.com/openfmri/ds031/RNA-seq/net-thr8-rinreg-48sess.Rdata and then loaded directly in order to replicate the published analyses.
