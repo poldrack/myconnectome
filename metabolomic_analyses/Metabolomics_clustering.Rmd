@@ -58,3 +58,20 @@ if (save_data) {
   save(ap,file='/Users/poldrack/Dropbox/data/selftracking/proteomics/apclust.Rdata')
 }
 ```
+
+Compute eigenconcentrations for each cluster
+
+```{r}
+# compute eigenconcentrations
+
+eigenconc=c()
+for (c in 1:length(ap@clusters)) {
+  print(c)
+	cdata=metab[,ap@clusters[[c]]]
+	pca=prcomp(t(cdata))
+	eigenconc=cbind(eigenconc,pca$rotation[,1])
+	}
+if (save_data) {
+  write.table(eigenconc,'/Users/poldrack/Dropbox/data/selftracking/proteomics/apclust_eigenconcentrations.txt')
+}
+```
