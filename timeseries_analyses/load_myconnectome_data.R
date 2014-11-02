@@ -12,39 +12,39 @@ test_load_myconnectome_data = function() {
 	print("testing all variables against stored checksums, this will take a few moments...")
 	print("you can safely ignore warnings about NAs induced by coercion...")
 	
+    print('testing behavioral data...')
 	behav=load_behav_data()
 	stopifnot(getChecksum(behav)=="1c26494a2a3da1ac3e00f6a5704b03d4")
 
+    print('testing diary data...')
 	diary_data=load_diary_data()
 	stopifnot(getChecksum(diary_data)=="2a04da4ac8a0fc6e422e155590a5fe09")
 	
+    print('testing rnaseq data...')
 	rnaseq_data=load_rnaseq_data()
-	stopifnot(getChecksum(rnaseq_data)=="63e9dd4967ed3fffdd0ef059d01c11ef")
+	stopifnot(getChecksum(rnaseq_data)=="9807743db2afa5ce23a432bb30184ba5")
 	
+    print('testing immport data...')
 	immport=load_ImmPort_data()
 	stopifnot(getChecksum(immport)=="df979f524c61337058adbff3bdd03d3e")
 	
+    print('testing metab data...')
 	metab=load_metab_data()
-	stopifnot( getChecksum(metab) == "9843157712fa6c7175fcfa74f0b5585d")
+	stopifnot( getChecksum(metab) == "eb309f07afca9d0d2a633cdc18b0ce19")
 	
+    print('testing food data...')
 	food=load_food_data()
 	stopifnot(getChecksum(food) == "57ecfbdaf43cb586bf653345e18cd28d")
 	
+    print('testing fd data...')
 	fd=load_fd_data()
 	stopifnot(getChecksum(fd) == "bc5139aa411e9d2cb7d649f5b01af985")
 	
+    print('testing wincorr data...')
 	wincorr=load_fmri_data('wincorr')
 	stopifnot(getChecksum(wincorr) == "29bc5e23e47b46285900a2a1909a8cff")
 
-	winvar=load_fmri_data('winvar')
-	stopifnot(getChecksum(winvar) == "a82638328dbef2621d63cbc8dd99f3bb")
-	
-	falff=load_fmri_data('falff')
-	stopifnot(getChecksum(falff) == "e3bd0d1c8acb8404d804d5bc73c5d978")
-	
-	netdat=load_network_data()
-	stopifnot(getChecksum(netdat)=="500bb83ce3bd9e9f30dcfc596f6790c1")
-	
+
 	print('All checksums confirmed')
 	
 	}
