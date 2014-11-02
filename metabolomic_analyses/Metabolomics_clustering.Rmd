@@ -1,0 +1,61 @@
+---
+title: "Metabolomics clustering"
+author: "Russ Poldrack"
+date: "November 1, 2014"
+output: html_document
+---
+
+This is code for preprocessing of the metabolomics data for the MyConnectome study.
+
+First, load the functions that will provide the data:
+
+```{r}
+source('http://s3.amazonaws.com/openfmri/ds031/timeseries_analyses/load_myconnectome_data.R')
+```
+
+Load and scale the data:
+
+```{r}
+metab=load_metab_data(use_clustered_data=FALSE)
+metab$date=NULL
+metab=scale(metab)
+```
+
+The annotation tool that we will use requires PubChem IDs, so load those:
+
+```{r}
+cids=read.table('http://s3.amazonaws.com/openfmri/ds031/metabolomics/pubmed_cids.txt')$V1
+```
+
+
+Set up the clustering tool:
+
+```{r}
+library(apcluster)
+sim=negDistMat()
+```
+
+Run the clustering:
+
+```{r}
+ap=apcluster(sim,t(metab))
+
+ap
+```
+
+Save the clustering data and pubchem IDs for each cluster, for later use in annotation with Impala (set save_data=TRUE and change directory location to enable this)
+
+```{r}
+save_data=FALSE
+if (save_data) {
+  for (i in 1:length(ap@clusters)) {
+    print(i)
+  	for (member in 1:length(ap@clusters[[i]])) {
+  		m=cids[ap@clusters[[i]]]
+  		outfilename=sprintf('/Users/poldrack/Dropbox/data/selftracking/proteomics/apclust_scaled_mod%02d.txt',i)
+  		write.table(m,file=outfilename,col.names=FALSE,row.names=FALSE,quote=FALSE)
+  		}
+  	}
+  save(ap,file='/Users/poldrack/Dropbox/data/selftracking/proteomics/apclust.Rdata')
+}
+```
