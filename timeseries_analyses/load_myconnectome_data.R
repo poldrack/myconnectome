@@ -143,7 +143,7 @@ load_metab_data = function(use_clustered_data=TRUE,clust_file='http://s3.amazona
 		names(metab.dat)=as.character(labels)
 		if (exclude_unenriched) {
 			# exclude those with FDR p<0.1
-			metab.dat=subset(metab.dat,select=-c(1,3,7,8,13,15,16))
+			metab.dat=subset(metab.dat,select=-c(1,3,6,7,12,14,15))
 			}
 		} else {
 		metab.dat=read.table(infile, na.strings='.', header=FALSE)
