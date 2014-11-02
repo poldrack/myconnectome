@@ -13,17 +13,14 @@ First we need to load some relevant libraries:
 library(forecast)
 library(knitr)
 source('http://s3.amazonaws.com/openfmri/ds031/timeseries_analyses/load_myconnectome_data.R')
-#source('http://s3.amazonaws.com/openfmri/ds031/timeseries_analyses/est_bivariate_arima_model.R')
-source('est_bivariate_arima_model.R')
-
-
+source('http://s3.amazonaws.com/openfmri/ds031/timeseries_analyses/est_bivariate_arima_model.R')
 ```
 
 Make a wrapper for kable that can detect empty datasets
 
 ```{r}
 kable_wrap = function(data) {
-  if (nrow(data)>0) {kable(data)}
+  if (nrow(data)>0) {kable(data)} else {print('no significant results')}
 }
 ```
 If you would like your results to be put into a specific place, then set the variable OUTPUT_DIR to that value.  This puts them in a specific place on my computer.
@@ -182,6 +179,18 @@ kable_wrap(out.dat.immport_metab[out.dat.immport_metab$pval_bh<fdr_thresh,])
 write.table(out.dat.immport_metab,file=paste(OUTPUT_DIR,'out.dat.immport_metab.txt',sep='/'))
 ```
 
+####ImmPort immune genes vs metabolism (full set)
+```{r message=FALSE,warning=FALSE,error=FALSE}
+
+out.dat.immport_metab_full=est_bivariate_arima_model(immport,metab_full,spacing='1 week')
+```
+
+```{r  results="asis"}
+kable_wrap(out.dat.immport_metab_full[out.dat.immport_metab_full$pval_bh<fdr_thresh,])
+write.table(out.dat.immport_metab_full,file=paste(OUTPUT_DIR,'out.dat.immport_metabfull.txt',sep='/'))
+```
+
+
 
 #### food vs. metabolism
 note: food needs to be X variable because auto.arima doesn't handle binary Y variable
@@ -250,7 +259,7 @@ out.dat.metab_full_wincorr=est_bivariate_arima_model(metab_full,wincorr,spacing=
 
 ```{r  results="asis"}
 kable_wrap(out.dat.metab_full_wincorr[out.dat.metab_full_wincorr$pval_bh<fdr_thresh,])
-write.table(out.dat.metab_full_wincorr,file=paste(OUTPUT_DIR,'out.dat.metab_full_wincorr.txt',sep='/'))
+write.table(out.dat.metab_full_wincorr,file=paste(OUTPUT_DIR,'out.dat.metabfull_wincorr.txt',sep='/'))
 ```
 
 
@@ -361,6 +370,18 @@ out.dat.wgcna_metab=est_bivariate_arima_model(rnaseq_wgcna,metab,spacing='1 week
 kable_wrap(out.dat.wgcna_metab[out.dat.wgcna_metab$pval_bh<fdr_thresh,])
 write.table(out.dat.wgcna_metab,file=paste(OUTPUT_DIR,'out.dat.wgcna_metab.txt',sep='/'))
 ```
+
+#### RNA-seq vs. metabolism (full set)
+```{r message=FALSE,warning=FALSE,error=FALSE}
+
+out.dat.wgcna_metab_full=est_bivariate_arima_model(rnaseq_wgcna,metab_full,spacing='1 week')
+```
+
+```{r  results="asis"}
+kable_wrap(out.dat.wgcna_metab_full[out.dat.wgcna_metab_full$pval_bh<fdr_thresh,])
+write.table(out.dat.wgcna_metab_full,file=paste(OUTPUT_DIR,'out.dat.wgcna_metabfull.txt',sep='/'))
+```
+
 
 #### RNA-seq vs. food
 
