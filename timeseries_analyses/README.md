@@ -17,3 +17,4 @@ The primary analyses for the MyConnectome paper are comparisons of different var
 
 * timeseries_analyses.Rmd: Rmarkdown code to run the timeseries analyses for all variables.  Results can be viewed at https://s3.amazonaws.com/openfmri/ds031/timeseries_analyses/timeseries_analyses.html
 * Make_Timeseries_Heatmaps.Rmd: Rmarkdown code to generate timeseries heatmaps for behavior, connectivity, and RNA-seq variables.  Results can be viewed at https://s3.amazonaws.com/openfmri/ds031/timeseries_analyses/Make_Timeseries_Heatmaps.html
+* Make_timeseries_plots.Rmd: Rmarkdown code to generate timeseries plots and trend analyses for each variable.  Results can be viewed at https://s3.amazonaws.com/openfmri/ds031/timeseries_analyses/Make_timeseries_plots.html
