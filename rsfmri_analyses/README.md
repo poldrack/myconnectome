@@ -18,4 +18,4 @@ These are the data that we started with:
 ### Correlation analysis
 
 * rsfmri_extract_module_summary.py: extract the mean within-module connectivity for each of the 13 modules identified using infomap clustering
-* rsfmri_collapse_module_data.py: collapse data from each session into a single file (https://s3.amazonaws.com/openfmri/ds031/rsfmri/module_within_corr.txt)
+* rsfmri_collapse_module_data.py: collapse data from each session into a single file (https://s3.amazonaws.com/openfmri/ds031/rsfmri/module_within_corr.txt) - these are the data that are loaded by load_fmri_data() for the timeseries analyses.
