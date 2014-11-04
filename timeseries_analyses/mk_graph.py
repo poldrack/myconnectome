@@ -5,11 +5,16 @@ mk graph showing relations between differen variables
 import pydot
 import networkx as nx
 import re
+import os,glob
 
 filter_negatives=False
-thresh=0.05
+exclude_metab=False
+exclude_metab_metab=True
+exclude_gene_gene=True
+filter_gene_modules=False # only include first cluster in each module
+thresh=0.1
 
-def load_dataframe(filename,thresh=0.05):
+def load_dataframe(filename,thresh=0.1):
 	# return p value, t stat, and correlation
 	f=open(filename)
 	header=f.readline()
@@ -26,72 +31,69 @@ def load_dataframe(filename,thresh=0.05):
 			pass
 	return data
 
-files_to_load=['falff_falff','falff_pheno','food_metab','reactome_food','metab_falff',
-   'metab_netdat','metab_wincorr','netdat_pheno','netdat_wincorr','pheno_metab','pheno_reactome',
-   'reactome_falff','reactome_metab','reactome_netdat','reactome_wincorr','wincorr_falff',
-   'wincorr_pheno','wincorr_wincorr']
+cluster_names=['ME%d'%int(i.strip().split()[0]) for i in open('/Users/poldrack/Dropbox/data/selftracking/rna-seq/WGCNA/module_descriptions.txt').readlines()]
+cluster_terms=[' '.join(i.strip().split()[1:]) for i in open('/Users/poldrack/Dropbox/data/selftracking/rna-seq/WGCNA/module_descriptions.txt').readlines()]
+cluster_dict={}
+for i in range(len(cluster_names)):
+	cluster_dict[cluster_names[i]]=cluster_terms[i]
+	
+files_to_load=list(set(glob.glob('/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out*.txt')))
 
+files_to_load=['/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.wgcna_wincorr.txt',
+			'/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.wincorr_wincorr.txt',
+			'/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.wgcna_wgcna.txt',
+			'/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.wgcna_behav.txt',
+			'/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.wincorr_behav.txt',
+			'/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.behav_behav.txt']
 #files_to_load=['metab_metab']
 
-power_network_names={-1:'none',0:'none',1:'DM',2:'Vis2',3:'FP',4.5:'Vis1',5:'DA1',6:'DA2',7:'VA-Lang',8:'Sal',9:'CO',10:'SOM',11.5:'FPother',15:'PEpisRet',16:'PO'}
+#power_network_names={-1:'none',0:'none',1:'DM',2:'Vis2',3:'FP',4.5:'Vis1',5:'DA1',6:'DA2',7:'VA-Lang',8:'Sal',9:'CO',10:'SOM',11.5:'FPother',15:'PEpisRet',16:'PO'}
+power_network_names={-1:'none',0:'none',1:'DefaultMode',2:'Visual-II',3:'Fronto-parietal',4.5:'Visual-I',5:'DorsalAttn-I',6:'DorsalAttn-II',7:'VentralAttn/Lang',8:'Salience',9:'Cingulo-opercular',10:'Somatomotor',11.5:'OtherFP',15:'Parietal EpisRet',16:'Parieto-occipital'}
+netdat_full_names={'EFFg':'global efficiency','EFFl':'local efficiency','APL':'average path length',
+				'PowerExp':'Power exponent','Clust':'clustering coeff','MOD':'Modularity','RCC':'Rich club coefficient'}
+node_shapes={'metab':'box','wgcna':'ellipse','food':'triangle','wincorr':'diamond','behav':'hexagon','falff':'invtriangle','netdat':'trapezium'}
+node_classes={'metab':1,'wgcna':2,'food':3,'wincorr':4,'behav':5,'falff':6,'netdat':7}
 
-node_shapes={'metab':'box','reactome':'ellipse','food':'triangle','wincorr':'diamond','pheno':'hexagon','falff':'invtriangle','netdat':'trapezium'}
-node_classes={'metab':1,'reactome':2,'food':3,'wincorr':4,'pheno':5,'falff':6,'netdat':7}
+behav_terms={'panas.positive':'Positive mood','panas.negative':'Negative mood','panas.fatigue':'Fatigue','afterscan.Anxietyduringscan':'Anxiety during scan',
+             'afterscan.diastolic':'Diastolic BP after scan','afterscan.pulse':'Pulse after scan','afterscan.systolic':'Systolic BP after scan',
+             'morning.Sleepquality':'Self-rated sleep quality','morning.Soreness':'Soreness','prevevening.Alcohol':'Alcohol intake (previous evening)',
+             'prevevening.Guthealth':'Gut health (previous day)','prevevening.Psoriasisseverity':'Psoriasis severity (previous day)',
+             'prevevening.Stress':'Stress (previous day)', 'prevevening.Timespentoutdoors':'Time spent outdoors (previous day)',
+             'tu_th':'Thursday vs. Tuesday', 'temp.mean':'Mean daily temp',"email.LIWC_CDI":'Email content-dynamic index',
+             "email.LIWC_negemo":'Email negative emotion',"email.LIWC_posemo":'Email positive emotion','zeo.zq':'ZEO zq'}
 
-reactome_labels=['Apoptosis',
-	'Binding_and_Uptake_of_Ligands_by_Scavenger_Receptors',
-	'Cell_Cycle',
-	'CellCell_communication',
-	'Cellular_responses_to_stress',
-	'Chromatin_organization',
-	'Circadian_Clock',
-	'Developmental_Biology',
-	'Disease',
-	'DNA_Repair',
-	'DNA_Replication',
-	'Extracellular_matrix_organization',
-	'Gene_Expression',
-	'Hemostasis',
-	'Immune_System',
-	'Meiosis',
-	'Membrane_Trafficking',
-	'Metabolism',
-	'Metabolism_of_proteins',
-	'Muscle_contraction',
-	'Neuronal_System',
-	'Organelle_biogenesis_and_maintenance',
-	'Reproduction',
-	'Signal_Transduction',
-	'Transmembrane_transport_of_small_molecules']
-reactome_short_labels={}
-for l in reactome_labels:
-	reactome_short_labels[l]=l
-reactome_short_labels['Binding_and_Uptake_of_Ligands_by_Scavenger_Receptors']='Scavenger_uptake_binding'
-reactome_short_labels['Cellular_responses_to_stress']='Cellular_stress'
-reactome_short_labels['Extracellular_matrix_organization']='Extracellular_matrix'
-reactome_short_labels['Organelle_biogenesis_and_maintenance']='Organelle function'
-reactome_short_labels['Transmembrane_transport_of_small_molecules']='Transmembrane_transport'
-reactome_short_labels['Neuronal_System']='Nervous_system'
-reactome_short_labels['CellCell_communication']='Cell-cell_communication'
 data={}
 graph = nx.Graph()
 shell=[]
 for i in range(1,8):
 	shell.append([])
 
-for f in files_to_load:
-
-	filename='/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/%s.out'%f
+for filename in files_to_load:
+	f=os.path.basename(filename).replace('out.dat.','').replace('.txt','')
 	data[f]=load_dataframe(filename,thresh)
 
 	datatypes=f.split('_')
 	if len(data[f])<1:
 		print 'no significant results for',f
 		continue
+			
 	for k in data[f].keys():
 		if data[f][k][1]<0 and filter_negatives:
 			continue
 		ktuple=k
+		if exclude_metab and 'metab' in datatypes:
+			continue
+		if exclude_metab_metab and datatypes[0]=='metab' and datatypes[1]=='metab':
+			continue
+		if exclude_gene_gene and datatypes[0]=='wgcna' and datatypes[1]=='wgcna':
+			continue
+		if filter_gene_modules and 'wgcna' in datatypes:
+			dt=[False,False]
+			if datatypes[0]=='wgcna':
+				dt[0]=True
+			if datatypes[1]=='wgcna':
+				dt[1]=True
+		
 		k=[i.replace(',','').replace('"','') for i in list(k)]
 		#print k
 		#print k
@@ -110,16 +112,20 @@ for f in files_to_load:
 			continue
 		for x in range(2):
 			name=u'%s'%re.sub(r'[^\x00-\x7F]+',' ', nodenames[x]).replace('"','').replace('&','')
-			nodelabel=''.join(name.split('-')[1:]).replace('"','').replace('mean_pi','PI').replace('power_exp','EXP').replace('mean_','').replace('modularity_','MOD').replace('rcc_at_cutoff','RCC')
+			nodelabel=''.join(name.split('-')[1:]).replace('"','').replace('_NIST','')
 			if datatypes[x]=='wincorr':
-				modnum=float(nodelabel.split('_')[0])
-				nodelabel=power_network_names[modnum]+'-c'
+				nodelabel=''.join(nodelabel.split('_')[1:])
+				print nodelabel
 			if datatypes[x]=='falff':
 				modnum=float(nodelabel.split('_')[0])
-				nodelabel=power_network_names[modnum]+'-f'
-			if datatypes[x]=='reactome':
-				nodelabel=reactome_short_labels[nodelabel]
-
+				nodelabel=power_network_names[modnum]+'-falff'
+			if datatypes[x]=='wgcna':
+				nodelabel=cluster_dict[nodelabel]+' ('+nodelabel.replace('mod','').replace('clust','')+')'
+			if datatypes[x]=='netdat':
+				nodelabel=netdat_full_names[nodelabel]
+			if datatypes[x]=='behav':
+				nodelabel=behav_terms[nodelabel].replace(' (previous evening)','').replace(' (previous day)','')
+				
 			if not graph.has_node(name):
 				graph.add_node(name)
 				graph.node[name]['label']=nodelabel
@@ -128,6 +134,7 @@ for f in files_to_load:
 				shell[node_classes[datatypes[x]]-1].append(name)
 			nodenames[x]=name
 		graph.add_edge(nodenames[0],nodenames[1],attr_dict={'pval':data[f][ktuple][0],'tval':data[f][ktuple][1],'rval':data[f][ktuple][2]})
+		print 'edge:',nodenames[0],nodenames[1]
 
 
 sg=nx.connected_component_subgraphs(graph)
@@ -139,15 +146,34 @@ nx.write_graphml(graph,'tmp.graphml')
 
 import igraph
 G=igraph.read('tmp.graphml')
-c=G.community_infomap()
+#c=G.community_infomap()
+c=G.community_multilevel()
 labels=c.membership
+print 'modularity:',c.modularity
 
 for i in range(len(G.vs)):
 	graph.node[G.vs[i]['id']]['module']=labels[i]
+
+h=nx.hits(graph)[0]
+for k in h.iterkeys():
+	graph.node[k]['hub']=h[k]
 	
 #for k in graph.obj_dict['nodes'].iterkeys():
 #	print graph.obj_dict['nodes'][k]
 print 'writing graph...'
 #graph.write_pdf('graph.pdf')
-nx.write_gexf(graph,'graph__thresh%.02f.gexf'%thresh)
+if filter_negatives:
+	filt='_posonly'
+else:
+	filt=''
+if exclude_metab:
+	filt=filt+'_nometab'
+nx.write_gexf(graph,'graph_thresh%.02f%s.gexf'%(thresh,filt))
+nx.write_gml(graph,'graph_thresh%.02f%s.gml'%(thresh,filt))
 
+for i in numpy.unique(labels):
+	print ''
+	print 'module',i
+	for n in graph.nodes():
+		if graph.node[n]['module']==i:
+			print n
