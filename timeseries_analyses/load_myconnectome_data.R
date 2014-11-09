@@ -219,7 +219,10 @@ dates=behav$date[behav$subcode %in% subcodes$V1]
 if (type=='wincorr') {
 	fmridatafile="http://s3.amazonaws.com/openfmri/ds031/rsfmri/module_within_corr.txt"
 	network_names=c('1_Default','2_Second_Visual','3_Frontal-Parietal','4.5_First_Visual_V1plus','5_First_Dorsal_Attention','6_Second_Dorsal_Attention','7_Ventral_Attention-Language','8_Salience','9_Cingulo-opercular','10_Somatomotor','11.5_Frontal-Parietal_Other','15_Parietal_Episodic_Retrieval','16_Parieto-Occipital')
-  } else if (type == 'winvar') {
+  } else if (type=='bwcorr') {
+    fmridatafile="http://s3.amazonaws.com/openfmri/ds031/rsfmri/module_between_corr.txt"
+    network_names=as.character(read.table("http://s3.amazonaws.com/openfmri/ds031/rsfmri/bwmod_corr_labels_joined.txt",sep='\t',header=FALSE)$V1)
+    }else if (type == 'winvar') {
   	fmridatafile="http://s3.amazonaws.com/openfmri/ds031/rsfmri/network_variance_allses_fixed.txt"
   	network_names=c('1_Default','2_Second_Visual','3_Frontal-Parietal','4.5_First_Visual_V1plus','5_First_Dorsal_Attention','6_Second_Dorsal_Attention','7_Ventral_Attention-Language','8_Salience','9_Cingulo-opercular','10_Somatomotor','11.5_Frontal-Parietal_Other','15_Parietal_Episodic_Retrieval','16_Parieto-Occipital')
   	} else {
