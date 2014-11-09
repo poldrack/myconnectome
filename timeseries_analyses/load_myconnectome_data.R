@@ -93,8 +93,8 @@ load_rnaseq_data = function(use_ME=TRUE,limit_ME_to_enriched=TRUE,scale=FALSE,va
 	
 	rnaseq.dat.me = read.table(me_file, na.strings='.', header=TRUE)
 	row.names(rnaseq.dat.me)=rna_subcodes
-	# these are the modules that are not enriched for at least one term at benjamini p < 0.5
-	unenriched=c('ME8','ME9','ME15','ME16','ME17','ME18','ME20','ME23','ME24','ME25','ME26','ME28','ME31','ME32','ME36','ME38')
+	# these are the modules that are not enriched for at least one term at benjamini p < 0.1
+	unenriched=c('ME3','ME6','ME8','ME9','ME10','ME15','ME16','ME17','ME19','ME20','ME23','ME24','ME25','ME26','ME27','ME28','ME31','ME32','ME36','ME38')
 	MEsubset=c()
 	for (i in 1:38) {
 		MEname=sprintf('ME%d',i)
