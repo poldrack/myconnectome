@@ -135,9 +135,18 @@ load_ImmPort_data = function(datefile='http://s3.amazonaws.com/openfmri/ds031/RN
 	return(clusterdata.dat)
 	}
 
-load_metab_data = function(use_clustered_data=TRUE,clust_file='http://s3.amazonaws.com/openfmri/ds031/metabolomics/apclust_eigenconcentrations.txt',exclude_unenriched=TRUE,clust_desc_file='http://s3.amazonaws.com/openfmri/ds031/metabolomics/apclust_descriptions.txt',logtransform=TRUE,exclude_unnamed=TRUE,infile='http://s3.amazonaws.com/openfmri/ds031/metabolomics/metabolomics.txt',labelfile='http://s3.amazonaws.com/openfmri/ds031/metabolomics/metabolomics_labels.txt',datefile='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/drawdates.txt',subcodes='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/pathsubs.txt') {
+load_metab_data = function(use_clustered_data=TRUE,
+                           clust_file='http://s3.amazonaws.com/openfmri/ds031/metabolomics/apclust_eigenconcentrations.txt',
+                           exclude_unenriched=TRUE,
+                           clust_desc_file='http://s3.amazonaws.com/openfmri/ds031/metabolomics/apclust_descriptions.txt',
+                           logtransform=TRUE,exclude_unnamed=TRUE,
+                           infile='http://s3.amazonaws.com/openfmri/ds031/metabolomics/metabolomics.txt',
+                           labelfile='http://s3.amazonaws.com/openfmri/ds031/metabolomics/metabolomics_labels.txt',
+                           datefile='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/drawdates.txt',
+                           subcodes='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/pathsubs.txt') {
 	
 	if (use_clustered_data) {
+    logtransform=FALSE  # because they were already transformed
 		labels=read.table(clust_desc_file,header=FALSE,sep='\t')$V1
 		metab.dat=read.table(clust_file)
 		names(metab.dat)=as.character(labels)
