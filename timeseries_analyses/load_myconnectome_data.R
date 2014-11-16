@@ -86,14 +86,14 @@ load_diary_data=function(infile='http://s3.amazonaws.com/openfmri/ds031/diary/te
 	}
 	
 	
-load_rnaseq_data = function(use_ME=TRUE,limit_ME_to_enriched=TRUE,scale=FALSE,varstab_file='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/varstab_data_rinregressed.txt',me_file='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/MEs-thr8-rinreg-48sess.txt',datefile='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/drawdates.txt') {
+load_rnaseq_data = function(use_ME=TRUE,limit_ME_to_enriched=FALSE,scale=FALSE,varstab_file='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/varstab_data_rinregressed.txt',me_file='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/MEs-thr8-rinreg-48sess.txt',datefile='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/drawdates.txt') {
 	rnaseq.dat.full= read.table(varstab_file, na.strings='.', header=TRUE)
 	rna_subcodes=names(rnaseq.dat.full)
 	rna_labels=row.names(rnaseq.dat.full)
 	
 	rnaseq.dat.me = read.table(me_file, na.strings='.', header=TRUE)
 	row.names(rnaseq.dat.me)=rna_subcodes
-	# these are the modules that are not enriched for at least one term at benjamini p < 0.1
+	# these are the modules that are not enriched for at least one pathway at benjamini p < 0.1
 	unenriched=c('ME3','ME6','ME8','ME9','ME10','ME15','ME16','ME17','ME19','ME20','ME23','ME24','ME25','ME26','ME27','ME28','ME31','ME32','ME36','ME38')
 	MEsubset=c()
 	for (i in 1:38) {
