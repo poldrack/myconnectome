@@ -42,9 +42,9 @@ This directory contains code used to run time series analyses comparing differen
 This directory contains code used to analyze the resting state fMRI data.
 
 
-### taskfmri_analyses 
+### metabolomic_analyses 
 
-This directory contains code used to analyze the task fMRI data.
+This directory contains code used to analyze the metabolomics data.
 
 ### rnaseq_analyses 
 
