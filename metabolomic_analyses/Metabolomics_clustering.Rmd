@@ -18,6 +18,7 @@ Load the data:
 ```{r}
 metab=load_metab_data(use_clustered_data=FALSE)
 metab$date=NULL
+metab=scale(metab)
 ```
 
 The annotation tool that we will use requires PubChem IDs, so load those:
@@ -62,14 +63,20 @@ if (save_data) {
 Compute eigenconcentrations for each cluster
 
 ```{r}
-# compute eigenconcentrations
 
 eigenconc=c()
+meanconc=c()
 for (c in 1:length(ap@clusters)) {
   print(c)
 	cdata=metab[,ap@clusters[[c]]]
-	pca=prcomp(t(cdata))
-	eigenconc=cbind(eigenconc,pca$rotation[,1])
+	pca=prcomp(cdata,retx=TRUE)
+  pc=pca$x[,1]
+  if (cor(pc,apply(cdata,1,mean)) < 0) {
+    pc=pc*-1
+  }
+	eigenconc=cbind(eigenconc,pc)
+  meanconc=cbind(meanconc,apply(cdata,1,mean))
+
 	}
 if (save_data) {
   write.table(eigenconc,'/Users/poldrack/Dropbox/data/selftracking/proteomics/apclust_eigenconcentrations.txt')
