@@ -14,13 +14,36 @@ library(forecast)
 library(knitr)
 source('http://s3.amazonaws.com/openfmri/ds031/timeseries_analyses/load_myconnectome_data.R')
 source('http://s3.amazonaws.com/openfmri/ds031/timeseries_analyses/est_bivariate_arima_model.R')
+
+save_latex=TRUE
 ```
 
 Make a wrapper for kable that can detect empty datasets
 
 ```{r}
-kable_wrap = function(data) {
+kable_wrap = function(data,fdr_thresh=0.1) {
+  data = data[data$pval_bh<fdr_thresh,]
   if (nrow(data)>0) {kable(data)} else {print('no significant results')}
+}
+
+
+kable_latex = function(data,varname,tabledir='/Users/poldrack/Dropbox/Documents/Papers/SelfTracking/timeseries_analysis_tables') {
+    if (nrow(data) > 30) {lt=TRUE} else {lt=FALSE}
+    k=kable(data,format='latex',longtable=lt,digits=3,row.names=FALSE)
+    write(k,file=sprintf('%s/%s_timeseries_stats.tex',tabledir,varname))
+}
+
+output_results=function(d,vnames,fdr_thresh=0.1,save_latex=TRUE,save_table=TRUE,OUTPUT_DIR='/tmp') {
+  vname=sprintf('%s_%s',vnames[1],vnames[2])
+  ds=d[d$pval_bh<fdr_thresh,]
+  ds=subset(ds,select=c(xvar,yvar,cor.val,t.arima,pval_bh,nobs))
+  names(ds)=c(sprintf("X:%s",vnames[1]),sprintf("Y:%s",vnames[2]),'r','t','p (BH)','N')
+  if (save_table) {
+    write.table(d,file=paste(OUTPUT_DIR,sprintf('out.dat.%s.txt',vname),sep='/'))
+  }
+  if (save_latex) {
+    kable_latex(ds,vname)
+  }
 }
 ```
 If you would like your results to be put into a specific place, then set the variable OUTPUT_DIR to that value.  This puts them in a specific place on my computer.
@@ -53,11 +76,22 @@ Load all of the relevant data
 ```{r message=FALSE,warning=FALSE,error=FALSE}
 behav=load_behav_data()
 wincorr=load_fmri_data('wincorr')
+bwcorr=load_fmri_data('bwcorr')
+
+
 fd=load_fd_data()
 food=load_food_data()
-rnaseq_wgcna=load_rnaseq_data(limit_ME_to_enriched=TRUE)
+rnaseq_wgcna=load_rnaseq_data(limit_ME_to_enriched=FALSE)
 metab=load_metab_data()
-metab_full=load_metab_data(use_clustered_data=FALSE)
+data_names=c()
+for (i in 1:(dim(metab)[2]-1)) {
+    data_names=rbind(data_names,sprintf('C%d:%s',i,names(metab)[i]))
+  	}
+data_names=rbind(data_names,'date')
+names(metab)=data_names
+
+
+fullmetab=load_metab_data(use_clustered_data=FALSE)
 
 immport=load_ImmPort_data()
 
@@ -66,10 +100,10 @@ immport=load_ImmPort_data()
 Create the subset of data that we are interested in for the behavioral analysis - generate a version without the tuesday/thursday variable for use with the blood data (which are only on tuesdays)
 
 ```{r}
-xvars=c('panas.positive','panas.negative','panas.fatigue','afterscan.Anxietyduringscan','afterscan.diastolic','afterscan.pulse','afterscan.systolic','morning.Sleepquality','morning.Soreness','prevevening.Alcohol','prevevening.Guthealth','prevevening.Psoriasisseverity','prevevening.Stress', 'prevevening.Timespentoutdoors','tu_th', 'temp.mean',"email.LIWC_CDI","email.LIWC_negemo","email.LIWC_posemo",'zeo.zq')
+xvars=c('panas.positive','panas.negative','panas.fatigue','afterscan.Anxietyduringscan','afterscan.diastolic','afterscan.pulse','afterscan.systolic','morning.Sleepquality','morning.Soreness','prevevening.Alcohol','prevevening.Guthealth','prevevening.Psoriasisseverity','prevevening.Stress', 'prevevening.Timespentoutdoors','TuesThurs', 'temp.mean',"email.LIWCcdi","email.LIWCnegemo","email.LIWCposemo",'zeo.zq')
 
 behav_keep=subset(behav,select=c(xvars,'date'))
-behav_keep_no_tth=subset(behav_keep,select=-tu_th)
+behav_keep_no_tth=subset(behav_keep,select=-TuesThurs)
 ```
 
 ## Run regression models
@@ -82,8 +116,6 @@ fdr_thresh=0.1
 ```
 
 ####Behavioral variables vs. each other:
-out.dat.behav_behav=read.table(paste(OUTPUT_DIR,'out.dat.behav_behav.txt',sep='/'))
-
 
 ```{r message=FALSE,warning=FALSE,error=FALSE}
 
@@ -92,8 +124,12 @@ out.dat.behav_behav=est_bivariate_arima_model(behav_keep, behav_keep,spacing='1 
 ```
 
 ```{r  results="asis"}
-kable_wrap(out.dat.behav_behav[out.dat.behav_behav$pval_bh<fdr_thresh,])
-write.table(out.dat.behav_behav,file=paste(OUTPUT_DIR,'out.dat.behav_behav.txt',sep='/'))
+d=out.dat.behav_behav
+vnames=c('behav','behav')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
 ```
 
 ####Within-module connectivity vs. behavior
@@ -103,9 +139,29 @@ out.dat.wincorr_behav=est_bivariate_arima_model(wincorr,behav_keep)
 ```
 
 ```{r  results="asis"}
-kable_wrap(out.dat.wincorr_behav[out.dat.wincorr_behav$pval_bh<fdr_thresh,])
-write.table(out.dat.wincorr_behav,file=paste(OUTPUT_DIR,'out.dat.wincorr_behav.txt',sep='/'))
+d=out.dat.wincorr_behav
+vnames=c('wincorr','behav')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
 ```
+
+####Between-module connectivity vs. behavior
+
+```{r message=FALSE,warning=FALSE,error=FALSE}
+out.dat.bwcorr_behav=est_bivariate_arima_model(bwcorr,behav_keep)
+```
+
+```{r  results="asis"}
+d=out.dat.bwcorr_behav
+vnames=c('bwcorr','behav')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
 
 ####Behavior vs. RNA-seq:
 
@@ -116,8 +172,12 @@ out.dat.wgcna_behav=est_bivariate_arima_model(rnaseq_wgcna,behav_keep_no_tth,spa
 
 
 ```{r  results="asis"}
-kable_wrap(out.dat.wgcna_behav[out.dat.wgcna_behav$pval_bh<fdr_thresh,])
-write.table(out.dat.wgcna_behav,file=paste(OUTPUT_DIR,'out.dat.wgcna_behav.txt',sep='/'))
+d=out.dat.wgcna_behav
+vnames=c('wgcna','behav')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
 
 ```
 
@@ -128,9 +188,29 @@ out.dat.wgcna_wincorr=est_bivariate_arima_model(rnaseq_wgcna,wincorr,spacing='1 
 ```
 
 ```{r  results="asis"}
-kable_wrap(out.dat.wgcna_wincorr[out.dat.wgcna_wincorr$pval_bh<fdr_thresh,])
-write.table(out.dat.wgcna_wincorr,file=paste(OUTPUT_DIR,'out.dat.wgcna_wincorr.txt',sep='/'))
+d=out.dat.wgcna_wincorr
+vnames=c('wgcna','wincorr')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
 ```
+
+#### Between-module connectivity vs. RNA-seq
+```{r message=FALSE,warning=FALSE,error=FALSE}
+
+out.dat.wgcna_bwcorr=est_bivariate_arima_model(rnaseq_wgcna,bwcorr,spacing='1 week')
+```
+
+```{r  results="asis"}
+d=out.dat.wgcna_bwcorr
+vnames=c('wgcna','bwcorr')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
 
 
 ####ImmPort immune genes vs behavior
@@ -141,8 +221,12 @@ out.dat.immport_behav=est_bivariate_arima_model(immport,behav_keep_no_tth,spacin
 ```
 
 ```{r  results="asis"}
-kable_wrap(out.dat.immport_behav[out.dat.immport_behav$pval_bh<fdr_thresh,])
-write.table(out.dat.immport_behav,file=paste(OUTPUT_DIR,'out.dat.immport_behav.txt',sep='/'))
+d=out.dat.immport_behav
+vnames=c('immport','behav')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
 ```
 
 ####ImmPort immune genes vs within-module connectivity
@@ -153,8 +237,12 @@ out.dat.immport_wincorr=est_bivariate_arima_model(immport,wincorr,spacing='1 wee
 ```
 
 ```{r  results="asis"}
-kable_wrap(out.dat.immport_wincorr[out.dat.immport_wincorr$pval_bh<fdr_thresh,])
-write.table(out.dat.immport_wincorr,file=paste(OUTPUT_DIR,'out.dat.immport_wincorr.txt',sep='/'))
+d=out.dat.immport_wincorr
+vnames=c('immport','wincorr')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
 ```
 
 ####ImmPort immune genes vs food
@@ -164,8 +252,12 @@ out.dat.food_immport=est_bivariate_arima_model(food,immport,spacing='1 week')
 ```
 
 ```{r  results="asis"}
-kable_wrap(out.dat.food_immport[out.dat.food_immport$pval_bh<fdr_thresh,])
-write.table(out.dat.food_immport,file=paste(OUTPUT_DIR,'out.dat.food_immport.txt',sep='/'))
+d=out.dat.food_immport
+vnames=c('food','immport')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
 ```
 
 ####ImmPort immune genes vs metabolism
@@ -175,19 +267,27 @@ out.dat.immport_metab=est_bivariate_arima_model(immport,metab,spacing='1 week')
 ```
 
 ```{r  results="asis"}
-kable_wrap(out.dat.immport_metab[out.dat.immport_metab$pval_bh<fdr_thresh,])
-write.table(out.dat.immport_metab,file=paste(OUTPUT_DIR,'out.dat.immport_metab.txt',sep='/'))
+d=out.dat.immport_metab
+vnames=c('immport','metab')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
 ```
 
 ####ImmPort immune genes vs metabolism (full set)
 ```{r message=FALSE,warning=FALSE,error=FALSE}
 
-out.dat.immport_metab_full=est_bivariate_arima_model(immport,metab_full,spacing='1 week')
+out.dat.immport_fullmetab=est_bivariate_arima_model(immport,fullmetab,spacing='1 week')
 ```
 
 ```{r  results="asis"}
-kable_wrap(out.dat.immport_metab_full[out.dat.immport_metab_full$pval_bh<fdr_thresh,])
-write.table(out.dat.immport_metab_full,file=paste(OUTPUT_DIR,'out.dat.immport_metabfull.txt',sep='/'))
+d=out.dat.immport_fullmetab
+vnames=c('immport','fullmetab')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
 ```
 
 
@@ -200,20 +300,28 @@ out.dat.food_metab=est_bivariate_arima_model(food,metab,spacing='1 week')
 ```
 
 ```{r  results="asis"}
-kable_wrap(out.dat.food_metab[out.dat.food_metab$pval_bh<fdr_thresh,])
-write.table(out.dat.food_metab,file=paste(OUTPUT_DIR,'out.dat.food_metab.txt',sep='/'))
+d=out.dat.food_metab
+vnames=c('food','metab')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
 ```
 
 #### food vs. metabolism (individual metabolites)
 note: food needs to be X variable because auto.arima doesn't handle binary Y variable
 ```{r message=FALSE,warning=FALSE,error=FALSE}
 
-out.dat.food_metab_full=est_bivariate_arima_model(food,metab_full,spacing='1 week')
+out.dat.food_fullmetab=est_bivariate_arima_model(food,fullmetab,spacing='1 week')
 ```
 
 ```{r  results="asis"}
-kable_wrap(out.dat.food_metab_full[out.dat.food_metab_full$pval_bh<fdr_thresh,])
-write.table(out.dat.food_metab_full,file=paste(OUTPUT_DIR,'out.dat.food_metabfull.txt',sep='/'))
+d=out.dat.food_fullmetab
+vnames=c('food','fullmetab')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
 ```
 
 
@@ -224,19 +332,27 @@ out.dat.behav_metab=est_bivariate_arima_model(behav_keep_no_tth,metab,spacing='1
 ```
 
 ```{r  results="asis"}
-kable_wrap(out.dat.behav_metab[out.dat.behav_metab$pval_bh<fdr_thresh,])
-write.table(out.dat.behav_metab,file=paste(OUTPUT_DIR,'out.dat.behav_metab.txt',sep='/'))
+d=out.dat.behav_metab
+vnames=c('behav','metab')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
 ```
 
 #### behav vs. metabolsm (full set)
 ```{r message=FALSE,warning=FALSE,error=FALSE}
 
-out.dat.behav_metab_full=est_bivariate_arima_model(behav_keep_no_tth,metab_full,spacing='1 week')
+out.dat.behav_fullmetab=est_bivariate_arima_model(behav_keep_no_tth,fullmetab,spacing='1 week')
 ```
 
 ```{r  results="asis"}
-kable_wrap(out.dat.behav_metab_full[out.dat.behav_metab_full$pval_bh<fdr_thresh,])
-write.table(out.dat.behav_metab_full,file=paste(OUTPUT_DIR,'out.dat.behav_metabfull.txt',sep='/'))
+d=out.dat.behav_fullmetab
+vnames=c('behav','fullmetab')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
 ```
 
 
@@ -247,19 +363,27 @@ out.dat.metab_wincorr=est_bivariate_arima_model(metab,wincorr,spacing='1 week')
 ```
 
 ```{r  results="asis"}
-kable_wrap(out.dat.metab_wincorr[out.dat.metab_wincorr$pval_bh<fdr_thresh,])
-write.table(out.dat.metab_wincorr,file=paste(OUTPUT_DIR,'out.dat.metab_wincorr.txt',sep='/'))
+d=out.dat.metab_wincorr
+vnames=c('metab','wincorr')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
 ```
 
 ####metabolism vs. within-network connectivity (full set of metabolites)
 ```{r message=FALSE,warning=FALSE,error=FALSE}
 
-out.dat.metab_full_wincorr=est_bivariate_arima_model(metab_full,wincorr,spacing='1 week')
+out.dat.fullmetab_wincorr=est_bivariate_arima_model(fullmetab,wincorr,spacing='1 week')
 ```
 
 ```{r  results="asis"}
-kable_wrap(out.dat.metab_full_wincorr[out.dat.metab_full_wincorr$pval_bh<fdr_thresh,])
-write.table(out.dat.metab_full_wincorr,file=paste(OUTPUT_DIR,'out.dat.metabfull_wincorr.txt',sep='/'))
+d=out.dat.fullmetab_wincorr
+vnames=c('fullmetab','wincorr')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
 ```
 
 
@@ -271,8 +395,12 @@ out.dat.wincorr_wincorr=est_bivariate_arima_model(wincorr,wincorr,skip_ident=TRU
 ```
 
 ```{r  results="asis"}
-kable_wrap(out.dat.wincorr_wincorr[out.dat.wincorr_wincorr$pval_bh<fdr_thresh,])
-write.table(out.dat.wincorr_wincorr,file=paste(OUTPUT_DIR,'out.dat.wincorr_wincorr.txt',sep='/'))
+d=out.dat.wincorr_wincorr
+vnames=c('wincorr','wincorr')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
 ```
 
 
@@ -284,8 +412,12 @@ out.dat.food_wincorr=est_bivariate_arima_model(food,wincorr)
 ```
 
 ```{r  results="asis"}
-kable_wrap(out.dat.food_wincorr[out.dat.food_wincorr$pval_bh<fdr_thresh,])
-write.table(out.dat.food_wincorr,file=paste(OUTPUT_DIR,'out.dat.food_wincorr.txt',sep='/'))
+d=out.dat.food_wincorr
+vnames=c('food','wincorr')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
 ```
 
 #### food vs. behavior
@@ -300,8 +432,12 @@ out.dat.food_behav=est_bivariate_arima_model(food,behav_keep_no_tth)
 ```
 
 ```{r  results="asis"}
-kable_wrap(out.dat.food_behav[out.dat.food_behav$pval_bh<fdr_thresh,])
-write.table(out.dat.food_behav,file=paste(OUTPUT_DIR,'out.dat.food_behav.txt',sep='/'))
+d=out.dat.food_behav
+vnames=c('food','behav')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
 ```
 
 #### compare head motion to other measures
@@ -311,8 +447,12 @@ out.dat.fd.behav=est_bivariate_arima_model(fd,behav_keep)
 ```
 
 ```{r  results="asis"}
-kable_wrap(out.dat.fd.behav[out.dat.fd.behav$pval_bh<fdr_thresh,])
-write.table(out.dat.fd.behav,file=paste(OUTPUT_DIR,'out.dat.fd_behav.txt',sep='/'))
+d=out.dat.fd_behav
+vnames=c('fd','behav')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
 ```
 
 ```{r message=FALSE,warning=FALSE,error=FALSE}
@@ -321,9 +461,12 @@ out.dat.fd.rnaseq=est_bivariate_arima_model(fd,rnaseq_wgcna,spacing='1 week')
 ```
 
 ```{r  results="asis"}
-kable_wrap(out.dat.fd.rnaseq[out.dat.fd.rnaseq$pval_bh<fdr_thresh,])
+d=out.dat.fd_rnaseq
+vnames=c('fd','wgcna')
 
-write.table(out.dat.fd.behav,file=paste(OUTPUT_DIR,'out.dat.fd_wgcna.txt',sep='/'))
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
 ```
 
 ```{r message=FALSE,warning=FALSE,error=FALSE}
@@ -332,8 +475,12 @@ out.dat.fd.metab=est_bivariate_arima_model(fd,metab,spacing='1 week')
 ```
 
 ```{r  results="asis"}
-kable_wrap(out.dat.fd.metab[out.dat.fd.metab$pval_bh<fdr_thresh,])
-write.table(out.dat.fd.behav,file=paste(OUTPUT_DIR,'out.dat.fd_metab.txt',sep='/'))
+d=out.dat.fd_metab
+vnames=c('fd','metab')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
 ```
 
 ```{r message=FALSE,warning=FALSE,error=FALSE}
@@ -342,8 +489,12 @@ out.dat.fd.wincorr=est_bivariate_arima_model(fd,wincorr)
 ```
 
 ```{r  results="asis"}
-kable_wrap(out.dat.fd.wincorr[out.dat.fd.wincorr$pval_bh<fdr_thresh,])
-write.table(out.dat.fd.wincorr,file=paste(OUTPUT_DIR,'out.dat.fd_wincorr.txt',sep='/'))
+d=out.dat.fd_wincorr
+vnames=c('fd','wincorr')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
 ```
 
 
@@ -356,8 +507,12 @@ out.dat.wgcna_wgcna=est_bivariate_arima_model(rnaseq_wgcna, rnaseq_wgcna,spacing
 ```
 
 ```{r  results="asis"}
-kable_wrap(out.dat.wgcna_wgcna[out.dat.wgcna_wgcna$pval_bh<fdr_thresh,])
-write.table(out.dat.wgcna_wgcna,file=paste(OUTPUT_DIR,'out.dat.wgcna_wgcna.txt',sep='/'))
+d=out.dat.wgcna_wgcna
+vnames=c('wgcna','wgcna')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
 ```
 
 #### RNA-seq vs. metabolism
@@ -367,19 +522,27 @@ out.dat.wgcna_metab=est_bivariate_arima_model(rnaseq_wgcna,metab,spacing='1 week
 ```
 
 ```{r  results="asis"}
-kable_wrap(out.dat.wgcna_metab[out.dat.wgcna_metab$pval_bh<fdr_thresh,])
-write.table(out.dat.wgcna_metab,file=paste(OUTPUT_DIR,'out.dat.wgcna_metab.txt',sep='/'))
+d=out.dat.wgcna_metab
+vnames=c('wgcna','metab')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
 ```
 
 #### RNA-seq vs. metabolism (full set)
 ```{r message=FALSE,warning=FALSE,error=FALSE}
 
-out.dat.wgcna_metab_full=est_bivariate_arima_model(rnaseq_wgcna,metab_full,spacing='1 week')
+out.dat.wgcna_fullmetab=est_bivariate_arima_model(rnaseq_wgcna,fullmetab,spacing='1 week')
 ```
 
 ```{r  results="asis"}
-kable_wrap(out.dat.wgcna_metab_full[out.dat.wgcna_metab_full$pval_bh<fdr_thresh,])
-write.table(out.dat.wgcna_metab_full,file=paste(OUTPUT_DIR,'out.dat.wgcna_metabfull.txt',sep='/'))
+d=out.dat.wgcna_fullmetab
+vnames=c('wgcna','fullmetab')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
 ```
 
 
@@ -392,7 +555,11 @@ out.dat.wgcna_food=est_bivariate_arima_model(food,rnaseq_wgcna,spacing='1 week')
 ```
 
 ```{r  results="asis"}
-kable_wrap(out.dat.wgcna_food[out.dat.wgcna_food$pval_bh<fdr_thresh,])
-write.table(out.dat.wgcna_food,file=paste(OUTPUT_DIR,'out.dat.food_wgcna.txt',sep='/'))
+d=out.dat.wgcna_food
+vnames=c('wgcna','food')
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
 ```
 
