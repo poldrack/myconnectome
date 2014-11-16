@@ -60,15 +60,21 @@ load_behav_data = function (infile="http://s3.amazonaws.com/openfmri/ds031/behav
 	
 	behav$day_of_week2 = weekdays(as.Date(behav$date))
 	# Create indicator that where tu=0 and th = 1
-	behav$tu_th = rep(NA, length(behav$day_of_week2))
-	behav$tu_th[behav$day_of_week2 == "Tuesday"] = 0
-	behav$tu_th[behav$day_of_week2 == "Thursday"] = 1
+	behav$TuesThurs = rep(NA, length(behav$day_of_week2))
+	behav$TuesThurs[behav$day_of_week2 == "Tuesday"] = 0
+	behav$TuesThurs[behav$day_of_week2 == "Thursday"] = 1
 	# take mean temp
 	behav$"temp.mean"=(behav$'weather.temphi'+behav$'weather.templo')/2.0
 	
 	behav$prevevening.Timespentoutdoors = as.numeric(as.character(behav$prevevening.Timespentoutdoors))
 	
-	behav$date=as.Date(behav$date)
+  # remove underscores from names of LIWC variables - to prevent latex problems later
+	behav$email.LIWCcdi=behav$email.LIWC_CDI
+  behav$email.LIWCnegemo=behav$email.LIWC_negemo
+	behav$email.LIWCposemo=behav$email.LIWC_posemo
+	behav=subset(behav,select=-c(email.LIWC_CDI,email.LIWC_negemo,email.LIWC_posemo))
+	
+  behav$date=as.Date(behav$date)
 	return(behav)
 
 }
@@ -137,7 +143,7 @@ load_ImmPort_data = function(datefile='http://s3.amazonaws.com/openfmri/ds031/RN
 
 load_metab_data = function(use_clustered_data=TRUE,
                            clust_file='http://s3.amazonaws.com/openfmri/ds031/metabolomics/apclust_eigenconcentrations.txt',
-                           exclude_unenriched=TRUE,
+                           exclude_unenriched=FALSE,
                            clust_desc_file='http://s3.amazonaws.com/openfmri/ds031/metabolomics/apclust_descriptions.txt',
                            logtransform=TRUE,exclude_unnamed=TRUE,
                            infile='http://s3.amazonaws.com/openfmri/ds031/metabolomics/metabolomics.txt',
@@ -151,7 +157,7 @@ load_metab_data = function(use_clustered_data=TRUE,
 		metab.dat=read.table(clust_file)
 		names(metab.dat)=as.character(labels)
 		if (exclude_unenriched) {
-			# exclude those with FDR p<0.1
+			# exclude those with FDR p>0.1
 			metab.dat=subset(metab.dat,select=-c(1,3,6,7,12,14,15))
 			}
 		} else {
