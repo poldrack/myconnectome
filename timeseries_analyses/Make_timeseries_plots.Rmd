@@ -7,6 +7,7 @@ output: html_document
 
 This code generates timeseries plots for each variable, and performs a test for linear and polynomial trends.
 
+NB: 
 First load the relevant libraries and data.
 
 ```{r}
@@ -24,6 +25,9 @@ xvars=c('panas.positive','panas.negative','panas.fatigue','afterscan.Anxietyduri
 
 data=subset(data,select=c(xvars,'date'))
 
+save_latex=TRUE
+
+
 ```
 
 ## Behavioral variables
@@ -38,7 +42,6 @@ for (varnum in 1:(dim(data)[2]-1)) {
 	alldays_weekly=seq(min(data$date), max(data$date), by='1 week')
 	
 	x=get_x_ts(data,alldays,scale=FALSE)
-	x_scaled=get_x_ts(data,alldays,scale=TRUE)
 	spacing=60
 	labels=seq(from=as.Date(data$date[1]),to=as.Date(data$date[length(data$date)]),by=spacing)
 	x_ts=na.approx(zoo(x[,varnum]),maxgap=7)
@@ -54,20 +57,25 @@ for (varnum in 1:(dim(data)[2]-1)) {
 	s_lin=s_lin/max(s_lin)
 
 	# take weekly mean for auto.arima analysis, due to NAs
-	a=auto.arima(x_scaled[,varnum],xreg=cbind(s_poly,s_lin),allowdrift=FALSE)
+	a=auto.arima(x[,varnum],xreg=cbind(s_poly,s_lin),allowdrift=FALSE)
 	p=cwp(a)
 	poly.loc=which(names(data.frame(p)) == "s_poly")
 	lin.loc=which(names(data.frame(p)) == "s_lin")
-	pvals=rbind(pvals,c(p[4,poly.loc],p[4,lin.loc]))
+	pvals=rbind(pvals,c(mean(x_ts,na.rm=TRUE), var(a$residuals,na.rm=TRUE),p[4,lin.loc],p[4,poly.loc]))
 }
-p_fdr=p.adjust(pvals,method='BH')
+p_fdr=p.adjust(pvals[,3:4],method='BH')
 p_fdr=matrix(p_fdr,length(p_fdr)/2,2)
 
 pvals=as.data.frame(pvals)
-names(pvals)=c('poly','lin')
+pvals[,3:4]=p_fdr
+names(pvals)=c('mean','var(resid)','Linear trend (p-val)','Poly trend (p-val)')
 row.names(pvals)=names(data)[1:19]
 
 kable(pvals)
+if (save_latex) {
+  k=kable(pvals,format='latex')
+  write(k,file='/Users/poldrack/Dropbox/Documents/Papers/SelfTracking/timeseries_stats_tables/behav_timeseries_stats.tex')
+}
 ```
 
 #### Make plots
@@ -78,7 +86,6 @@ for (varnum in 1:(dim(data)[2]-1)) {
 	alldays_weekly=seq(min(data$date), max(data$date), by='1 week')
 	
 	x=get_x_ts(data,alldays,scale=FALSE)
-	x_scaled=get_x_ts(data,alldays,scale=TRUE)
 	spacing=60
 	labels=seq(from=as.Date(data$date[1]),to=as.Date(data$date[length(data$date)]),by=spacing)
 	x_ts=na.approx(zoo(x[,varnum]),maxgap=7,na.rm=FALSE)
@@ -95,7 +102,7 @@ for (varnum in 1:(dim(data)[2]-1)) {
 	axis(1,labels=FALSE,at=seq(from=start(x_interp)[1],to=end(x_interp)[1],by=spacing),xlab=FALSE)
 	offset=0.1*(max(x_ts,na.rm=TRUE)-min(x_ts,na.rm=TRUE))
 	text(seq(from=start(x_interp)[1],to=end(x_interp)[1],by=spacing), par("usr")[3] - offset, labels = labels, srt = 45,adj=0.9, xpd = TRUE)
-	title(sprintf('%s - lin p = %0.3f, poly p=%0.3f',names(data)[varnum],p_fdr[varnum,2],p_fdr[varnum,1]))	
+	title(sprintf('%s - lin p = %0.3f, poly p=%0.3f',names(data)[varnum],p_fdr[varnum,1],p_fdr[varnum,2]))	
 }
 ```
 
@@ -114,7 +121,6 @@ for (varnum in 1:(dim(data)[2]-1)) {
 	alldays_weekly=seq(min(data$date), max(data$date), by='1 week')
 	
 	x=get_x_ts(data,alldays,scale=FALSE)
-	x_scaled=get_x_ts(data,alldays,scale=TRUE)
 	spacing=60
 	labels=seq(from=as.Date(data$date[1]),to=as.Date(data$date[length(data$date)]),by=spacing)
 	x_ts=na.approx(zoo(x[,varnum]),maxgap=7)
@@ -129,20 +135,27 @@ for (varnum in 1:(dim(data)[2]-1)) {
 	s_lin=s_lin/max(s_lin)
 	
 	# take weekly mean for auto.arima analysis, due to NAs
-	a=auto.arima(x_scaled[,varnum],xreg=cbind(s_poly,s_lin),allowdrift=FALSE)
+	a=auto.arima(x[,varnum],xreg=cbind(s_poly,s_lin),allowdrift=FALSE)
 	p=cwp(a)
 	poly.loc=which(names(data.frame(p)) == "s_poly")
 	lin.loc=which(names(data.frame(p)) == "s_lin")
-	pvals=rbind(pvals,c(p[4,poly.loc],p[4,lin.loc]))
+	pvals=rbind(pvals,c(mean(x_ts,na.rm=TRUE), var(a$residuals,na.rm=TRUE),p[4,lin.loc],p[4,poly.loc]))
 }
-p_fdr=p.adjust(pvals,method='BH')
+p_fdr=p.adjust(pvals[,3:4],method='BH')
 p_fdr=matrix(p_fdr,length(p_fdr)/2,2)
 
 pvals=as.data.frame(pvals)
-names(pvals)=c('poly','lin')
+pvals[,3:4]=p_fdr
+names(pvals)=c('mean','var(resid)','Linear trend (p-val)','Poly trend (p-val)')
 row.names(pvals)=names(data)[1:13]
 
 kable(pvals)
+if (save_latex) {
+  k=kable(pvals,format='latex')
+  write(k,file='/Users/poldrack/Dropbox/Documents/Papers/SelfTracking/timeseries_stats_tables/wincorr_timeseries_stats.tex')
+}
+
+
 ```
 
 #### now make plots
@@ -153,7 +166,6 @@ for (varnum in 1:(dim(data)[2]-1)) {
 	alldays_weekly=seq(min(data$date), max(data$date), by='1 week')
 	
 	x=get_x_ts(data,alldays,scale=FALSE)
-	x_scaled=get_x_ts(data,alldays,scale=TRUE)
 	spacing=60
 	labels=seq(from=as.Date(data$date[1]),to=as.Date(data$date[length(data$date)]),by=spacing)
 	x_ts=na.approx(zoo(x[,varnum]),maxgap=7)
@@ -169,7 +181,7 @@ for (varnum in 1:(dim(data)[2]-1)) {
 	axis(1,labels=FALSE,at=seq(from=start(x_interp)[1],to=end(x_interp)[1],by=spacing),xlab=FALSE)
 	offset=0.1*(max(x_ts,na.rm=TRUE)-min(x_ts,na.rm=TRUE))
 	text(seq(from=start(x_interp)[1],to=end(x_interp)[1],by=spacing), par("usr")[3] - offset, labels = labels, srt = 45,adj=0.9, xpd = TRUE)
-	title(sprintf('%s - lin p = %0.3f, poly p=%0.3f',names(data)[varnum],p_fdr[varnum,2],p_fdr[varnum,1]))
+	title(sprintf('%s - lin p = %0.3f, poly p=%0.3f',names(data)[varnum],p_fdr[varnum,1],p_fdr[varnum,2]))
 }
 ```
 
@@ -195,7 +207,6 @@ for (varnum in 1:(dim(data)[2]-1)) {
 	alldays = seq(min(data$date), max(data$date), by='1 week')
 	
 	x=get_x_ts(data,alldays,scale=FALSE)
-	x_scaled=get_x_ts(data,alldays,scale=TRUE)
 	spacing=60
 	labels=seq(from=as.Date(data$date[1]),to=as.Date(data$date[length(data$date)]),by=spacing)
 	x_ts=zoo(x[,varnum])
@@ -211,23 +222,32 @@ for (varnum in 1:(dim(data)[2]-1)) {
 	s_lin=as.numeric(alldays) - mean(as.numeric(alldays))
 	s_lin=s_lin/max(s_lin)
 	
-	a=auto.arima(x_scaled[,varnum],xreg=cbind(s_poly,s_lin),allowdrift=FALSE)
+	a=auto.arima(x[,varnum],xreg=cbind(s_poly,s_lin),allowdrift=FALSE)
 	p=cwp(a)
 	poly.loc=which(names(data.frame(p)) == "s_poly")
 	lin.loc=which(names(data.frame(p)) == "s_lin")
-	pvals=rbind(pvals,c(p[4,poly.loc],p[4,lin.loc]))
+	pvals=rbind(pvals,c(mean(x_ts,na.rm=TRUE), var(a$residuals,na.rm=TRUE),p[4,lin.loc],p[4,poly.loc]))
 
 }
 
-p_fdr=p.adjust(pvals,method='BH')
+p_fdr=p.adjust(pvals[,3:4],method='BH')
 p_fdr=matrix(p_fdr,length(p_fdr)/2,2)
 
 pvals=as.data.frame(pvals)
-names(pvals)=c('poly','lin')
+pvals[,3:4]=p_fdr
+names(pvals)=c('mean','var(resid)','Linear trend (p-val)','Poly trend (p-val)')
+
+
 row.names(pvals)=names(data)[1:dim(pvals)[1]]
 
 
 kable(pvals)
+if (save_latex) {
+  k=kable(pvals,format='latex')
+  write(k,file='/Users/poldrack/Dropbox/Documents/Papers/SelfTracking/timeseries_stats_tables/wgcna_timeseries_stats.tex')
+}
+
+
 
 ```
 
@@ -238,7 +258,6 @@ for (varnum in 1:(dim(data)[2]-1)) {
 	alldays = seq(min(data$date), max(data$date), by='1 week')
 	
 	x=get_x_ts(data,alldays,scale=FALSE)
-	x_scaled=get_x_ts(data,alldays,scale=TRUE)
 	spacing=60
 	labels=seq(from=as.Date(data$date[1]),to=as.Date(data$date[length(data$date)]),by=spacing)
 	x_ts=zoo(x[,varnum])
@@ -256,7 +275,7 @@ for (varnum in 1:(dim(data)[2]-1)) {
 	axis(1,labels=FALSE,at=seq(from=start(x_interp)[1],to=end(x_interp)[1],by=spacing),xlab=FALSE)
 	offset=0.1*(max(x_ts,na.rm=TRUE)-min(x_ts,na.rm=TRUE))
 	text(seq(from=start(x_interp)[1],to=end(x_interp)[1],by=spacing), par("usr")[3] - offset, labels = labels, srt = 45,adj=0.9, xpd = TRUE)
-	title(sprintf('%s - lin p = %0.3f, poly p=%0.3f',names(data)[varnum],p_fdr[varnum,2],p_fdr[varnum,1]))
+	title(sprintf('%s - lin p = %0.3f, poly p=%0.3f',names(data)[varnum],p_fdr[varnum,1],p_fdr[varnum,2]))
 }
 
 ```
@@ -270,6 +289,14 @@ for (varnum in 1:(dim(data)[2]-1)) {
 data=load_metab_data() 
 varname='Metabolite eigenconcentration'
 sample_spacing=7
+
+data_names=c()
+for (i in 1:(dim(data)[2]-1)) {
+    data_names=rbind(data_names,sprintf('C%d:%s',i,names(data)[i]))
+		}
+data_names=rbind(data_names,'date')
+names(data)=data_names
+
 
 
 pvals=c()
@@ -285,7 +312,6 @@ for (varnum in 1:(dim(data)[2]-1)) {
 
 	
 	x=get_x_ts(data,alldays,scale=FALSE)
-	x_scaled=get_x_ts(data,alldays,scale=TRUE)
 	spacing=60
 	labels=seq(from=as.Date(data$date[1]),to=as.Date(data$date[length(data$date)]),by=spacing)
 	x_ts=zoo(x[,varnum])
@@ -301,21 +327,30 @@ for (varnum in 1:(dim(data)[2]-1)) {
 	s_lin=as.numeric(alldays) - mean(as.numeric(alldays))
 	s_lin=s_lin/max(s_lin)
 	
-	a=auto.arima(x_scaled[,varnum],allowdrift=FALSE, xreg=cbind(s_poly,s_lin))
+	a=auto.arima(x[,varnum],allowdrift=FALSE, xreg=cbind(s_poly,s_lin))
 	p=cwp(a)
 	poly.loc=which(names(data.frame(p)) == "s_poly")
 	lin.loc=which(names(data.frame(p)) == "s_lin")
-	pvals=rbind(pvals,c(p[4,poly.loc],p[4,lin.loc]))
+	pvals=rbind(pvals,c(mean(x_ts,na.rm=TRUE), var(a$residuals,na.rm=TRUE),p[4,lin.loc],p[4,poly.loc]))
 }
 
-p_fdr=p.adjust(pvals,method='BH')
+p_fdr=p.adjust(pvals[,3:4],method='BH')
 p_fdr=matrix(p_fdr,length(p_fdr)/2,2)
 
 pvals=as.data.frame(pvals)
-names(pvals)=c('poly','lin')
+pvals[,3:4]=p_fdr
+names(pvals)=c('mean','var(resid)','Linear trend (p-val)','Poly trend (p-val)')
+
+
 row.names(pvals)=names(data)[1:dim(pvals)[1]]
 
 kable(pvals)
+if (save_latex) {
+  k=kable(pvals,format='latex')
+  write(k,file='/Users/poldrack/Dropbox/Documents/Papers/SelfTracking/timeseries_stats_tables/metab_timeseries_stats.tex')
+}
+
+
 ```
 
 #### Make plots
@@ -324,7 +359,6 @@ kable(pvals)
 for (varnum in 1:(dim(data)[2]-1)) {
 	
 	x=get_x_ts(data,alldays,scale=FALSE)
-	x_scaled=get_x_ts(data,alldays,scale=TRUE)
 	spacing=60
 	labels=seq(from=as.Date(data$date[1]),to=as.Date(data$date[length(data$date)]),by=spacing)
 	x_ts=zoo(x[,varnum])
@@ -342,7 +376,7 @@ for (varnum in 1:(dim(data)[2]-1)) {
 	axis(1,labels=FALSE,at=seq(from=start(x_interp)[1],to=end(x_interp)[1],by=spacing),xlab=FALSE)
 	offset=0.1*(max(x_ts,na.rm=TRUE)-min(x_ts,na.rm=TRUE))
 	text(seq(from=start(x_interp)[1],to=end(x_interp)[1],by=spacing), par("usr")[3] - offset, labels = labels, srt = 45,adj=0.9, xpd = TRUE)
-	title(sprintf('%s - lin p = %0.3f, poly p=%0.3f',names(data)[varnum],p_fdr[varnum,2],p_fdr[varnum,1]))
+	title(sprintf('%s - lin p = %0.3f, poly p=%0.3f',names(data)[varnum],p_fdr[varnum,1],p_fdr[varnum,2]))
 }
 
 
@@ -363,7 +397,6 @@ for (varnum in 1:(dim(data)[2]-1)) {
 	alldays = seq(min(data$date), max(data$date), by='1 week')
 	
 	x=get_x_ts(data,alldays,scale=FALSE)
-	x_scaled=get_x_ts(data,alldays,scale=TRUE)
 	spacing=60
 	labels=seq(from=as.Date(data$date[1]),to=as.Date(data$date[length(data$date)]),by=spacing)
 	x_ts=zoo(x[,varnum])
@@ -379,22 +412,30 @@ for (varnum in 1:(dim(data)[2]-1)) {
 	s_lin=as.numeric(alldays) - mean(as.numeric(alldays))
 	s_lin=s_lin/max(s_lin)
 	
-	a=auto.arima(x_scaled[,varnum],xreg=cbind(s_poly,s_lin),allowdrift=FALSE)
+	a=auto.arima(x[,varnum],xreg=cbind(s_poly,s_lin),allowdrift=FALSE)
 	p=cwp(a)
 	poly.loc=which(names(data.frame(p)) == "s_poly")
 	lin.loc=which(names(data.frame(p)) == "s_lin")
-	pvals=rbind(pvals,c(p[4,poly.loc],p[4,lin.loc]))
+	pvals=rbind(pvals,c(mean(x_ts,na.rm=TRUE), var(a$residuals,na.rm=TRUE),p[4,lin.loc],p[4,poly.loc]))
 
 }
 
-p_fdr=p.adjust(pvals,method='BH')
+p_fdr=p.adjust(pvals[,3:4],method='BH')
 p_fdr=matrix(p_fdr,length(p_fdr)/2,2)
 
 pvals=as.data.frame(pvals)
-names(pvals)=c('poly','lin')
+pvals[,3:4]=p_fdr
+names(pvals)=c('mean','var(resid)','Linear trend (p-val)','Poly trend (p-val)')
+
 row.names(pvals)=names(data)[1:15]
 
 kable(pvals)
+if (save_latex) {
+  k=kable(pvals,format='latex')
+  write(k,file='/Users/poldrack/Dropbox/Documents/Papers/SelfTracking/timeseries_stats_tables/immport_timeseries_stats.tex')
+}
+
+
 ```
 
 #### Make plots
@@ -406,7 +447,6 @@ for (varnum in 1:(dim(data)[2]-1)) {
 	alldays = seq(min(data$date), max(data$date), by='1 week')
 	
 	x=get_x_ts(data,alldays,scale=FALSE)
-	x_scaled=get_x_ts(data,alldays,scale=TRUE)
 	spacing=60
 	labels=seq(from=as.Date(data$date[1]),to=as.Date(data$date[length(data$date)]),by=spacing)
 	x_ts=zoo(x[,varnum])
@@ -424,7 +464,7 @@ for (varnum in 1:(dim(data)[2]-1)) {
 	axis(1,labels=FALSE,at=seq(from=start(x_interp)[1],to=end(x_interp)[1],by=spacing),xlab=FALSE)
 	offset=0.1*(max(x_ts,na.rm=TRUE)-min(x_ts,na.rm=TRUE))
 	text(seq(from=start(x_interp)[1],to=end(x_interp)[1],by=spacing), par("usr")[3] - offset, labels = labels, srt = 45,adj=0.9, xpd = TRUE)
-	title(sprintf('%s - lin p = %0.3f, poly p=%0.3f',names(data)[varnum],p_fdr[varnum,2],p_fdr[varnum,1]))
+	title(sprintf('%s - lin p = %0.3f, poly p=%0.3f',names(data)[varnum],p_fdr[varnum,1],p_fdr[varnum,2]))
 }
 
 
