@@ -1,0 +1,119 @@
+---
+title: "GOBS-MyConnectome Analysis"
+author: "Russ Poldrack"
+date: "November 18, 2014"
+output: html_document
+---
+
+Get the data:
+
+```{r}
+gobs=read.table('http://s3.amazonaws.com/openfmri/ds031/RNA-seq/GOBS_SOLAR_expression_results.csv',sep=',',header=TRUE)
+netcodes=as.character(unique(gobs[,1]))
+mecodes=as.character(unique(gobs[,2]))
+```
+
+Get data for networks that match to myconnectome:
+
+```{r}
+thresh=0.1
+
+gobs_match=c(5,7,8,12,11,9,3,1)
+
+gobs_p_mtx = matrix(data=NA,ncol=length(unique(gobs$trt2)),nrow=length(gobs_match))
+for (i in 1:length(netcodes)) {
+	for (j in 1:length(unique(gobs$trt2))) {
+		i_match=gobs_match[i]
+		data=subset(gobs,trt1==netcodes[i_match] & trt2==mecodes[j])
+		if (nrow(data)>0) {gobs_p_mtx[i,j]=data$RhoP_pval}
+		}
+	}
+gobs_p_mtx[is.na(gobs_p_mtx)]=1.0  
+gobs_bh_mtx=matrix(p.adjust(gobs_p_mtx,method='BH'),nrow=nrow(gobs_p_mtx),ncol=ncol(gobs_p_mtx))
+
+gobs_netnames=c('Sensorimotor-hand','Sensorimotor-mouth','Cingulo-opercular','Auditory','Default-mode','Memory-retrieval','Visual','Fronto-parietal','Salience','Subcortical','Ventral-attention','Dorsal-attention','Cerebellar')
+
+```
+
+Load myconnectome data
+```{r}
+wincorr.wgcna=read.table('/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.wgcna_wincorr.txt')
+myc_netnames=c("1:Default","2:Second Visual","3:Frontal-Parietal","4.5:First Visual","5:First Dorsal Attention","6:Second Dorsal Attention","7:Ventral Attention-Language","8:Salience","9:Cingulo-opercular","10:Somatomotor","11.5:Frontal-Parietal-Other","15:Parietal Episodic Retrieval","16:Parieto Occipital")
+wincorr.wgcna$yvar=as.character(wincorr.wgcna$yvar)
+wincorr.wgcna$xvar=as.character(wincorr.wgcna$xvar)
+
+myc_match=c(1,2,3,5,7,8,9,10)
+
+mecodes_upper=unique(wincorr.wgcna$xvar)
+
+myc_p_mtx=matrix(data=NA,nrow=length(myc_match),ncol=length(mecodes))
+
+for (n in 1:length(myc_match)) {
+	for (p in 1:length(mecodes_upper)) {
+		n_match=myc_match[n]
+		tmp=as.numeric(wincorr.wgcna[wincorr.wgcna$xvar==mecodes_upper[p] & wincorr.wgcna$yvar==myc_netnames[n_match],])
+		myc_p_mtx[n,p]=as.numeric(tmp[5])
+		}
+	}
+myc_bh_mtx=matrix(p.adjust(myc_p_mtx,method='BH'),nrow=nrow(myc_p_mtx),ncol=ncol(myc_p_mtx))
+
+```
+
+Put the two together
+```{r}
+
+studymatch=(gobs_bh_mtx<thresh & myc_bh_mtx<thresh)
+gobs_hits=sum(gobs_bh_mtx<thresh)
+myc_hits=sum(myc_bh_mtx<thresh)
+# subtract 1 to get ge
+hypergeom_p=1.0 - sum(phyper(sum(studymatch)-1,myc_hits,prod(dim(gobs_bh_mtx))-myc_hits,gobs_hits))
+
+gobs_wincorr=read.table('/Users/poldrack/Dropbox/data/connectome-genome/transcripts/wincorr_common.txt')
+gobs_var=apply(gobs_wincorr,2,var)
+
+```
+
+Print out results
+```{r}
+
+matchcount=array(0,dim=8)
+sigcount_myc=array(0,dim=8)
+sigcount_gobs=array(0,dim=8)
+
+
+for (n in 1:8) {
+  for (p in 1:length(mecodes_upper)) {
+		if (myc_bh_mtx[n,p]<0.1) {
+			mycsig='*'
+      sigcount_myc[n]=sigcount_myc[n]+1
+			} else {mycsig=' '}
+		if (gobs_bh_mtx[n,p]<0.1) {
+			gobsig='*'
+      sigcount_gobs[n]=sigcount_gobs[n]+1
+
+			} else {gobsig=' '}
+		if (myc_bh_mtx[n,p]<0.1 & gobs_bh_mtx[n,p]<0.1) {
+			matchcount[n]=matchcount[n]+1
+						} 
+
+		}
+	}
+
+
+```
+
+Make heatmap
+```{r}
+sigmtx_gobs=gobs_bh_mtx<thresh
+sigmtx_myc=myc_bh_mtx<thresh
+
+common_netnames=c('Default','Visual','Fronto-parietal','Dorsal Attention','Ventral attention','Salience','Cingulo-opercular','Somatomotor')
+sigmtx_image=sigmtx_gobs*2 + sigmtx_myc
+sigmtx_image[sigmtx_gobs*sigmtx_myc>0]=3
+
+library(gplots)
+pdf(file='/Users/poldrack/Dropbox/Documents/Papers/SelfTracking/figures/gobs_myconnectome_overlap.pdf',height=6,width=14)
+heatmap.2(sigmtx_image,col=c('gray','blue','red','green'),scale='none',labRow=common_netnames,labCol=cluster_terms,margins=c(16,10),trace='none',dendrogram='none',key=FALSE)
+dev.off()
+
+```
