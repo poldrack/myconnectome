@@ -21,7 +21,7 @@ data=load_behav_data()
 varname='behav'
 sample_spacing=1
 
-xvars=c('panas.positive','panas.negative','panas.fatigue','afterscan.Anxietyduringscan','afterscan.diastolic','afterscan.pulse','afterscan.systolic','morning.Sleepquality','morning.Soreness','prevevening.Alcohol','prevevening.Guthealth','prevevening.Psoriasisseverity','prevevening.Stress', 'prevevening.Timespentoutdoors','temp.mean',"email.LIWC_CDI","email.LIWC_negemo","email.LIWC_posemo",'zeo.zq')
+xvars=c('panas.positive','panas.negative','panas.fatigue','afterscan.Anxietyduringscan','afterscan.diastolic','afterscan.pulse','afterscan.systolic','morning.Sleepquality','morning.Soreness','prevevening.Alcohol','prevevening.Guthealth','prevevening.Psoriasisseverity','prevevening.Stress', 'prevevening.Timespentoutdoors','temp.mean',"email.LIWCcdi","email.LIWCnegemo","email.LIWCposemo",'zeo.zq')
 
 data=subset(data,select=c(xvars,'date'))
 
@@ -73,7 +73,7 @@ row.names(pvals)=names(data)[1:19]
 
 kable(pvals)
 if (save_latex) {
-  k=kable(pvals,format='latex')
+  k=kable(pvals,format='latex',digits=3)
   write(k,file='/Users/poldrack/Dropbox/Documents/Papers/SelfTracking/timeseries_stats_tables/behav_timeseries_stats.tex')
 }
 ```
@@ -151,7 +151,7 @@ row.names(pvals)=names(data)[1:13]
 
 kable(pvals)
 if (save_latex) {
-  k=kable(pvals,format='latex')
+  k=kable(pvals,format='latex',digits=4)
   write(k,file='/Users/poldrack/Dropbox/Documents/Papers/SelfTracking/timeseries_stats_tables/wincorr_timeseries_stats.tex')
 }
 
@@ -243,7 +243,7 @@ row.names(pvals)=names(data)[1:dim(pvals)[1]]
 
 kable(pvals)
 if (save_latex) {
-  k=kable(pvals,format='latex')
+  k=kable(pvals,format='latex',digits=3)
   write(k,file='/Users/poldrack/Dropbox/Documents/Papers/SelfTracking/timeseries_stats_tables/wgcna_timeseries_stats.tex')
 }
 
@@ -346,7 +346,7 @@ row.names(pvals)=names(data)[1:dim(pvals)[1]]
 
 kable(pvals)
 if (save_latex) {
-  k=kable(pvals,format='latex')
+  k=kable(pvals,format='latex',digits=3)
   write(k,file='/Users/poldrack/Dropbox/Documents/Papers/SelfTracking/timeseries_stats_tables/metab_timeseries_stats.tex')
 }
 
@@ -431,7 +431,7 @@ row.names(pvals)=names(data)[1:15]
 
 kable(pvals)
 if (save_latex) {
-  k=kable(pvals,format='latex')
+  k=kable(pvals,format='latex',digits=3)
   write(k,file='/Users/poldrack/Dropbox/Documents/Papers/SelfTracking/timeseries_stats_tables/immport_timeseries_stats.tex')
 }
 
