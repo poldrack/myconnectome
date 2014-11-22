@@ -92,28 +92,35 @@ load_diary_data=function(infile='http://s3.amazonaws.com/openfmri/ds031/diary/te
 	}
 	
 	
-load_rnaseq_data = function(use_ME=TRUE,limit_ME_to_enriched=FALSE,scale=FALSE,varstab_file='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/varstab_data_rinregressed.txt',me_file='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/MEs-thr8-rinreg-48sess.txt',datefile='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/drawdates.txt') {
+load_rnaseq_data = function(use_ME=TRUE,limit_ME_to_enriched=FALSE,scale=FALSE,
+                            varstab_file='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/varstab_data_rinregressed.txt',
+                            me_file='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/MEs-thr8-rinreg-48sess.txt',
+                            datefile='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/drawdates.txt',
+                            descfile='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/module_descriptions.txt') {
 	rnaseq.dat.full= read.table(varstab_file, na.strings='.', header=TRUE)
 	rna_subcodes=names(rnaseq.dat.full)
 	rna_labels=row.names(rnaseq.dat.full)
 	
 	rnaseq.dat.me = read.table(me_file, na.strings='.', header=TRUE)
 	row.names(rnaseq.dat.me)=rna_subcodes
-	# these are the modules that are not enriched for at least one pathway at benjamini p < 0.1
-	unenriched=c('ME3','ME6','ME8','ME9','ME10','ME15','ME16','ME17','ME19','ME20','ME23','ME24','ME25','ME26','ME27','ME28','ME31','ME32','ME36','ME38')
-	MEsubset=c()
-	for (i in 1:38) {
-		MEname=sprintf('ME%d',i)
-		if (limit_ME_to_enriched)  {
-			if (!(MEname %in% unenriched)) {
-				MEsubset=c(MEsubset,MEname)
-				}
-			} else {
-				MEsubset=c(MEsubset,MEname)
-		
-				}
-		}
-	rnaseq.dat.me=subset(rnaseq.dat.me,select=MEsubset)
+  ordered_MEs=c()
+  for  (i in 1:dim(rnaseq.dat.me)[2]) {
+    menum=as.integer(gsub('ME','',names(rnaseq.dat.me)[i]))
+    if (menum!=0) {ordered_MEs=cbind(ordered_MEs,menum)}
+  }
+	sorted_idx=sort(ordered_MEs,index.return=TRUE)$ix
+  rnaseq.dat.me=subset(rnaseq.dat.me,select=sorted_idx)
+	rna_desc=as.character(read.table(descfile,sep='\t',header=FALSE)$V2)
+  module_desc=c()
+  enriched=c()
+  for (i in 1:length(rna_desc)) {
+    if (rna_desc[i]!='no enrichment') {enriched=cbind(enriched,i)}
+    module_desc=cbind(module_desc,sprintf('%s:%s',names(rnaseq.dat.me)[i],rna_desc[i]))
+  }
+  names(rnaseq.dat.me)=module_desc
+  if (limit_ME_to_enriched==TRUE) {
+    rnaseq.dat.me=subset(rnaseq.dat.me,select=sort(enriched))
+  }
 	
 	if (use_ME) {
 		rnaseq.dat=rnaseq.dat.me
