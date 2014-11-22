@@ -1,7 +1,7 @@
 import numpy
 
 exprdata=numpy.loadtxt('/Users/poldrack/Dropbox/data/selftracking/rna-seq/WGCNA/cluster_eigengenes_GOBS.txt')
-
+exprdata=exprdata[:,1:]
 
 f=open('/Users/poldrack/Dropbox/data/connectome-genome/transcripts/subcodes_common.txt')
 subcodes=[i.strip() for i in f.readlines()]
