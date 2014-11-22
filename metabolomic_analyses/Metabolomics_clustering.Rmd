@@ -54,6 +54,9 @@ if (save_data) {
   		m=cids[ap@clusters[[i]]]
   		outfilename=sprintf('/Users/poldrack/Dropbox/data/selftracking/proteomics/apclust_scaled_mod%02d.txt',i)
   		write.table(m,file=outfilename,col.names=FALSE,row.names=FALSE,quote=FALSE)
+    	outfilename=sprintf('/Users/poldrack/Dropbox/data/selftracking/proteomics/apclust_scaled_mod%02d_names.txt',i)
+  		write.table(names(ap@clusters[[i]]),file=outfilename,col.names=FALSE,row.names=FALSE,quote=FALSE)
+
   		}
   	}
   save(ap,file='/Users/poldrack/Dropbox/data/selftracking/proteomics/apclust.Rdata')
