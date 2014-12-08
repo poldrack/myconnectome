@@ -9,6 +9,7 @@ This is code to run the mediation analysis for fatigue as mediator of relation b
 
 ```{r}
 library(mediation)
+library(multilevel)
 source('http://s3.amazonaws.com/openfmri/ds031/timeseries_analyses/data_utilities.R')
 source('http://s3.amazonaws.com/openfmri/ds031/timeseries_analyses/load_myconnectome_data.R')
 
@@ -20,7 +21,7 @@ wincorr=load_fmri_data()
 
 ```{r}
 fatigue=behav$panas.fatigue
-tu_th=behav$tu_th
+tu_th=behav$TuesThurs
 
 da1=array(NA,dim=length(wincorr[,5]))
 da1[behav$date %in% wincorr$date]=wincorr[,5]
@@ -40,6 +41,10 @@ m=mediate(med.fit,out.fit,treat='tu_th',mediator='fatigue',robustSE = TRUE, sims
 
 summary(m)
 ```
+Confirm using Sobel test:
+```{r}
+sobel(med_data$tu_th,med_data$fatigue,med_data$da1)
+```
 
 #### Now test for DA2
 ```{r}
@@ -47,5 +52,12 @@ out.fit=lm(da2 ~ fatigue + tu_th,data=med_data)
 m=mediate(med.fit,out.fit,treat='tu_th',mediator='fatigue',robustSE = TRUE, sims = 1000)
 
 summary(m)
+
 ```
+
+Also confirm using Sobel test:
+```{r}
+sobel(med_data$tu_th,med_data$fatigue,med_data$da2)
+```
+
 
