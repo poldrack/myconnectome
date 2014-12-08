@@ -11,11 +11,11 @@ import numpy
 
 filter_negatives=False
 exclude_metab=False
-exclude_metab_metab=False
+exclude_metab_metab=True
 exclude_gene_gene=True
 filter_gene_modules=False # only include first cluster in each module
 thresh=0.1
-degree_thresh=1
+degree_thresh=0
 
 exclude_unenriched=True
 
@@ -63,12 +63,7 @@ for i in range(len(metab_names)):
 
 files_to_load=list(set(glob.glob('/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out*.txt')))
 
-files_to_load=['/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.wgcna_wincorr.txt',
-			'/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.wincorr_wincorr.txt',
-			'/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.wgcna_wgcna.txt',
-			'/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.wgcna_behav.txt',
-			'/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.wincorr_behav.txt',
-			'/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.behav_behav.txt',
+files_to_load=['/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.food_metab.txt',
 			'/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.metab_wincorr.txt',
 			'/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.behav_metab.txt',
 			'/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.wgcna_metab.txt']
@@ -157,11 +152,10 @@ for filename in files_to_load:
 			graph.add_edge(nodenames[0],nodenames[1],attr_dict={'pval':data[f][ktuple][0],'tval':data[f][ktuple][1],'rval':data[f][ktuple][2]})
 			print 'edge:',nodenames[0],nodenames[1]
 
-
-sg=nx.connected_component_subgraphs(graph)
-for g in sg:
-	if g.number_of_nodes()<3:
-			graph.remove_nodes_from(g.nodes())
+degree=graph.degree()
+for i in degree.iterkeys():
+    if degree[i]<1:
+			graph.remove_node(i)
 
 nx.write_graphml(graph,'tmp.graphml')
 
@@ -195,8 +189,8 @@ if degree_thresh>1:
 		if graph.degree(n)<degree_thresh:
 			graph.remove_node(n)
 
-nx.write_gexf(graph,'graph_thresh%.02f%s.gexf'%(thresh,filt))
-nx.write_gml(graph,'graph_thresh%.02f%s.gml'%(thresh,filt))
+nx.write_gexf(graph,'graph_metab_thresh%.02f%s.gexf'%(thresh,filt))
+nx.write_gml(graph,'graph_metab_thresh%.02f%s.gml'%(thresh,filt))
 
 for i in numpy.unique(labels):
 	print ''
