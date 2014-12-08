@@ -7,7 +7,13 @@ import numpy
 import os
 from load_parcel_data import *
 
-def reorder_adjmtx_by_network(adjmtx_file,outdir):
+
+
+def reorder_adjmtx_by_network(adjmtx_file,outdir,network_order=[0,1,7,3,11,8,9,12,13,5,6,14,10,4,2]):
+#adjmtx_file='/Users/poldrack/Dropbox/data/selftracking/rsfmri/behav_adjmtx/tu_th_adjmtx.txt'
+#outdir='test'
+#network_order=[0,1,7,3,11,8,9,12,13,5,6,14,10,4,2]
+#if 1:
     
     try:
         assert os.path.exists(outdir)
@@ -29,7 +35,9 @@ def reorder_adjmtx_by_network(adjmtx_file,outdir):
     adjmtx_new=numpy.zeros(adjmtx_orig.shape)
     
     netnum=[parceldata[i]['powernum'] for i in range(1,adjmtx_orig.shape[1]+1)]
-    
+    netnum_neworder=[numpy.where(numpy.array(network_order)==i)[0][0] for i in netnum]
+    netnum=netnum_neworder
+
     yloc=[parceldata[i]['y'] for i in range(1,adjmtx_orig.shape[1]+1)]
     
     hemis=[int(parceldata[i]['hemis']=='L') for i in range(1,adjmtx_orig.shape[1]+1)]
