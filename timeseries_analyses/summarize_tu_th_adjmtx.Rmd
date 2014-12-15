@@ -1,0 +1,53 @@
+---
+title: "Summarize_tu_th_adjmtx"
+author: "Russ Poldrack"
+date: "December 13, 2014"
+output: html_document
+---
+
+Load the connectome-wide adjacency matrix for tues vs. thurs, and summarize by network.
+
+```{r}
+data=read.table('/Users/poldrack/Dropbox/data/selftracking/rsfmri/behav_adjmtx/tu_th_adjmtx.txt')
+fulldata=as.matrix(data)+t(as.matrix(data))
+parceldata=read.table('/Users/poldrack/code/myconnectome/rsfmri_analyses/parcel_data.txt')
+```
+
+```{r}
+parceldata$pos=array(0,dim=634)
+parceldata$neg=array(0,dim=634)
+network_pos=matrix(0,nrow=15,ncol=15)
+network_neg=matrix(0,nrow=15,ncol=15)
+netnum=as.numeric(parceldata$V8)
+networks=levels(parceldata$V8)
+for (p in 1:nrow(parceldata)) {
+  parceldata$pos[p]=sum(data[p,]>0)
+  parceldata$neg[p]=sum(data[p,]<0)
+  for (c in p:nrow(parceldata)) {
+    if (data[p,c]>0.0) {network_pos[netnum[p],netnum[c]]=network_pos[netnum[p],netnum[c]]+1}
+    if (data[p,c]<0.0) {network_neg[netnum[p],netnum[c]]=network_neg[netnum[p],netnum[c]]+1}
+  }
+}
+
+```
+
+```{r}
+datamat=c()
+for (i in 1:15){
+  for (j in i:15) {
+       datamat=rbind(datamat,c(networks[i],networks[j],network_pos[i,j],network_neg[i,j]))   
+  }
+}
+datamat_f=as.data.frame(datamat)
+names(datamat_f)=c('network1','network2','pos','neg')
+datamat_f$pos=as.numeric(datamat[,3])
+datamat_f$neg=as.numeric(datamat[,4])
+datamat_posorder=datamat_f[order(datamat_f$pos,decreasing=TRUE),]
+datamat_negorder=datamat_f[order(datamat_f$neg,decreasing=TRUE),]
+
+parceldat_posorder=parceldata[order(parceldata$pos,decreasing=TRUE),]
+parceldat_negorder=parceldata[order(parceldata$neg,decreasing=TRUE),]
+
+#library(gplots)
+#heatmap.2(network_neg+t(network_neg),labRow=networks,labCol=networks)
+```
