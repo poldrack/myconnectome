@@ -460,6 +460,23 @@ output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
 
 ```
 
+####metabolism vs. metabolism
+```{r message=FALSE,warning=FALSE,error=FALSE}
+
+vnames=c('metab','metab')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(metab,metab,skip_ident=TRUE,spacing='1 week')}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
 
 
 #### within-network connectivity 
