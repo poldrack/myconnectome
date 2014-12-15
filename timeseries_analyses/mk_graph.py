@@ -71,6 +71,7 @@ files_to_load=['/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/ou
 			'/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.behav_behav.txt',
 			'/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.metab_wincorr.txt',
 			'/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.behav_metab.txt',
+            '/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.metab_metab.txt',
 			'/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.wgcna_metab.txt']
 #files_to_load=['metab_metab']
 
@@ -158,10 +159,10 @@ for filename in files_to_load:
 			print 'edge:',nodenames[0],nodenames[1]
 
 
-sg=nx.connected_component_subgraphs(graph)
-for g in sg:
-	if g.number_of_nodes()<3:
-			graph.remove_nodes_from(g.nodes())
+degree=graph.degree()
+for i in degree.iterkeys():
+    if degree[i]<1:
+        graph.remove_node(i)
 
 nx.write_graphml(graph,'tmp.graphml')
 
