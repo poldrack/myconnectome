@@ -32,8 +32,8 @@ numpy.savetxt('/Users/poldrack/Dropbox/data/selftracking/rsfmri/mean_corrdata.tx
 
 fulldata=numpy.zeros((634,634))
 fulldata[numpy.triu_indices(634,1)]=meancorr
-numpy.savetxt('/Users/poldrack/Dropbox/data/selftracking/rsfmri/mean_corrdata_fullmtx.txt', fulldata)
+numpy.savetxt('/Users/poldrack/Dropbox/data/selftracking/rsfmri/behav_adjmtx/mean_adjmtx.txt', fulldata)
 
 fulldata=numpy.zeros((634,634))
 fulldata[numpy.triu_indices(634,1)]=varcorr_z
-numpy.savetxt('/Users/poldrack/Dropbox/data/selftracking/rsfmri/var_corrdata_fullmtx.txt', fulldata)
+numpy.savetxt('/Users/poldrack/Dropbox/data/selftracking/rsfmri/behav_adjmtx/var_adjmtx.txt', fulldata)
