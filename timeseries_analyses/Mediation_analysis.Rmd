@@ -27,8 +27,10 @@ da1=array(NA,dim=length(wincorr[,5]))
 da1[behav$date %in% wincorr$date]=wincorr[,5]
 da2=array(NA,dim=length(wincorr[,5]))
 da2[behav$date %in% wincorr$date]=wincorr[,6]
+sm=array(NA,dim=length(wincorr[,10]))
+sm[behav$date %in% wincorr$date]=wincorr[,10]
 
-med_data=as.data.frame(cbind(fatigue,da1,da2,tu_th))
+med_data=as.data.frame(cbind(fatigue,da1,da2,sm,tu_th))
 med_data=med_data[!is.na(apply(med_data,1,sum)),]
 ```
 
@@ -59,5 +61,20 @@ Also confirm using Sobel test:
 ```{r}
 sobel(med_data$tu_th,med_data$fatigue,med_data$da2)
 ```
+
+#### Now test for somatomotor
+```{r}
+out.fit=lm(sm ~ fatigue + tu_th,data=med_data)
+m=mediate(med.fit,out.fit,treat='tu_th',mediator='fatigue',robustSE = TRUE, sims = 1000)
+
+summary(m)
+
+```
+
+Also confirm using Sobel test:
+```{r}
+sobel(med_data$tu_th,med_data$fatigue,med_data$sm)
+```
+
 
 
