@@ -29,6 +29,7 @@ for (p in 1:nrow(parceldata)) {
   }
 }
 
+
 ```
 
 ```{r}
@@ -47,7 +48,8 @@ datamat_negorder=datamat_f[order(datamat_f$neg,decreasing=TRUE),]
 
 parceldat_posorder=parceldata[order(parceldata$pos,decreasing=TRUE),]
 parceldat_negorder=parceldata[order(parceldata$neg,decreasing=TRUE),]
-
+write.table(parcel_pos,'/Users/poldrack/Dropbox/data/selftracking/rsfmri/tu_th_parceldata_pos.txt',col.names=FALSE,row.names=FALSE)
+write.table(parcel_neg,'/Users/poldrack/Dropbox/data/selftracking/rsfmri/tu_th_parceldata_neg.txt',col.names=FALSE,row.names=FALSE)
 #library(gplots)
 #heatmap.2(network_neg+t(network_neg),labRow=networks,labCol=networks)
 ```
