@@ -4,8 +4,8 @@ The code presented here starts with the extracted timecourses from each cortical
 
 These are the data that we started with:
 
-* Timecourses from cortical parcels: https://s3.amazonaws.com/openfmri/ds031/rsfmri/all_selected_sessions_newparcel_timecourses.mat
-* Temporal masks (denoting timepoints disrupted by motion, which were replaced and interpolated in the timecourse data and should be removed for most analyses): https://s3.amazonaws.com/openfmri/ds031/rsfmri/all_selected_sessions_tmasks.mat
+* Timecourses from cortical parcels: https://s3.amazonaws.com/openfmri/ds031/rsfmri/parcel_data_combined.tgz
+* Temporal masks (denoting timepoints disrupted by motion, which were replaced and interpolated in the timecourse data and should be removed for most analyses): https://s3.amazonaws.com/openfmri/ds031/rsfmri/tmasks.tgz
 * Session codes: https://s3.amazonaws.com/openfmri/ds031/rsfmri/all_selected_sessions_names.txt
 
 #### Data extraction
