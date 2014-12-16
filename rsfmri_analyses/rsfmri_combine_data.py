@@ -6,7 +6,7 @@ combine data from cortical and subcortical rois
 
 import os,glob,numpy
 
-datadir_surface='/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/subdata'
+datadir_surface='/corral-repl/utexas/poldracklab/data/selftracking/subdata'
 tmaskdir='/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/tmasks'
 datadir_aseg='/corral-repl/utexas/poldracklab/data/selftracking/aseg_data'
 datadir_mtl='/corral-repl/utexas/poldracklab/data/selftracking/mtl_data'

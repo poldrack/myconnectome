@@ -1,17 +1,18 @@
 """
-extract data from 222 washu space using aparc+aseg from freesurfer
+extract data from 333 washu space using aparc+aseg from freesurfer
 
 """
 
 import os,nibabel,numpy,sys
 
 
-datadir='/corral-repl/utexas/poldracklab/data/selftracking/resting_data_222'
+datadir='/corral-repl/utexas/poldracklab/data/selftracking/laumann/FCPROCESS_SCRUBBED_meanfield_LSinterp_333_sub018_reg_FD025_mirpad'
+
 outdir='/corral-repl/utexas/poldracklab/data/selftracking/aseg_data'
 
 
 subcode=sys.argv[1]
-datafile=os.path.join(datadir,'%s_222_zmdt_resid_ntrpl_bpss_zmdt.nii.gz'%subcode)
+datafile=os.path.join(datadir,'%s_333_zmdt_resid_ntrpl_bpss_zmdt.nii.gz'%subcode)
 assert os.path.exists(datafile)
 
 outfile=os.path.join(outdir,'%s_asegmean.txt'%subcode)
@@ -22,7 +23,7 @@ except:
     dataimg=nibabel.load(datafile)
     data=dataimg.get_data()
 
-aseg='/corral-repl/utexas/poldracklab/data/selftracking/freesurfer/mri/aparc+aseg_reg2wasu222.nii.gz'
+aseg='/corral-repl/utexas/poldracklab/data/selftracking/freesurfer/mri/aparc+aseg_reg2wasu333.nii.gz'
 
 try:
     asegdata
