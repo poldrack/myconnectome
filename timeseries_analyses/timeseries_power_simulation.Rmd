@@ -1,0 +1,54 @@
+---
+title: "Timseries Power Simulation"
+author: "Russ Poldrack"
+date: "December 16, 2014"
+output: html_document
+---
+
+Simulate the generation of timeseries for one of the observed relations in the MyConnectome study, and assess statistical power.
+
+First load up the data.
+
+```{r}
+library(forecast)
+source('http://s3.amazonaws.com/openfmri/ds031/timeseries_analyses/load_myconnectome_data.R')
+source('http://s3.amazonaws.com/openfmri/ds031/timeseries_analyses/data_utilities.R')
+source('http://s3.amazonaws.com/openfmri/ds031/timeseries_analyses/est_bivariate_arima_model.R')
+behav=load_behav_data()
+wincorr=load_fmri_data('wincorr')
+```
+
+Get the timeseries representations for Default Mode connectivity (y) and positive mood (x).
+```{r}
+alldays=get_alldays(behav,wincorr)
+behav_keep=subset(behav,select=c(date,panas.positive))
+y=get_x_ts(behav_keep,alldays)
+x=get_y_ts(wincorr,alldays,1)
+```
+
+Compute the timeseries model on the x variable, to get its ARIMA characteristics
+```{r}
+x_arma=auto.arima(x)
+```
+
+Compute the timeseries model on the y variable, including the x regressor
+```{r}
+reg_arma=auto.arima(y,xreg=x)
+```
+
+Loop through simulation to generate data and assess model.  First generate a simulated X regressor that has the same timeseries characteristics and residual variance as the true X variable.  Then generate a simulated Y variable that has the same timeseries characteristics as the observed Y variable after modeling the X variable.  The sample a number of timepoints, using the actual timepoints spacing from the study, setting all others to NA.  Compute the model on those simulated data and store the p value for the X regressor.
+```{r}
+p_x=c()
+for (i in 1:1000) {
+  x_sim=arima.sim(n=length(alldays),list(ar=c(x_arma$coef[1])),sd=sd(x_arma$residuals,na.rm=TRUE))
+  y_sim = arima.sim(n = length(alldays), list(ar=c(reg_arma$coef[1])), sd = sd(reg_arma$residuals,na.rm=TRUE)) + x_sim*reg_arma$coef[3]
+  y_sim[is.na(x)]=NA
+  a=auto.arima(y_sim,xreg=x_sim)
+  pvals=data.frame(cwp(a))
+  p_x=rbind(p_x,pvals[4,which(names(pvals)=="x_sim")])
+}
+
+print(c('power:',mean(p_x<0.05)))
+
+```
+
