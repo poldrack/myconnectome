@@ -23,12 +23,15 @@ wincorr=load_fmri_data('wincorr')
 rnaseq_wgcna=load_rnaseq_data(limit_ME_to_enriched=TRUE)
 xvars=c('panas.positive','panas.negative','panas.fatigue','afterscan.Anxietyduringscan','afterscan.diastolic','afterscan.pulse','afterscan.systolic','morning.Sleepquality','morning.Soreness','prevevening.Alcohol','prevevening.Guthealth','prevevening.Psoriasisseverity','prevevening.Stress', 'prevevening.Timespentoutdoors','temp.mean',"email.LIWCcdi","email.LIWCnegemo","email.LIWCposemo",'zeo.zq')
 
+
 behav_keep=subset(behav,select=c(xvars,'date'))
+behav_keep$FedFasted=behav$TuesThurs
+behav_keep$FedFasted[is.na(behav_keep$FedFasted)]=1
 ```
 
 Give more interepretable names to the variables
 ```{r}
-behav_names=c('positive mood','negative mood','fatigue','anxiety during scan','diastolic BP','pulse','systolic BP','sleep quality (rating)','soreness','alcohol intake','gut health','psoriasis severity','stress','time outdoors','mean outdoor temperature','email: categorical-dynamic index','email: negative emotion','email:positive emotion','sleep (ZEO ZQ)')
+behav_names=c('positive mood','negative mood','fatigue','anxiety during scan','diastolic BP','pulse','systolic BP','sleep quality (rating)','soreness','alcohol intake','gut health','psoriasis severity','stress','time outdoors','mean outdoor temperature','email: categorical-dynamic index','email: negative emotion','email:positive emotion','sleep (ZEO ZQ)','fed vs. fasted')
 ```
 
 #### Generate the heatmap for behavioral data
@@ -61,7 +64,7 @@ dev.off()
 
 ```{r}
 w=subset(wincorr,select=-c(date))
-wincorr_names=c('default mode','second visual','fronto-parietal','first visual','first dorsal attention','second dorsal attention','ventral attention/langauge','salience','cingulo-opercular','somatomotor','fronto-parietal (other)','parietal episodic retrieval','parieto-occipital')
+wincorr_names=c('default mode','second visual','fronto-parietal','first visual','first dorsal attention','second dorsal attention','ventral attention/langauge','salience','cingulo-opercular','somatomotor','fronto-parietal (other)','medial parietal','parieto-occipital')
 
 scan_dates=c(format(wincorr$date[1],'%Y-%m'))
 anchor=wincorr$date[1]
