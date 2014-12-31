@@ -34,16 +34,21 @@ def run_classification(x,ydata,shuffle=False,n_train_runs=50,n_shuffle_runs=100,
                 clf=sklearn.svm.LinearSVC()
                 
             goodcases=numpy.array([not i for i in numpy.isnan(y)])
-            y_good=sklearn.preprocessing.scale(y[goodcases])
+            if type=='regression':
+                y_good=sklearn.preprocessing.scale(y[goodcases])
+            else:
+                y_good=y[goodcases]
             x_good=sklearn.preprocessing.scale(x[goodcases,:])
             
-            if type=='regression':
+            if 1:
+                #if type=='regression':
                 cv=get_balanced_folds(y_good,nfolds)
-            else:
-                cv=cross_validation.KFold(n=len(y_good),n_folds=nfolds,shuffle=True)
+                #else:
+                #cv=cross_validation.KFold(n=len(y_good),n_folds=nfolds,shuffle=True)
             
             testdata=numpy.zeros(len(y_good))
             for train,test in cv:
+                #print y_good[train],y_good[test]
                 clf.fit(x_good[train,:],y_good[train])
                 testdata[test]=clf.predict(x_good[test,:])
             predacc[run,var]=numpy.corrcoef(testdata,y_good)[0,1]
