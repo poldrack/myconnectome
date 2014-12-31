@@ -8,7 +8,8 @@ output: html_document
 Get the data:
 
 ```{r}
-gobs=read.table('http://s3.amazonaws.com/openfmri/ds031/RNA-seq/GOBS_SOLAR_expression_results.csv',sep=',',header=TRUE)
+#gobs=read.table('http://s3.amazonaws.com/openfmri/ds031/RNA-seq/GOBS_SOLAR_expression_results.csv',sep=',',header=TRUE)
+gobs=read.table('/Users/poldrack/Dropbox/data/selftracking/rna-seq/WGCNA/WC.ME_h2_rho_p_run4.csv',sep=',',header=TRUE)
 netcodes=as.character(unique(gobs[,1]))
 mecodes=as.character(unique(gobs[,2]))
 ```
@@ -18,41 +19,66 @@ Get data for networks that match to myconnectome:
 ```{r}
 thresh=0.1
 
-gobs_match=c(5,7,8,12,11,9,3,1)
-
-gobs_p_mtx = matrix(data=NA,ncol=length(unique(gobs$trt2)),nrow=length(gobs_match))
-for (i in 1:length(netcodes)) {
+# new netcodes={'None':0,
+#      'Default':1,
+#      'Auditory':2,
+#      'FrontoParietal':3,
+#      'Visual':4,
+#      'DorsalAttn':5,
+#      'SMmouth':6,
+#      'VentralAttn':7,
+#      'Salience':8,
+#      'CinguloOperc':9,
+#      'SMhand':10,
+#      'CinguloParietal':11,
+#      'RetrosplenialTemporal':12}
+gobs_netnames=c('Default','Auditory','FrontoParietal','Visual','Dorsal Attention','Somatomotor mouth','Ventral Attention','Salience','Cingulo-opercular','Somatomotor hand','Cingulo-parietal','Retrosplenial-Temporal')
+gobs_p_mtx = matrix(data=NA,ncol=length(unique(gobs$trt2)),nrow=12)
+gobs_cor_mtx = matrix(data=NA,ncol=length(unique(gobs$trt2)),nrow=12)
+for (i in 1:12) {
 	for (j in 1:length(unique(gobs$trt2))) {
-		i_match=gobs_match[i]
-		data=subset(gobs,trt1==netcodes[i_match] & trt2==mecodes[j])
-		if (nrow(data)>0) {gobs_p_mtx[i,j]=data$RhoP_pval}
+    print(c(i,j,sprintf('wc%d',i),sprintf('me%d',j)))
+		data=subset(gobs,trt1==sprintf('wc%d',i) & trt2==sprintf('me%d',j))
+		if (nrow(data)>0) {
+      gobs_p_mtx[i,j]=data$RhoP_pval
+      gobs_cor_mtx[i,j]=data$RhoP}
 		}
 	}
-gobs_p_mtx[is.na(gobs_p_mtx)]=1.0  
-gobs_bh_mtx=matrix(p.adjust(gobs_p_mtx,method='BH'),nrow=nrow(gobs_p_mtx),ncol=ncol(gobs_p_mtx))
 
-gobs_netnames=c('Sensorimotor-hand','Sensorimotor-mouth','Cingulo-opercular','Auditory','Default-mode','Memory-retrieval','Visual','Fronto-parietal','Salience','Subcortical','Ventral-attention','Dorsal-attention','Cerebellar')
+gobs_p_mtx[is.na(gobs_p_mtx)]=1.0  
+gobs_cor_mtx[is.na(gobs_cor_mtx)]=0 
+gobs_bh_mtx=matrix(p.adjust(gobs_p_mtx,method='BH'),nrow=nrow(gobs_p_mtx),ncol=ncol(gobs_p_mtx))
 
 ```
 
 Load myconnectome data
 ```{r}
 wincorr.wgcna=read.table('/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.wgcna_wincorr.txt')
-myc_netnames=c("1:Default","2:Second Visual","3:Frontal-Parietal","4.5:First Visual","5:First Dorsal Attention","6:Second Dorsal Attention","7:Ventral Attention-Language","8:Salience","9:Cingulo-opercular","10:Somatomotor","11.5:Frontal-Parietal-Other","15:Parietal Episodic Retrieval","16:Parieto Occipital")
+myc_netnames=c("Default","Second Visual","Frontal-Parietal","First Visual","First Dorsal Attention","6:Second Dorsal Attention","Ventral Attention-Language","Salience","Cingulo-opercular","Somatomotor","Frontal-Parietal-Other","Medial Parietal","Parieto Occipital")
+
+
 wincorr.wgcna$yvar=as.character(wincorr.wgcna$yvar)
 wincorr.wgcna$xvar=as.character(wincorr.wgcna$xvar)
-
-myc_match=c(1,2,3,5,7,8,9,10)
+for (i in 1:nrow(wincorr.wgcna)) {
+  wincorr.wgcna$xvar_short[i]=strsplit(wincorr.wgcna$xvar[i],':')[[1]][1]
+}
+for (i in 1:nrow(wincorr.wgcna)) {
+  wincorr.wgcna$yvar_short[i]=strsplit(wincorr.wgcna$yvar[i],':')[[1]][1]
+}
+wincorr.wgcna$yvar_short=floor(as.numeric(wincorr.wgcna$yvar_short))
+wincorr.wgcna$yvar_short[wincorr.wgcna$yvar_short==15]=12
+wincorr.wgcna$yvar_short[wincorr.wgcna$yvar_short==16]=13
 
 mecodes_upper=unique(wincorr.wgcna$xvar)
 
-myc_p_mtx=matrix(data=NA,nrow=length(myc_match),ncol=length(mecodes))
+myc_p_mtx=matrix(data=NA,nrow=13,ncol=length(mecodes))
+myc_cor_mtx=matrix(data=NA,nrow=13,ncol=length(mecodes))
 
-for (n in 1:length(myc_match)) {
+for (n in 1:13) {
 	for (p in 1:length(mecodes_upper)) {
-		n_match=myc_match[n]
-		tmp=as.numeric(wincorr.wgcna[wincorr.wgcna$xvar==mecodes_upper[p] & wincorr.wgcna$yvar==myc_netnames[n_match],])
+		tmp=as.numeric(wincorr.wgcna[wincorr.wgcna$xvar_short==sprintf('ME%d',p) & wincorr.wgcna$yvar_short==n,])
 		myc_p_mtx[n,p]=as.numeric(tmp[5])
+  	myc_cor_mtx[n,p]=as.numeric(tmp[3])
 		}
 	}
 myc_bh_mtx=matrix(p.adjust(myc_p_mtx,method='BH'),nrow=nrow(myc_p_mtx),ncol=ncol(myc_p_mtx))
@@ -61,12 +87,17 @@ myc_bh_mtx=matrix(p.adjust(myc_p_mtx,method='BH'),nrow=nrow(myc_p_mtx),ncol=ncol
 
 Put the two together
 ```{r}
+matching_net=c(1,0,1,1,1,0,1,1,1,1,0,0,0)
+gobs_bh_mtx_matched=gobs_bh_mtx[matching_net[1:12]==1,]
+myc_bh_mtx_matched=myc_bh_mtx[matching_net==1,]
+gobs_cor_mtx_matched=gobs_cor_mtx[matching_net[1:12]==1,]
+myc_cor_mtx_matched=myc_cor_mtx[matching_net==1,]
 
-studymatch=(gobs_bh_mtx<thresh & myc_bh_mtx<thresh)
-gobs_hits=sum(gobs_bh_mtx<thresh)
-myc_hits=sum(myc_bh_mtx<thresh)
+studymatch=(gobs_bh_mtx_matched<thresh & myc_bh_mtx_matched<thresh)
+gobs_hits=sum(gobs_bh_mtx_matched<thresh)
+myc_hits=sum(myc_bh_mtx_matched<thresh)
 # subtract 1 to get ge
-hypergeom_p=1.0 - sum(phyper(sum(studymatch)-1,myc_hits,prod(dim(gobs_bh_mtx))-myc_hits,gobs_hits))
+hypergeom_p=1.0 - sum(phyper(sum(studymatch)-1,myc_hits,prod(dim(gobs_bh_mtx_matched))-myc_hits,gobs_hits))
 
 gobs_wincorr=read.table('/Users/poldrack/Dropbox/data/connectome-genome/transcripts/wincorr_common.txt')
 gobs_var=apply(gobs_wincorr,2,var)
@@ -83,16 +114,16 @@ sigcount_gobs=array(0,dim=8)
 
 for (n in 1:8) {
   for (p in 1:length(mecodes_upper)) {
-		if (myc_bh_mtx[n,p]<0.1) {
+		if (myc_bh_mtx_matched[n,p]<0.1) {
 			mycsig='*'
       sigcount_myc[n]=sigcount_myc[n]+1
 			} else {mycsig=' '}
-		if (gobs_bh_mtx[n,p]<0.1) {
+		if (gobs_bh_mtx_matched[n,p]<0.1) {
 			gobsig='*'
       sigcount_gobs[n]=sigcount_gobs[n]+1
 
 			} else {gobsig=' '}
-		if (myc_bh_mtx[n,p]<0.1 & gobs_bh_mtx[n,p]<0.1) {
+		if (myc_bh_mtx_matched[n,p]<0.1 & gobs_bh_mtx_matched[n,p]<0.1) {
 			matchcount[n]=matchcount[n]+1
 						} 
 
@@ -101,19 +132,38 @@ for (n in 1:8) {
 
 
 ```
-
-Make heatmap
+Make figure
 ```{r}
-sigmtx_gobs=gobs_bh_mtx<thresh
-sigmtx_myc=myc_bh_mtx<thresh
 
-common_netnames=c('Default','Visual','Fronto-parietal','Dorsal Attention','Ventral attention','Salience','Cingulo-opercular','Somatomotor')
-sigmtx_image=sigmtx_gobs*2 + sigmtx_myc
-sigmtx_image[sigmtx_gobs*sigmtx_myc>0]=3
+myc_sigmtx=c()
+gobs_sigmtx=c()
+for (i in 1:38){
+    mv=which(myc_bh_mtx_matched[,i]<0.1)
+    m=array('',dim=dim(myc_bh_mtx_matched)[1])
+    m[mv]='*'
+    myc_sigmtx=rbind(myc_sigmtx,m)
+    
+    mv=which(gobs_bh_mtx_matched[,i]<0.1)
+    m=array('',dim=dim(gobs_bh_mtx_matched)[1])
+    m[mv]='*'
+    gobs_sigmtx=rbind(gobs_sigmtx,m)
+}
 
-library(gplots)
-pdf(file='/Users/poldrack/Dropbox/Documents/Papers/SelfTracking/figures/gobs_myconnectome_overlap.pdf',height=6,width=14)
-heatmap.2(sigmtx_image,col=c('gray','blue','red','green'),scale='none',labRow=common_netnames,labCol=cluster_terms,margins=c(16,10),trace='none',dendrogram='none',key=FALSE)
+cluster_terms=as.character(read.table('http://s3.amazonaws.com/openfmri/ds031/RNA-seq/module_descriptions.txt',header=FALSE,sep='\t')$V2)
+
+library(plot3D)
+pdf(file='/Users/poldrack/Dropbox/Documents/Papers/SelfTracking/figures/gobs_expression_heatmap_matched.pdf',width=18,height=12)
+heatmap.2(gobs_cor_mtx_matched,Rowv=NULL,Colv=NULL,trace='none',colsep=c(1:38),
+          cellnote=t(gobs_sigmtx),notecex=3,notecol='white',rowsep=c(1:8),
+          labRow=gobs_netnames[which(matching_net==1)],labCol=cluster_terms,
+          margins=c(18,18),col=jet.col,cexRow=1.5,cexCol=1.4)
+dev.off()
+
+pdf(file='/Users/poldrack/Dropbox/Documents/Papers/SelfTracking/figures/myc_expression_heatmap_matched.pdf',width=18,height=12)
+heatmap.2(myc_cor_mtx_matched,Rowv=NULL,Colv=NULL,trace='none',colsep=c(1:38),
+          cellnote=t(myc_sigmtx),notecex=3,notecol='white',rowsep=c(1:8),
+          labRow=myc_netnames[which(matching_net==1)],labCol=NULL,
+          margins=c(18,18),col=jet.col,cexRow=1.5)
 dev.off()
 
 ```
