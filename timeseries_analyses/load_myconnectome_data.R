@@ -242,17 +242,17 @@ if (type=='wincorr') {
 	fmridatafile="http://s3.amazonaws.com/openfmri/ds031/rsfmri/module_within_corr.txt"
 	network_names=c('1:Default','2:Second Visual','3:Frontal-Parietal','4.5:First Visual','5:First Dorsal Attention',
                   '6:Second Dorsal Attention','7:Ventral Attention-Language','8:Salience','9:Cingulo-opercular',
-                  '10:Somatomotor','11.5:Frontal-Parietal-Other','15:Parietal Episodic Retrieval',
+                  '10:Somatomotor','11.5:Frontal-Parietal-Other','15:Medial Parietal',
                   '16:Parieto Occipital')
   } else if (type=='bwcorr') {
     fmridatafile="http://s3.amazonaws.com/openfmri/ds031/rsfmri/module_between_corr.txt"
     network_names=as.character(read.table("http://s3.amazonaws.com/openfmri/ds031/rsfmri/bwmod_corr_labels_joined.txt",sep='\t',header=FALSE)$V1)
     }else if (type == 'winvar') {
   	fmridatafile="http://s3.amazonaws.com/openfmri/ds031/rsfmri/network_variance_allses_fixed.txt"
-  	network_names=c('1_Default','2_Second_Visual','3_Frontal-Parietal','4.5_First_Visual_V1plus','5_First_Dorsal_Attention','6_Second_Dorsal_Attention','7_Ventral_Attention-Language','8_Salience','9_Cingulo-opercular','10_Somatomotor','11.5_Frontal-Parietal_Other','15_Parietal_Episodic_Retrieval','16_Parieto-Occipital')
+  	network_names=c('1_Default','2_Second_Visual','3_Frontal-Parietal','4.5_First_Visual_V1plus','5_First_Dorsal_Attention','6_Second_Dorsal_Attention','7_Ventral_Attention-Language','8_Salience','9_Cingulo-opercular','10_Somatomotor','11.5_Frontal-Parietal_Other','15_Medial_Parietal','16_Parieto-Occipital')
   	} else {
 	fmridatafile="http://s3.amazonaws.com/openfmri/ds031/rsfmri/module_falff.txt"
-	network_names=c('1_Default','2_Second_Visual','3_Frontal-Parietal','4.5_First_Visual_V1plus','5_First_Dorsal_Attention','6_Second_Dorsal_Attention','7_Ventral_Attention-Language','8_Salience','9_Cingulo-opercular','10_Somatomotor','11.5_Frontal-Parietal_Other','15_Parietal_Episodic_Retrieval','16_Parieto-Occipital')
+	network_names=c('1_Default','2_Second_Visual','3_Frontal-Parietal','4.5_First_Visual_V1plus','5_First_Dorsal_Attention','6_Second_Dorsal_Attention','7_Ventral_Attention-Language','8_Salience','9_Cingulo-opercular','10_Somatomotor','11.5_Frontal-Parietal_Other','15_Medial_Parietal','16_Parieto-Occipital')
 	} 		
 
 data = read.table(fmridatafile, na.strings='.', header=FALSE)
