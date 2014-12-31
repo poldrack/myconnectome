@@ -10,10 +10,9 @@ f.close()
 
 fd_demog=numpy.loadtxt('/Users/poldrack/Dropbox/data/connectome-genome/transcripts/fd_common.txt')
 
-wincorr=numpy.loadtxt('/Users/poldrack/Dropbox/data/connectome-genome/transcripts/wincorr_common.txt')
 
 f=open('/Users/poldrack/Dropbox/data/selftracking/rna-seq/WGCNA/GOBS_nofix_wincorr_expression_solar.txt','w')
-wincorr_names=['WC%d'%i for i in range(1,wincorr.shape[1]+1)]
+wincorr_names=['WC%d'%i for i in range(1,13)]
 me_names=['ME%d'%int(i+1) for i in range(exprdata.shape[0])]
 nuisance_names=['fd','age','sex']
 
