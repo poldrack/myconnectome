@@ -63,12 +63,15 @@ def load_rnaseq_data(use_wgcna=True):
     f.close()
     return data,gene_names,dates,subcodes
 
-def load_behav_data(subcodes_limit=None,xvars=None):
+def load_behav_data(subcodes_limit=None,xvars=None,allsubs=False):
     """
     load behavioral data - pass dates to limit to specific subcodes
     """
     
-    f=open('/Users/poldrack/code/selftracking/analysis_metadata/trackingdata_goodscans.txt')
+    if allsubs:
+        f=open('/Users/poldrack/code/selftracking/analysis_metadata/trackingdata.txt')
+    else:
+        f=open('/Users/poldrack/code/selftracking/analysis_metadata/trackingdata_goodscans.txt')
     header=[i for i in f.readline().strip().split('\t')]
     variables=header[2:]  # remove 
     lines=[]
@@ -107,6 +110,41 @@ def load_behav_data(subcodes_limit=None,xvars=None):
         variables=[variables[i] for i in xvar_nums]
     
     return behavdata,variables,dates,subcodes
+
+def load_food_data():
+    f=open('/Users/poldrack/code/selftracking/analysis_metadata/food_data.txt')
+    header=f.readline().strip().split()
+    lines=[i.strip() for i in f.readlines()]
+    subcodes=[]
+    data=[]
+    for l in lines:
+        data.append([int(i) for i in l.split('\t')[1:]])
+        subcodes.append(l.split('\t')[0])
+    data=numpy.array(data)
+    behavdata,behavvars,behavdates,behavsubs=load_behav_data(allsubs=True)
+    behav_dict={}
+    for i in range(len(behavdates)):
+        behav_dict[behavsubs[i]]=behavdates[i]
+    food_dates=[behav_dict[i] for i in subcodes]
+    return data,header[1:],food_dates,subcodes
+
+def load_metab_data():
+    f=open('/Users/poldrack/Dropbox/data/selftracking/rna-seq/drawdates.txt')
+    dates=[i.strip() for i in f.readlines()]
+    f.close()
+    subcodes=[i.strip() for i in open('/Users/poldrack/Dropbox/data/selftracking/rna-seq/pathsubs.txt').readlines()]
+    f=open('/Users/poldrack/Dropbox/data/selftracking/proteomics/apclust_eigenconcentrations.txt')
+    header=f.readline()
+    lines=f.readlines()
+    f.close()
+    data=[]
+    for l in lines:
+        l_s=[float(i) for i in l.strip().split()[1:]]
+        data.append(l_s)
+    data=numpy.array(data)
+    clust_desc=[i.strip() for i in open('/Users/poldrack/Dropbox/data/selftracking/proteomics/apclust_descriptions.txt').readlines()]
+    return data,clust_desc,dates,subcodes
+
 
 def load_wincorr_data():
     wincorr=numpy.loadtxt('/Users/poldrack/Dropbox/data/selftracking/rsfmri/module_within_corr.txt')
