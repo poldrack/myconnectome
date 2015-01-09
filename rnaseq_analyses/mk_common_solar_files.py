@@ -1,7 +1,7 @@
 import numpy
 import os
 
-exprdata=numpy.loadtxt('/Users/poldrack/Dropbox/data/selftracking/rna-seq/WGCNA/cluster_eigengenes_GOBS.txt')
+exprdata=numpy.loadtxt('/Users/poldrack/Dropbox/data/selftracking/rna-seq/WGCNA/cluster_eigengenes_GOBS_reg5PCs_regSNP.txt')
 exprdata=exprdata[:,1:]
 
 f=open('/Users/poldrack/Dropbox/data/connectome-genome/transcripts/subcodes_common.txt')
@@ -11,7 +11,7 @@ f.close()
 fd_demog=numpy.loadtxt('/Users/poldrack/Dropbox/data/connectome-genome/transcripts/fd_common.txt')
 
 
-f=open('/Users/poldrack/Dropbox/data/selftracking/rna-seq/WGCNA/GOBS_nofix_wincorr_expression_solar.txt','w')
+f=open('/Users/poldrack/Dropbox/data/selftracking/rna-seq/WGCNA/GOBS_nofix_wincorr_expression_eig_reg3PCs_regSNP_solar.txt','w')
 wincorr_names=['WC%d'%i for i in range(1,13)]
 me_names=['ME%d'%int(i+1) for i in range(exprdata.shape[0])]
 nuisance_names=['fd','age','sex']

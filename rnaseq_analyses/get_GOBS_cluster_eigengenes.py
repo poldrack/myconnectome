@@ -67,11 +67,13 @@ for l in lines:
     snpdata[l_s[0]]=[float(l_s[i]) for i in range(4,14)]
 
 # snp data missing for one subject - fill with zeros
-snpdata['EJ2303']=numpy.mean(snp_pcs,0)
 
 subcodes=[i.strip() for i in open('/Users/poldrack/Dropbox/data/connectome-genome/transcripts/subcodes_common.txt').readlines()]
 
 snp_pcs=numpy.zeros((len(subcodes),10))
+
+snpdata['EJ2303']=numpy.mean(snp_pcs,0)
+
 
 for i in range(len(subcodes)):
     snp_pcs[i,:]=snpdata[subcodes[i]]
@@ -83,11 +85,8 @@ if pcs_to_regress > 0:
     linreg.fit(all_pcs,all_exprdata)
     all_exprdata=all_exprdata - linreg.predict(all_pcs)
 
-gene_indices={}
-ctr=0
-for g in gene_names:
-    gene_indices[g]=ctr
-    ctr+=1
+for i in range(len(gene_names)):
+    exprdata[gene_names[i]]=all_exprdata[:,i]
 
 
 setdata={}

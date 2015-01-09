@@ -2,14 +2,14 @@
 title: "GOBS-MyConnectome Analysis"
 author: "Russ Poldrack"
 date: "November 18, 2014"
-output: html_document
+output: pdf_document
 ---
+
 
 Get the data:
 
 ```{r}
-#gobs=read.table('http://s3.amazonaws.com/openfmri/ds031/RNA-seq/GOBS_SOLAR_expression_results.csv',sep=',',header=TRUE)
-gobs=read.table('/Users/poldrack/Dropbox/data/selftracking/rna-seq/WGCNA/WC.ME_h2_rho_p_run4.csv',sep=',',header=TRUE)
+gobs=read.table('/Users/poldrack/Dropbox/data/selftracking/rna-seq/WGCNA/WC.ME_h2_rho_p_run5-nofix.csv',sep=',',header=TRUE)
 netcodes=as.character(unique(gobs[,1]))
 mecodes=as.character(unique(gobs[,2]))
 ```
@@ -163,19 +163,19 @@ myc_cor_mtx_thresh[which(myc_cor_mtx_thresh<0)]=-1
 
 my_palette <- colorRampPalette(c("blue", "gray", "red"))(n = 299)
 
-library(plot3D)
-pdf(file='/Users/poldrack/Dropbox/Documents/Papers/SelfTracking/figures/gobs_expression_heatmap_matched.pdf',width=18,height=8)
-heatmap.2(gobs_cor_mtx_thresh,Rowv=NULL,Colv=NULL,trace='none',colsep=c(1:38),
-          notecex=3,notecol='white',rowsep=c(1:8),
-          labRow=gobs_netnames[which(matching_net==1)],labCol=cluster_terms,
-          margins=c(18,18),col=my_palette,cexRow=1.5,cexCol=1.4,key=FALSE)
-dev.off()
-
-pdf(file='/Users/poldrack/Dropbox/Documents/Papers/SelfTracking/figures/myc_expression_heatmap_matched.pdf',width=18,height=8)
-heatmap.2(myc_cor_mtx_thresh,Rowv=NULL,Colv=NULL,trace='none',colsep=c(1:38),
-          notecol='white',rowsep=c(1:8),
-          labRow=myc_netnames[which(matching_net==1)],labCol=NULL,
-          margins=c(18,18),col=my_palette,cexRow=1.5,key=FALSE)
-dev.off()
+# library(plot3D)
+# pdf(file='/Users/poldrack/Dropbox/Documents/Papers/SelfTracking/figures/gobs_expression_heatmap_matched.pdf',width=18,height=8)
+# heatmap.2(gobs_cor_mtx_thresh,Rowv=NULL,Colv=NULL,trace='none',colsep=c(1:38),
+#           notecex=3,notecol='white',rowsep=c(1:8),
+#           labRow=gobs_netnames[which(matching_net==1)],labCol=cluster_terms,
+#           margins=c(18,18),col=my_palette,cexRow=1.5,cexCol=1.4,key=FALSE)
+# dev.off()
+# 
+# pdf(file='/Users/poldrack/Dropbox/Documents/Papers/SelfTracking/figures/myc_expression_heatmap_matched.pdf',width=18,height=8)
+# heatmap.2(myc_cor_mtx_thresh,Rowv=NULL,Colv=NULL,trace='none',colsep=c(1:38),
+#           notecol='white',rowsep=c(1:8),
+#           labRow=myc_netnames[which(matching_net==1)],labCol=NULL,
+#           margins=c(18,18),col=my_palette,cexRow=1.5,key=FALSE)
+# dev.off()
 
 ```
