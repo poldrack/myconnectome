@@ -30,11 +30,8 @@ if 1:
 	#subcode=func_file.split('/')[8]
 	print 'processing',subcode
 	funcdata['subcode'].append(subcode)
-	mask_file=func_file.replace('.nii.gz','_brain_mask.nii.gz')
-	if not os.path.exists(mask_file):
-		cmd='bet %s %s -m -F'%(func_file,func_file.replace('.nii.gz','_brain'))
-		print cmd
-		run_shell_cmd(cmd)
+	mask_file=func_file.replace('bold.nii.gz','mean_bold_mask.nii.gz')
+
 	
 	func_data                       = load_func(func_file,mask_file)
 	mean_func_data 		= calc_mean_func(func_file)
@@ -45,7 +42,7 @@ if 1:
 	func_snr=snr(mean_inmask,std_bg)
         func_efc		= efc(func_data)
         func_fber 	= fber(mean_func_data, func_mask)
-	meanfile=func_file.replace('bold','bold_mcf_mean_reg')
+	meanfile=func_file.replace('bold','mean_bold')
 	assert os.path.exists(meanfile)
         func_fwhm 	= fwhm(meanfile, mask_file, out_vox=True)
 
