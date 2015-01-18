@@ -4,18 +4,16 @@ run quality assurance measures on functional data
 
 import sys,glob
 sys.path.append('/scratch/projects/UT/poldracklab/poldrack/selftracking/MRI/qatest/quality-assessment-protocol')
+
 import os
 import numpy
 from run_shell_cmd import run_shell_cmd
-from compute_fd import compute_fd
 
 from qap import load_func,load_image, load_mask, summary_mask, cnr,efc,fber,fwhm,artifacts,ghost_all,calc_mean_func,calc_dvars,mean_outlier_timepoints,mean_quality_timepoints,snr,temporal_qc
 from qap.temporal_qc import summarize_fd
 
 basedir='/scratch/projects/UT/poldracklab/poldrack/selftracking/MRI'
 
-#funcfiles=glob.glob(os.path.join(basedir,'sub*/BOLD/resting_run001/bold.nii.gz'))
-#funcfiles.sort()
 
 funcdata={'subcode':[],'func_efc':[],'func_fber':[],'func_fwhm':[],'func_gsr':[],'func_dvars':[],'func_outlier':[],'func_quality':[],'func_mean_fd':[],'func_num_fd':[],'func_perc_fd':[]}
 	  
@@ -61,7 +59,7 @@ if 1:
 	print 'running mean_outlier_timepoints'
 	func_outlier	= mean_outlier_timepoints(func_file, mask_file, out_fraction=True)
 	print 'running mean_quality_timepoints'
-	func_quality	= mean_quality_timepoints(func_file, automask=True)
+	func_quality	= mean_quality_timepoints(func_file)
 	
 	print 'running summarize_fd'
 
