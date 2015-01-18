@@ -49,7 +49,7 @@ if 1:
         func_fber 	= fber(mean_func_data, func_mask)
 	meanfile=func_file.replace('bold','bold_mcf_mean_reg')
 	assert os.path.exists(meanfile)
-        func_fwhm 	= fwhm(meanfile, mask_file, out_vox=False)
+        func_fwhm 	= fwhm(meanfile, mask_file, out_vox=True)
 
 	print 'running ghost_all'
 	_,func_gsr,_=ghost_all(mean_func_data,func_mask)
@@ -60,6 +60,9 @@ if 1:
 		func_dvars=[]
 	print 'running mean_outlier_timepoints'
 	func_outlier	= mean_outlier_timepoints(func_file, mask_file, out_fraction=True)
+	print 'running mean_quality_timepoints'
+	func_quality	= mean_quality_timepoints(func_file, automask=True)
+	
 	print 'running summarize_fd'
 
 	if not os.path.exists(func_file.replace('bold.nii.gz','bold.out.aff12.1D')):
@@ -67,7 +70,7 @@ if 1:
 		print 'running',cmd
 		run_shell_cmd(cmd)
 	mean_fd,num_fd,perc_fd=summarize_fd(func_file.replace('bold.nii.gz','bold.out.aff12.1D'),threshold=0.2)
-	funcdata={'subcode':subcode,'snr':func_snr,'efc':func_efc,'fber':func_fber,'fwhm':func_fwhm,'gsr':func_gsr,'dvars':func_dvars,'outlier':func_outlier,'fd':mean_fd,'num_fd':num_fd}
+	funcdata={'subcode':subcode,'snr':func_snr,'efc':func_efc,'fber':func_fber,'fwhm':func_fwhm,'gsr':func_gsr,'dvars':func_dvars,'outlier':func_outlier,'fd':mean_fd,'num_fd':num_fd,'func_quality':func_quality}
 	
 	import pickle
 	pickle.dump(funcdata,open('/scratch/projects/UT/poldracklab/poldrack/selftracking/MRI/qatest/qadata/%s_func_qa.pkl'%subcode,'wb'))
