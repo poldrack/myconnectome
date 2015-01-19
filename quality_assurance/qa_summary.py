@@ -61,6 +61,7 @@ mean_fd=[]
 pct_fd=[]
 num_fd=[]
 quality=[]
+tsnr=[]
 
 exclude_bad_subs=False
 
@@ -74,13 +75,14 @@ for f in funcfiles:
     gsr.append(funcdata[subcode]['gsr'])
     fber.append(funcdata[subcode]['fber'])
     snr.append(funcdata[subcode]['snr'])
+    tsnr.append(funcdata[subcode]['tsnr'])
     fwhm.append(funcdata[subcode]['fwhm'][3])
     efc.append(funcdata[subcode]['efc'])
     quality.append(funcdata[subcode]['func_quality'])
     mean_fd.append(funcdata[subcode]['fd'])
     pct_fd.append(100.0*(funcdata[subcode]['num_fd']/518.0))
     
-funcvars={'func_gsr':gsr,'func_fber':fber,'func_snr':snr,'func_fwhm':fwhm,'func_efc':efc,'func_mean_fd':mean_fd,'func_perc_fd':pct_fd,'func_quality':quality}
+funcvars={'func_gsr':gsr,'func_fber':fber,'func_snr':snr,'func_tsnr':tsnr,'func_fwhm':fwhm,'func_efc':efc,'func_mean_fd':mean_fd,'func_perc_fd':pct_fd,'func_quality':quality}
 myc=pd.DataFrame(funcvars)
 
 if exclude_bad_subs:
