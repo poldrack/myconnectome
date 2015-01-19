@@ -9,7 +9,7 @@ import os
 import numpy
 from run_shell_cmd import run_shell_cmd
 
-from qap import load_func,load_image, load_mask, summary_mask, cnr,efc,fber,fwhm,artifacts,ghost_all,calc_mean_func,calc_dvars,mean_outlier_timepoints,mean_quality_timepoints,snr,temporal_qc
+from qap import load_func,load_image, load_mask, summary_mask, cnr,efc,fber,fwhm,artifacts,ghost_all,calc_mean_func,calc_dvars,mean_outlier_timepoints,mean_quality_timepoints,snr,temporal_qc,median_tsnr
 from qap.temporal_qc import summarize_fd
 
 basedir='/scratch/projects/UT/poldracklab/poldrack/selftracking/MRI'
@@ -34,6 +34,7 @@ if 1:
 
 	
 	func_data                       = load_func(func_file,mask_file)
+	tsnr = median_tsnr(func_data)
 	mean_func_data 		= calc_mean_func(func_file)
 	func_mask = load_mask(mask_file)
 	bg_mask=1 - func_mask
@@ -65,7 +66,7 @@ if 1:
 		print 'running',cmd
 		run_shell_cmd(cmd)
 	mean_fd,num_fd,perc_fd=summarize_fd(func_file.replace('bold.nii.gz','bold.out.aff12.1D'),threshold=0.2)
-	funcdata={'subcode':subcode,'snr':func_snr,'efc':func_efc,'fber':func_fber,'fwhm':func_fwhm,'gsr':func_gsr,'dvars':func_dvars,'outlier':func_outlier,'fd':mean_fd,'num_fd':num_fd,'func_quality':func_quality}
+	funcdata={'subcode':subcode,'snr':func_snr,'efc':func_efc,'fber':func_fber,'fwhm':func_fwhm,'gsr':func_gsr,'dvars':func_dvars,'outlier':func_outlier,'fd':mean_fd,'num_fd':num_fd,'func_quality':func_quality,'tsnr':tsnr}
 	
 	import pickle
 	pickle.dump(funcdata,open('/scratch/projects/UT/poldracklab/poldrack/selftracking/MRI/qatest/qadata/%s_func_qa.pkl'%subcode,'wb'))
