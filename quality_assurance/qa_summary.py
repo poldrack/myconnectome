@@ -62,8 +62,14 @@ pct_fd=[]
 num_fd=[]
 quality=[]
 
+exclude_bad_subs=False
+
+subcodes=[i.strip() for i in open('/Users/poldrack/code/myconnectome/rsfmri_analyses/subcodes.txt').readlines()]
+
 for f in funcfiles:
     subcode=f.split('/')[-1].split('_')[0]
+    if exclude_bad_subs and not subcode in subcodes:
+        continue
     funcdata[subcode]=pickle.load(open(f,'rb'))
     gsr.append(funcdata[subcode]['gsr'])
     fber.append(funcdata[subcode]['fber'])
@@ -77,5 +83,10 @@ for f in funcfiles:
 funcvars={'func_gsr':gsr,'func_fber':fber,'func_snr':snr,'func_fwhm':fwhm,'func_efc':efc,'func_mean_fd':mean_fd,'func_perc_fd':pct_fd,'func_quality':quality}
 myc=pd.DataFrame(funcvars)
 
-myc.to_csv('myconnectome_func_qa.csv')
+if exclude_bad_subs:
+    myc.to_csv('myconnectome_func_qa_goodsubs.csv')
+else:
+    myc.to_csv('myconnectome_func_qa_allsubs.csv')
+
+
 
