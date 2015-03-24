@@ -270,24 +270,20 @@ load_network_data=function(mean_over_thresh=FALSE) {
 	behav=load_behav_data()
 	data=read.table('http://s3.amazonaws.com/openfmri/ds031/rsfmri/netstats_all.txt',header=TRUE)
 	if (mean_over_thresh) {
-		vars=c('EFFg','EFFl','Clust','modularity_infomap',
-		  "modularity_multi","PowerExp","RCC",
-		  "mean_cc","mean_bc","mean_pi","gcsize","APL")
+		vars=c('EFFg','Clust',"Modularity","PowerExp","RCC",
+		 "gcsize","APL")
 		  meandata=matrix(data=0,nrow=dim(data)[1],ncol=length(vars))
 		  for (measure in 1:length(vars)) {
-				d=subset(data,select=seq(measure,60,12))
+				d=subset(data,select=seq(measure,35,7))
+        print(names(d))
 				meandata[,measure]=apply(d,1,mean)
 			
 			}
 		data=as.data.frame(meandata)
 		names(data)=vars
-		data$MOD=(data$modularity_infomap + data$modularity_multi)/2.0
-		data$modularity_infomap=NULL
-		data$modularity_multi=NULL
 		data$mean_pi=NULL
 		data$mean_cc=NULL
 		data$mean_bc=NULL
-		data$gcsize=NULL
 		}
 	subcodes=read.table("http://s3.amazonaws.com/openfmri/ds031/rsfmri/subcodes.txt",header=FALSE)
 	dates=behav$date[behav$subcode %in% subcodes$V1]
