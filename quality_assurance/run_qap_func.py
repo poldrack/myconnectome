@@ -4,18 +4,16 @@ run quality assurance measures on functional data
 
 import sys,glob
 sys.path.append('/scratch/projects/UT/poldracklab/poldrack/selftracking/MRI/qatest/quality-assessment-protocol')
+
 import os
 import numpy
 from run_shell_cmd import run_shell_cmd
-from compute_fd import compute_fd
 
-from qap import load_func,load_image, load_mask, summary_mask, cnr,efc,fber,fwhm,artifacts,ghost_all,calc_mean_func,calc_dvars,mean_outlier_timepoints,mean_quality_timepoints,snr,temporal_qc
+from qap import load_func,load_image, load_mask, summary_mask, cnr,efc,fber,fwhm,artifacts,ghost_all,calc_mean_func,calc_dvars,mean_outlier_timepoints,mean_quality_timepoints,snr,temporal_qc,median_tsnr
 from qap.temporal_qc import summarize_fd
 
 basedir='/scratch/projects/UT/poldracklab/poldrack/selftracking/MRI'
 
-#funcfiles=glob.glob(os.path.join(basedir,'sub*/BOLD/resting_run001/bold.nii.gz'))
-#funcfiles.sort()
 
 funcdata={'subcode':[],'func_efc':[],'func_fber':[],'func_fwhm':[],'func_gsr':[],'func_dvars':[],'func_outlier':[],'func_quality':[],'func_mean_fd':[],'func_num_fd':[],'func_perc_fd':[]}
 	  
@@ -32,13 +30,11 @@ if 1:
 	#subcode=func_file.split('/')[8]
 	print 'processing',subcode
 	funcdata['subcode'].append(subcode)
-	mask_file=func_file.replace('.nii.gz','_brain_mask.nii.gz')
-	if not os.path.exists(mask_file):
-		cmd='bet %s %s -m -F'%(func_file,func_file.replace('.nii.gz','_brain'))
-		print cmd
-		run_shell_cmd(cmd)
+	mask_file=func_file.replace('bold.nii.gz','mean_bold_mask.nii.gz')
+
 	
 	func_data                       = load_func(func_file,mask_file)
+	tsnr = median_tsnr(func_data)
 	mean_func_data 		= calc_mean_func(func_file)
 	func_mask = load_mask(mask_file)
 	bg_mask=1 - func_mask
@@ -47,9 +43,9 @@ if 1:
 	func_snr=snr(mean_inmask,std_bg)
         func_efc		= efc(func_data)
         func_fber 	= fber(mean_func_data, func_mask)
-	meanfile=func_file.replace('bold','bold_mcf_mean_reg')
+	meanfile=func_file.replace('bold','mean_bold')
 	assert os.path.exists(meanfile)
-        func_fwhm 	= fwhm(meanfile, mask_file, out_vox=False)
+        func_fwhm 	= fwhm(meanfile, mask_file, out_vox=True)
 
 	print 'running ghost_all'
 	_,func_gsr,_=ghost_all(mean_func_data,func_mask)
@@ -60,6 +56,9 @@ if 1:
 		func_dvars=[]
 	print 'running mean_outlier_timepoints'
 	func_outlier	= mean_outlier_timepoints(func_file, mask_file, out_fraction=True)
+	print 'running mean_quality_timepoints'
+	func_quality	= mean_quality_timepoints(func_file)
+	
 	print 'running summarize_fd'
 
 	if not os.path.exists(func_file.replace('bold.nii.gz','bold.out.aff12.1D')):
@@ -67,7 +66,7 @@ if 1:
 		print 'running',cmd
 		run_shell_cmd(cmd)
 	mean_fd,num_fd,perc_fd=summarize_fd(func_file.replace('bold.nii.gz','bold.out.aff12.1D'),threshold=0.2)
-	funcdata={'subcode':subcode,'snr':func_snr,'efc':func_efc,'fber':func_fber,'fwhm':func_fwhm,'gsr':func_gsr,'dvars':func_dvars,'outlier':func_outlier,'fd':mean_fd,'num_fd':num_fd}
+	funcdata={'subcode':subcode,'snr':func_snr,'efc':func_efc,'fber':func_fber,'fwhm':func_fwhm,'gsr':func_gsr,'dvars':func_dvars,'outlier':func_outlier,'fd':mean_fd,'num_fd':num_fd,'func_quality':func_quality,'tsnr':tsnr}
 	
 	import pickle
 	pickle.dump(funcdata,open('/scratch/projects/UT/poldracklab/poldrack/selftracking/MRI/qatest/qadata/%s_func_qa.pkl'%subcode,'wb'))
