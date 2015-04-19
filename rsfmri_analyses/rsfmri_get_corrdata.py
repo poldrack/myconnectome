@@ -28,17 +28,18 @@ subcodefile=os.path.join(basedir,'subcodes.txt')
 
 
 # compute correlations
+# drop first 50 timepoints due to startup artifact from noise cancellation
 
 subfiles=glob.glob(os.path.join(datadir,'sub*.txt'))
 subfiles.sort()
 subcodes=[i.split('/')[-1].replace('.txt','') for i in subfiles]
 for s in range(len(subcodes)):
     print 'processing',subcodes[s],subfiles[s]
-    data=numpy.loadtxt(subfiles[s])
+    data=numpy.loadtxt(subfiles[s])[50:,:]
     
-    tmask=numpy.loadtxt(os.path.join(basedir,'tmasks/%s.txt'%subcodes[s]))
+    tmask=numpy.loadtxt(os.path.join(basedir,'tmasks/%s.txt'%subcodes[s]))[50:]
     data=data[tmask==1,:]
-
+    
     if s==0:
         utr=numpy.triu_indices(data.shape[1],1)
         corrdata=numpy.zeros((len(subcodes),len(utr[0])))
