@@ -230,7 +230,7 @@ load_autocorr_data = function(infile='/Users/poldrack/Dropbox/data/selftracking/
 	return(data)
 	}
 	
-load_fmri_data = function (type='wincorr',log_winvar=TRUE) {
+load_fmri_data = function (type='wincorr') {
 	
 # laod behav data to get dates
 behav=load_behav_data()
@@ -247,18 +247,10 @@ if (type=='wincorr') {
   } else if (type=='bwcorr') {
     fmridatafile="http://s3.amazonaws.com/openfmri/ds031/rsfmri/module_between_corr.txt"
     network_names=as.character(read.table("http://s3.amazonaws.com/openfmri/ds031/rsfmri/bwmod_corr_labels_joined.txt",sep='\t',header=FALSE)$V1)
-    }else if (type == 'winvar') {
-  	fmridatafile="http://s3.amazonaws.com/openfmri/ds031/rsfmri/network_variance_allses_fixed.txt"
-  	network_names=c('1_Default','2_Second_Visual','3_Frontal-Parietal','4.5_First_Visual_V1plus','5_First_Dorsal_Attention','6_Second_Dorsal_Attention','7_Ventral_Attention-Language','8_Salience','9_Cingulo-opercular','10_Somatomotor','11.5_Frontal-Parietal_Other','15_Medial_Parietal','16_Parieto-Occipital')
-  	} else {
-	fmridatafile="http://s3.amazonaws.com/openfmri/ds031/rsfmri/module_falff.txt"
-	network_names=c('1_Default','2_Second_Visual','3_Frontal-Parietal','4.5_First_Visual_V1plus','5_First_Dorsal_Attention','6_Second_Dorsal_Attention','7_Ventral_Attention-Language','8_Salience','9_Cingulo-opercular','10_Somatomotor','11.5_Frontal-Parietal_Other','15_Medial_Parietal','16_Parieto-Occipital')
-	} 		
+    }	
+  else {stop(sprintf('data type %s not found',type))}
 
 data = read.table(fmridatafile, na.strings='.', header=FALSE)
-if (type == 'winvar' & log_winvar==TRUE) {
-	data=log(data)
-}
 
 names(data)=network_names
 data$date=dates
@@ -266,30 +258,15 @@ data$date=dates
 	return(data)
 	}
 	
-load_network_data=function(mean_over_thresh=FALSE) {
+load_network_data=function(
+    infile='http://s3.amazonaws.com/openfmri/ds031/rsfmri/netstats_all.txt') {
 	behav=load_behav_data()
-	data=read.table('http://s3.amazonaws.com/openfmri/ds031/rsfmri/netstats_all.txt',header=TRUE)
-	if (mean_over_thresh) {
-		vars=c('EFFg','Clust',"Modularity","PowerExp","RCC",
-		 "gcsize","APL")
-		  meandata=matrix(data=0,nrow=dim(data)[1],ncol=length(vars))
-		  for (measure in 1:length(vars)) {
-				d=subset(data,select=seq(measure,35,7))
-        print(names(d))
-				meandata[,measure]=apply(d,1,mean)
-			
-			}
-		data=as.data.frame(meandata)
-		names(data)=vars
-		data$mean_pi=NULL
-		data$mean_cc=NULL
-		data$mean_bc=NULL
-		}
+	datamat=read.table(infile,header=TRUE)
 	subcodes=read.table("http://s3.amazonaws.com/openfmri/ds031/rsfmri/subcodes.txt",header=FALSE)
 	dates=behav$date[behav$subcode %in% subcodes$V1]
-	row.names(data)=subcodes$V1
-	data$date=dates
-	return(data)
+	row.names(datamat)=subcodes$V1
+	datamat$date=dates
+	return(datamat)
 	
 
 	}
