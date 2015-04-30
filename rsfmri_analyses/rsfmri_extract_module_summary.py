@@ -61,29 +61,35 @@ for subcode in subcodes:
     
     modctr=0
     modrois={}
-    modeig=numpy.zeros((data.shape[0],len(modules)))
-    modeig_unscrubbed=numpy.zeros((data_unscrubbed.shape[0],len(modules)))
     modmeancorr_within=numpy.zeros(len(modules))
-                            
+    modmeancorr_between=numpy.zeros((len(modules),len(modules)))
+    moddata={}
+    moddata_unscrubbed={}
+    
     for m in modules:
         modrois[m]=numpy.where(modulenum==m)[0]
-        moddata=data[:,modrois[m]]
-        moddata_unscrubbed=data_unscrubbed[:,modrois[m]]
-        modcorr=numpy.corrcoef(moddata.T)
+        moddata[m]=data[:,modrois[m]]
+        moddata_unscrubbed[m]=data_unscrubbed[:,modrois[m]]
+
+    for m in modules:
+        modcorr=numpy.corrcoef(moddata[m].T)
         modutr=numpy.triu_indices(modcorr.shape[0],1)
         modmeancorr_within[modctr]=z_to_r(numpy.mean(r_to_z(modcorr[modutr])))
-        pca=sklearn.decomposition.PCA(1)
-        modeig[:,modctr]=pca.fit(moddata).transform(moddata)[:,0]
+        mbctr=-1
+        for mb in modules:
+            mbctr+=1
+            if mb==m:
+                continue
+            mc=numpy.corrcoef(moddata[m].T,moddata[mb].T)
+            mcbw=mc[moddata[m].shape[1]:,:moddata[m].shape[1]]
+            modmeancorr_between[modctr,mbctr]=z_to_r(numpy.mean(r_to_z(mcbw)))
+            
         modctr+=1
-    a,modeig_falff=alff(modeig_unscrubbed,1.16)
-    numpy.savetxt(os.path.join(outdir_alff,subcode+'.txt'),modeig_falff)
-    #numpy.savetxt(os.path.join(outdir_modeig,subcode+'.txt'),modeig)
 
-    modeig_corr=numpy.corrcoef(modeig.T)
-    modeig_corr_utr=modeig_corr[numpy.triu_indices(modeig_corr.shape[0],1)]
-    
+
+    mcbw_utr=modmeancorr_between[numpy.triu_indices(13,1)]
     numpy.savetxt(os.path.join(outdir_winmod,subcode+'.txt'),modmeancorr_within)
-    numpy.savetxt(os.path.join(outdir_bwmod,subcode+'.txt'),modeig_corr_utr)
+    numpy.savetxt(os.path.join(outdir_bwmod,subcode+'.txt'),mcbw_utr)
 
 
 f=open('bwmod_corr_labels.txt','w')
