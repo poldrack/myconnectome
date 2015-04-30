@@ -19,5 +19,5 @@ task_cope_ordered=task_cope[idx,:]
 data_ordered=data[idx,:]
 
 cc=numpy.corrcoef(data_ordered)
-plt.imshow(cc)
+plt.imshow(cc,cmap='gray')
 plt.show()
