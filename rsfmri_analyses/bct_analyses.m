@@ -1,5 +1,5 @@
 % get net stats using BCT
-path(path,'/Users/poldrack/matlab/BCT')
+path(path,'/home1/01329/poldrack/BCT')
 
 Q=zeros(84,1);
 clustering_pos=zeros(84,634);
@@ -13,8 +13,9 @@ bwc_neg=zeros(84,634);
 assort_pos=zeros(84,1);
 assort_neg=zeros(84,1);
 
+basedir='/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses'
 for session = 1:84
-    data=textread(sprintf('/Users/poldrack/data/selftracking/rsfmri/corrdata_files/corrdata_sess%02d.txt',session));
+    data=textread(sprintf('/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/corrdata_files/corrdata_sess%02d.txt',session));
     [Ci,Q(session)]=modularity_louvain_und_sign(data);
     [Ppos(session,:), Pneg(session,:)] = participation_coef_sign(data,Ci);
     datapos=data;
@@ -41,15 +42,15 @@ bwc_neg=transpose(bwc_neg);
 clustering_pos=transpose(clustering_pos);
 clustering_neg=transpose(clustering_neg);
 
-save '/Users/poldrack/data/selftracking/rsfmri/clustering_pos.txt' clustering_pos '-ascii' '-tabs'
-save '/Users/poldrack/data/selftracking/rsfmri/clustering_neg.txt' clustering_neg '-ascii' '-tabs'
-save '/Users/poldrack/data/selftracking/rsfmri/bwc_pos.txt' bwc_pos '-ascii' '-tabs'
-save '/Users/poldrack/data/selftracking/rsfmri/bwc_neg.txt' bwc_neg '-ascii' '-tabs'
-save '/Users/poldrack/data/selftracking/rsfmri/geff_pos.txt' Geff_pos '-ascii' '-tabs'
-save '/Users/poldrack/data/selftracking/rsfmri/geff_neg.txt' Geff_neg '-ascii' '-tabs'
-save '/Users/poldrack/data/selftracking/rsfmri/assort_pos.txt' assort_pos '-ascii' '-tabs'
-save '/Users/poldrack/data/selftracking/rsfmri/assort_neg.txt' assort_neg '-ascii' '-tabs'
+save '/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/clustering_pos.txt' clustering_pos '-ascii' '-tabs'
+save '/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/clustering_neg.txt' clustering_neg '-ascii' '-tabs'
+save '/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/bwc_pos.txt' bwc_pos '-ascii' '-tabs'
+save '/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/bwc_neg.txt' bwc_neg '-ascii' '-tabs'
+save '/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/geff_pos.txt' Geff_pos '-ascii' '-tabs'
+save '/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/geff_neg.txt' Geff_neg  '-ascii' '-tabs'
+save '/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/assort_pos.txt' assort_pos '-ascii' '-tabs'
+save '/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/assort_neg.txt' assort_neg '-ascii' '-tabs'
 
-save '/Users/poldrack/data/selftracking/rsfmri/modularity_weighted_louvain_bct.txt' Q '-ascii' '-tabs'
-save '/Users/poldrack/data/selftracking/rsfmri/PIpos_weighted_louvain_bct.txt' Ppos '-ascii' '-tabs'
-save '/Users/poldrack/data/selftracking/rsfmri/PIneg_weighted_louvain_bct.txt' Pneg '-ascii' '-tabs'
+save '/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/modularity_weighted_louvain_bct.txt' Q '-ascii' '-tabs'
+save '/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/PIpos_weighted_louvain_bct.txt' Ppos '-ascii' '-tabs'
+save '/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/PIneg_weighted_louvain_bct.txt' Pneg '-ascii' '-tabs'
