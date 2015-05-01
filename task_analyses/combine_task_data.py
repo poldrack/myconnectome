@@ -32,17 +32,27 @@ subs=[]
 copename=[]
 data=numpy.zeros((len(taskfiles),79610))
 ctr=0
+
+exclude_terms=['junk','succstop_vs_go','hard_vs_easy','sent_vs_nonword','succ_vs_fail_stop','_dist_','_target_','nonword_vs_sent','faces_vs_','chars_vs_','scenes_vs_','_nontarget_']
+
 for t in taskfiles:
     #print t
     t_s=t.split('/')
     sn=int(t_s[6].replace('sub',''))
     tn=int(t_s[8].replace('model',''))
     cn=int(t_s[11].split('.')[0].replace('zstat',''))
-    
+
     con=load_fsl_design_con(os.path.join( '/'.join(t_s[:10]),'design.con'))
-    if con[cn]=='all' or con[cn].find('junk')>-1 or con[cn].find('_vs_')>-1:
+    exclude=False
+    if con[cn]=='all':
+        exclude=True
+    for e in exclude_terms:
+        if con[cn].find(e)>-1:
+            exclude=True
+    if exclude:
         print 'skipping',con[cn]
         continue
+
     subs.append(sn)
     task.append(tn)
     cope.append(cn)
@@ -50,6 +60,7 @@ for t in taskfiles:
     img=nibabel.load(t)
     data[ctr,:]=img.get_data()[maskvox]
     ctr+=1
+
 numpy.save(os.path.join(outdir,'task_contrast_data.npy'),data)
 numpy.savetxt(os.path.join(outdir,'tasknum.txt'),task)
 numpy.savetxt(os.path.join(outdir,'copenum.txt'),cope)
