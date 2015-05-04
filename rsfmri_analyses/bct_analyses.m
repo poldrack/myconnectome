@@ -10,8 +10,7 @@ Geff_pos=zeros(84,1);
 Geff_neg=zeros(84,1);
 bwc_pos=zeros(84,634);
 bwc_neg=zeros(84,634);
-assort_pos=zeros(84,1);
-assort_neg=zeros(84,1);
+mod_degree_z=zeros(84,634);
 
 basedir='/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses'
 for session = 1:84
@@ -28,13 +27,13 @@ for session = 1:84
     Geff_neg(session)=efficiency_wei(dataneg);
     bwc_pos(session,:)=betweenness_wei(datapos);
     bwc_neg(session,:)=betweenness_wei(dataneg);
+    mod_degree_z(session,:)=module_degree_zscore(datapos,Ci);
     
-    assort_pos(session)=assortativity_wei(datapos,0);
-    assort_neg(session)=assortativity_wei(dataneg,0);
-    
+
     sprintf('%d',session)
 end
 
+mod_degree_z=transpose(mod_degree_z);
 Ppos=transpose(Ppos);
 Pneg=transpose(Pneg);
 bwc_pos=transpose(bwc_pos);
@@ -48,8 +47,9 @@ save '/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses
 save '/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/bwc_neg.txt' bwc_neg '-ascii' '-tabs'
 save '/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/geff_pos.txt' Geff_pos '-ascii' '-tabs'
 save '/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/geff_neg.txt' Geff_neg  '-ascii' '-tabs'
-save '/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/assort_pos.txt' assort_pos '-ascii' '-tabs'
-save '/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/assort_neg.txt' assort_neg '-ascii' '-tabs'
+
+save '/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/module_degree_z.txt' mod_degree_z  '-ascii' '-tabs'
+
 
 save '/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/modularity_weighted_louvain_bct.txt' Q '-ascii' '-tabs'
 save '/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/PIpos_weighted_louvain_bct.txt' Ppos '-ascii' '-tabs'
