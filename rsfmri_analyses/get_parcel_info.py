@@ -12,19 +12,19 @@ import numpy
 basedir='/Users/poldrack/Dropbox/data/selftracking/rsfmri'
 hcpdir='/Users/poldrack/Dropbox/data/selftracking/freesurfer/FREESURFER_fs_LR/7112b_fs_LR/fsaverage_LR32k'
 
-lhfile=os.path.join(basedir,'all_selected_L_parcel.func.gii')
-rhfile=os.path.join(basedir,'all_selected_R_parcel.func.gii')
+lhfile=os.path.join(basedir,'84sub_333_all_startpos50_presmooth_L_threshperc0.45_minparcel20watershedmerge_0.45.func.gii')
+rhfile=os.path.join(basedir,'84sub_333_all_startpos50_presmooth_R_threshperc0.45_minparcel20watershedmerge_0.45.func.gii')
 
 lh=giftiio.read(lhfile)
 rh=giftiio.read(rhfile)
 lhparcvals=numpy.unique(lh.darrays[0].data)[1:]
 rhparcvals=numpy.unique(rh.darrays[0].data)[1:]
 
-lhinfomapfile=os.path.join(basedir,'parcel_L_consensus.func.gii')
-rhinfomapfile=os.path.join(basedir,'parcel_R_consensus.func.gii')
+#lhinfomapfile=os.path.join(basedir,'parcel_L_consensus.func.gii')
+#rhinfomapfile=os.path.join(basedir,'parcel_R_consensus.func.gii')
 
-lhinfomap=giftiio.read(lhinfomapfile)
-rhinfomap=giftiio.read(rhinfomapfile)
+#lhinfomap=giftiio.read(lhinfomapfile)
+#rhinfomap=giftiio.read(rhinfomapfile)
 
 
 lhsurffile=os.path.join(hcpdir,'sub013.L.midthickness.32k_fs_LR.surf.gii')
