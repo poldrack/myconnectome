@@ -100,4 +100,9 @@ for subcode in subcodes:
     numpy.savetxt(os.path.join(outdir_winmod,subcode+'.txt'),modmeancorr_within)
     numpy.savetxt(os.path.join(outdir_bwmod,subcode+'.txt'),mcbw_utr)
 
+f=open('bwmod_corr_labels.txt','w')
+utr=numpy.triu_indices(modeig_corr.shape[0],1)
+for i in range(utr[0].shape[0]):
+    f.write('%s\t%s\n'%(network_names[utr[0][i]],network_names[utr[1][i]]))
+f.close()
 
