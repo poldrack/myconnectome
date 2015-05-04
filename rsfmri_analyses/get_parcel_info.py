@@ -9,28 +9,37 @@ import nibabel
 import nibabel.gifti.giftiio as giftiio
 import numpy
 
-basedir='/Users/poldrack/Dropbox/data/selftracking/rsfmri'
-hcpdir='/Users/poldrack/Dropbox/data/selftracking/freesurfer/FREESURFER_fs_LR/7112b_fs_LR/fsaverage_LR32k'
+basedir='/corral-repl/utexas/poldracklab/data/selftracking/parcellation'
+hcpdir='/corral-repl/utexas/poldracklab/data/selftracking/FREESURFER_fs_LR/7112b_fs_LR/fsaverage_LR32k'
+tutorialdir='/corral-repl/utexas/poldracklab/data/selftracking/HCP_tutorial'
+fsldir='/corral-repl/utexas/poldracklab/software_lonestar/fsl-5.0.6'
 
-lhfile=os.path.join(basedir,'all_selected_L_parcel.func.gii')
-rhfile=os.path.join(basedir,'all_selected_R_parcel.func.gii')
+lhfile=os.path.join(basedir,'84sub_333_all_startpos50_presmooth_L_threshperc0.45_minparcel20watershedmerge_0.45.func.gii')
+rhfile=os.path.join(basedir,'84sub_333_all_startpos50_presmooth_R_threshperc0.45_minparcel20watershedmerge_0.45.func.gii')
 
 lh=giftiio.read(lhfile)
 rh=giftiio.read(rhfile)
+
 lhparcvals=numpy.unique(lh.darrays[0].data)[1:]
 rhparcvals=numpy.unique(rh.darrays[0].data)[1:]
 
-lhinfomapfile=os.path.join(basedir,'parcel_L_consensus.func.gii')
-rhinfomapfile=os.path.join(basedir,'parcel_R_consensus.func.gii')
+# open community files
+communities_orig=numpy.loadtxt(os.path.join(basedir,'parcel_infomap_assigns_startpos50_neworder_communities.txt'))
+communities_orig_idx=numpy.loadtxt(os.path.join(basedir,'parcel_infomap_assigns_startpos50_neworder_consensus_ind.txt'))
 
-lhinfomap=giftiio.read(lhinfomapfile)
-rhinfomap=giftiio.read(rhinfomapfile)
+
+#lhinfomapfile=os.path.join(basedir,'parcel_L_consensus.func.gii')
+#rhinfomapfile=os.path.join(basedir,'parcel_R_consensus.func.gii')
+
+#lhinfomap=giftiio.read(lhinfomapfile)
+#rhinfomap=giftiio.read(rhinfomapfile)
 
 
 lhsurffile=os.path.join(hcpdir,'sub013.L.midthickness.32k_fs_LR.surf.gii')
 lhsurf=giftiio.read(lhsurffile)
 rhsurffile=os.path.join(hcpdir,'sub013.R.midthickness.32k_fs_LR.surf.gii')
 rhsurf=giftiio.read(rhsurffile)
+
 
 # get mean XYZ location and central vertex of each parcel
 lhcoords=numpy.zeros((len(lhparcvals),3))
@@ -79,8 +88,9 @@ for i in range(len(rhcentvertex)):
 
 
 # get RSN labels from HCP tutorial data
-l_rsnlabelfile='/Users/poldrack/data_unsynced/HCP/HCP_WB_Tutorial_Beta0.83/RSN-networks.L.32k_fs_LR.label.gii'
-r_rsnlabelfile='/Users/poldrack/data_unsynced/HCP/HCP_WB_Tutorial_Beta0.83/RSN-networks.R.32k_fs_LR.label.gii'
+l_rsnlabelfile=os.path.join(tutorialdir,'RSN-networks.L.32k_fs_LR.label.gii')
+r_rsnlabelfile=os.path.join(tutorialdir,'RSN-networks.R.32k_fs_LR.label.gii')
+
 l_rsn=giftiio.read(l_rsnlabelfile)
 r_rsn=giftiio.read(r_rsnlabelfile)
 
@@ -111,7 +121,8 @@ for i in range(len(rhcentvertex)):
 
 # get lobe
 
-atlasfile='/Applications/fmri_progs/fsl/data/atlases/MNI/MNI-maxprob-thr0-2mm.nii.gz'
+atlasfile=os.path.join(fsldir,'data/atlases/MNI/MNI-maxprob-thr0-2mm.nii.gz')
+
 atlas=nibabel.load(atlasfile)
 atlasdata=atlas.get_data()
 lobenames=['None','Caudate','Cerebellum','Frontal','Insula','Occipital','Parietal','Putamen','Temporal','Thalamus']
@@ -140,7 +151,7 @@ def vox2mni(vox,qform):
 
 if use_aseg:
 # now get data from APARC
-    f=open('/Users/poldrack/Dropbox/data/selftracking/aseg/aseg_fields.txt')
+    f=open(os.path.join(basedir,'aseg_fields.txt'))
     asegnames={}
     for l in f.readlines():
         l_s=l.strip().split()
@@ -148,7 +159,7 @@ if use_aseg:
         f.close()
     asegkeys=asegnames.keys()
     asegkeys.sort()
-    asegimg=nibabel.load('/Users/poldrack/Dropbox/data/selftracking/aseg/aparc+aseg_reg2mni.nii.gz')
+    asegimg=nibabel.load(os.path.join(basedir,'aparc+aseg_reg2mni.nii.gz'))
     asegdata=asegimg.get_data()
 
     meancoords={}
@@ -160,9 +171,9 @@ if use_aseg:
             mni.append(vox2mni([v[0][i],v[1][i],v[2][i]],asegimg.get_qform()))
         mni=numpy.matrix(mni)
         meancoords[k]=numpy.mean(mni,0)
+asdf
 
-
-f=open('parcel_data.txt','w')
+f=open(os.path.join(basedir,'parcel_data.txt','w'))
 ctr=1
 for i in range(len(lhcentvertex)):
     f.write('%d\tL\t%0.2f\t%0.2f\t%0.2f\t%s\t%s\t%s\t%s\t%s\n'%(ctr,lhcoords[i,0],lhcoords[i,1],lhcoords[i,2],l_lobe[i],lhparclabels[i],l_rsnlabels[i],l_rsnlabels_yeo7[i],l_rsnlabels_yeo17[i]))
