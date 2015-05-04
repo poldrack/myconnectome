@@ -93,8 +93,8 @@ load_diary_data=function(infile='http://s3.amazonaws.com/openfmri/ds031/diary/te
 	
 	
 load_rnaseq_data = function(use_ME=TRUE,limit_ME_to_enriched=FALSE,scale=FALSE,
-                            varstab_file='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/varstab_data_rinregressed.txt',
-                            me_file='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/MEs-thr8-rinreg-48sess.txt',
+                            varstab_file='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/varstab_data_prefiltered_rin_3PC_regressed.txt',
+                            me_file='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/MEs-thr14-prefilt-rinPCreg-48sess.txt',
                             datefile='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/drawdates.txt',
                             descfile='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/module_descriptions.txt') {
 	rnaseq.dat.full= read.table(varstab_file, na.strings='.', header=TRUE)
@@ -140,7 +140,7 @@ load_rnaseq_data = function(use_ME=TRUE,limit_ME_to_enriched=FALSE,scale=FALSE,
 
 }
 	
-load_ImmPort_data = function(datefile='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/drawdates.txt',infile='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/ImmPort_eigengenes_rinregressed.txt') {
+load_ImmPort_data = function(datefile='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/drawdates.txt',infile='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/ImmPort_eigengenes_prefilt_rin3PCreg.txt') {
 	clusterdata.dat= as.data.frame(t(read.table(infile, na.strings='.', header=FALSE,row.names=1)))
 
 	d=read.table(datefile)
