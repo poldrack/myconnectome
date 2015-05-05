@@ -12,8 +12,8 @@ outdir_winmod='/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri
 
 subcodes=[i.strip() for i in open('/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/subcodes.txt').readlines()]
 
-mmc_win=numpy.zeros((len(subcodes),13))
-mmc_bw=numpy.zeros((len(subcodes),78))
+mmc_win=numpy.zeros((len(subcodes),12))
+mmc_bw=numpy.zeros((len(subcodes),66))
 
 
 subctr=0

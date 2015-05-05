@@ -16,3 +16,11 @@ combine_cort_subcort_data:
 get_parcel_info:
 	python get_parcel_info.py
 
+extract_module_assignments:
+	python rsfmri_extract_module_assignments.py
+
+extract_module_summary:
+	python rsfmri_extract_module_summary.py
+
+collapse_module_data:
+	python rsfmri_collapse_module_data.py

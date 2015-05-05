@@ -6,13 +6,13 @@ import os,sys
 import nibabel.gifti.giftiio
 import numpy
 
-parcels={'L':'/corral-repl/utexas/poldracklab/data/selftracking/laumann/all_selected_L_parcel.func.gii','R':'/corral-repl/utexas/poldracklab/data/selftracking/laumann/all_selected_R_parcel.func.gii'}
+parcels={'L':'/corral-repl/utexas/poldracklab/data/selftracking/parcellation/all_selected_L_new_parcel_renumbered.func.gii','R':'/corral-repl/utexas/poldracklab/data/selftracking/parcellation/all_selected_R_new_parcel_renumbered.func.gii'}
 
-modules={'L':'/corral-repl/utexas/poldracklab/data/selftracking/laumann/parcel_L_consensus.func.gii','R':'/corral-repl/utexas/poldracklab/data/selftracking/laumann/parcel_R_consensus.func.gii'}
+modules={'L':'/corral-repl/utexas/poldracklab/data/selftracking/parcellation/parcel_L_consensus_new.func.gii','R':'/corral-repl/utexas/poldracklab/data/selftracking/parcellation/parcel_R_consensus_new.func.gii'}
 
-modulenums=[ 1. ,   2. ,   3. ,   4.5,   5. ,   6. ,   7. , 8. ,   9. ,  10. ,  11.5,  15. ,  16. ]
+modulenums=[ 1. ,   2. ,   3. ,   4.5,   5. ,   7. , 8. ,   9. ,  10. ,  11.5,  15. ,  16. ]
 
-datadir='/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/subdata_scrubbed'
+datadir='/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/comgined_data_scrubbed'
 
 #subcode='sub014'
 

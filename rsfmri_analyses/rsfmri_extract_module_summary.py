@@ -61,7 +61,8 @@ modules=modules[modules>0]
 nparcels=616
 
 #subcodes=[subcodes[0]]
-for subcode in subcodes:
+if 0:
+  for subcode in subcodes:
     datafile=os.path.join(datadir,subcode+'.txt')
     print datafile
     assert os.path.exists(datafile)
@@ -101,8 +102,8 @@ for subcode in subcodes:
     numpy.savetxt(os.path.join(outdir_bwmod,subcode+'.txt'),mcbw_utr)
 
 f=open('bwmod_corr_labels.txt','w')
-utr=numpy.triu_indices(modeig_corr.shape[0],1)
+utr=numpy.triu_indices(nmods,1)
 for i in range(utr[0].shape[0]):
-    f.write('%s\t%s\n'%(network_names[utr[0][i]],network_names[utr[1][i]]))
+    f.write('%s\t%s\n'%(network_names[utr[0][i]].replace(' ','_'),network_names[utr[1][i]].replace(' ','_')))
 f.close()
 
