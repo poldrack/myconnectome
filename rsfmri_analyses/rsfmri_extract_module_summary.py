@@ -61,8 +61,7 @@ modules=modules[modules>0]
 nparcels=616
 
 #subcodes=[subcodes[0]]
-if 0:
-  for subcode in subcodes:
+for subcode in subcodes:
     datafile=os.path.join(datadir,subcode+'.txt')
     print datafile
     assert os.path.exists(datafile)
