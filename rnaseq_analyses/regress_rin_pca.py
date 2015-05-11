@@ -7,7 +7,7 @@ import sklearn.decomposition
 
 rin=numpy.loadtxt('/Users/poldrack/Dropbox/data/selftracking/rna-seq/rin.txt')
 
-f=open('/Users/poldrack/Dropbox/data/selftracking/rna-seq/varstab_data.txt')
+f=open('/Users/poldrack/Dropbox/data/selftracking/rna-seq/varstab_data_prefiltered.txt')
 subs=f.readline()
 gene_names=[]
 data=[]
@@ -24,11 +24,10 @@ varstab_rinregressed=numpy.zeros(varstab.shape)
 for i in range(len(gene_names)):
     varstab[i,:]=[float(x) for x in data[i]]
 pca=sklearn.decomposition.PCA(n_components=3)
-pca.fit(varstab)
-
+pca.fit(varstab.T)
 
 rin=numpy.array(rin,ndmin=2).T
-X=numpy.hstack((rin - numpy.mean(rin),pca.components_.T,numpy.ones((48,1))))
+X=numpy.hstack((rin - numpy.mean(rin),pca.transform(varstab.T),numpy.ones((48,1))))
 
 for i in range(len(gene_names)):
     y=varstab[i,:].reshape((48,1))
@@ -37,7 +36,7 @@ for i in range(len(gene_names)):
     resid=y - X.dot(result[0])
     varstab_rinregressed[i,:]=resid[:,0]
     
-f=open('/Users/poldrack/Dropbox/data/selftracking/rna-seq/varstab_data_rin_3PC_regressed.txt','w')
+f=open('/Users/poldrack/Dropbox/data/selftracking/rna-seq/varstab_data_prefiltered_rin_3PC_regressed.txt','w')
 f.write(subs)
 for i in range(len(gene_names)):
     f.write(gene_names[i])
