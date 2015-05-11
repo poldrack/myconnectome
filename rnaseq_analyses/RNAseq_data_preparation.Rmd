@@ -16,9 +16,9 @@ library("gplots")
 ```
 
 ####Load the data from the cloud and estimate size factors for correction
-
+### use data that have been filtered for abundance (4>mean<10000) and removed snoRNAs
 ```{r}
-cdsFull=newCountDataSetFromHTSeqCount(read.table('http://s3.amazonaws.com/openfmri/ds031/RNA-seq/htcount_files.txt'),directory='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/htcount_files')
+cdsFull=newCountDataSetFromHTSeqCount(read.table('http://s3.amazonaws.com/openfmri/ds031/RNA-seq/htcount_files.txt'),directory='/Users/poldrack/data/selftracking/rna-seq/htcount_files_filtered') #'http://s3.amazonaws.com/openfmri/ds031/RNA-seq/htcount_files')
 
 cdsFull = estimateSizeFactors( cdsFull )
 ```
@@ -41,7 +41,7 @@ usedgenes=rownames(counts(cds))
 cdsBlind = estimateDispersions( cds, method="blind" ,fitType='local')
 vsd = varianceStabilizingTransformation( cdsBlind )
 vsdata=getVarianceStabilizedData(cdsBlind)
-write.table(vsdata,'/Users/poldrack/Dropbox/data/selftracking/rna-seq/varstab_data.txt')
+write.table(vsdata,'/Users/poldrack/Dropbox/data/selftracking/rna-seq/varstab_data_prefiltered.txt')
 ```
 
 ####Plot dispersion estimates
