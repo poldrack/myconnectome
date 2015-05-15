@@ -27,7 +27,6 @@ def get_codes():
                 codes.append(0)
         if not coding.has_key(tasknum):
             coding[tasknum]={}
-            names[tasknum]={}]
         coding[tasknum][contrastnum]=codes
     return coding,header[3:]
 
