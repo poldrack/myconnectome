@@ -10,7 +10,7 @@ def get_codes():
     f=open('contrast_annotation.txt')
     header=f.readline().strip().split('\t')
     nvars=len(header)-3
-
+    names={}
     coding={}
 
     lines=f.readlines()
@@ -18,6 +18,7 @@ def get_codes():
         l_s=l.strip().split('\t')
         tasknum=int(l_s[0])
         contrastnum=int(l_s[1])
+        taskname=l_s[2]
         codes=[]
         for i in range(nvars):
             try:
@@ -26,8 +27,9 @@ def get_codes():
                 codes.append(0)
         if not coding.has_key(tasknum):
             coding[tasknum]={}
+            names[tasknum]={}]
         coding[tasknum][contrastnum]=codes
-    return coding
+    return coding,header[3:]
 
 def get_files(coding):
 
@@ -61,13 +63,39 @@ def get_design_matrix(coding,taskcodes):
     desmtx=numpy.array(desmtx)
     return desmtx
 
-coding=get_codes()
+try:
+    beta_hat=numpy.load('/Users/poldrack/data/selftracking/task_encoding_model/encoding_beta.npy')
 
-files,taskcodes=get_files(coding)
+except:
+    coding,names=get_codes()
 
-contrastdata=load_data(files)
+    files,taskcodes=get_files(coding)
 
-desmtx=get_design_matrix(coding,taskcodes)
+    contrastdata=load_data(files)
 
-beta_hat=numpy.linalg.inv(desmtx.T.dot(desmtx)).dot(desmtx.T.dot(contrastdata))
+    desmtx=get_design_matrix(coding,taskcodes)
 
+    beta_hat=numpy.linalg.inv(desmtx.T.dot(desmtx)).dot(desmtx.T.dot(contrastdata))
+
+lh=nibabel.gifti.GiftiImage()
+rh=nibabel.gifti.GiftiImage()
+nvert=32492
+
+for i in range(beta_hat.shape[0]):
+    darray_lh=beta_hat[i,:nvert].astype(numpy.float32)
+    lh.add_gifti_data_array(nibabel.gifti.GiftiDataArray.from_array(darray_lh,
+            intent=11,
+            datatype=16,
+            ordering='F',
+            meta={'AnatomicalStructurePrimary':'CortexLeft',
+            'Name':'beta%d'%int(i+1)}))
+        
+    darray_rh=beta_hat[i,nvert:].astype(numpy.float32)
+    rh.add_gifti_data_array(nibabel.gifti.GiftiDataArray.from_array(darray_rh,
+            intent=11,
+            datatype=16,
+            ordering='F',
+            meta={'AnatomicalStructurePrimary':'CortexRight',
+            'Name':'beta%d-%s'%(int(i+1),names[i])}))
+nibabel.gifti.giftiio.write(lh,'/Users/poldrack/Dropbox/data/selftracking/task_encoding_model/encoding_beta.LH.func.gii')
+nibabel.gifti.giftiio.write(rh,'/Users/poldrack/Dropbox/data/selftracking/task_encoding_model/encoding_beta.RH.func.gii')
