@@ -1,1 +1,28 @@
-Task	contrast	name	face	place	manmade_objects	words	characters	body_parts	novel_characters	response	responsetime	motion	number	maintenance	language	manipulation	inhibition	error_detection		1	38	face_vs_other	1																	11	33	scene_vs_other		1																11	39	char_vs_other							1											11	41	2_vs_1back												1		1				21	40	parametric_RT									1									11	43	target_vs_nontarget								1										12	1	go_trial								1										12	8	stop_succ_trial															1			12	7	stop_fail_trial								1							1	1		32	5	parametric_RT									1									12	4	motion_coherence										1								13	1	face	1																	13	2	body						1												13	3	limb						1												13	4	house		1																13	5	place		1																13	6	car			1															13	7	guitar			1															13	8	word				1	1								1					33	9	number											1							13	10	object-response								1										14	1	sentences				1	1							1	1					44	2	nonwords					1							1						24	3	sent-response								1										15	1	swm-easy												1						15	2	swm-hard_vs_easy												1						15	3	swm_response								1										1			2	3	2	2	3	2	1	6	2	1	1	5	2	1	2	1	0	
+Task	contrast	name	face	place	manmade_objects	words	characters	body_parts	novel_characters	response	responsetime	motion	number	maintenance	manipulation	inhibition	error_detection		
+1	38	face_vs_other	1																1
+1	33	scene_vs_other		1															1
+1	39	char_vs_other							1										1
+1	41	2_vs_1back												1	1				2
+1	40	parametric_RT									1								1
+1	43	target_vs_nontarget								1									1
+2	1	go_trial								1									1
+2	8	stop_succ_trial														1			1
+2	7	stop_fail_trial								1						1	1		3
+2	5	parametric_RT									1								1
+2	4	motion_coherence										1							1
+3	1	face	1																1
+3	2	body						1											1
+3	3	limb						1											1
+3	4	house		1															1
+3	5	place		1															1
+3	6	car			1														1
+3	7	guitar			1														1
+3	8	word				1	1												2
+3	9	number											1						1
+3	10	object-response								1									1
+4	1	sentences				1	1							1					3
+4	2	nonwords					1							1					2
+4	3	sent-response								1									1
+5	1	swm-easy												1					1
+5	2	swm-hard_vs_easy												1					1
+5	3	swm_response								1									1
