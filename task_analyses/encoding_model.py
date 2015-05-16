@@ -5,6 +5,7 @@ do encoding model across sessions
 import os,glob
 import nibabel.gifti.giftiio
 import numpy
+import statsmodels.api as sm
 
 def get_codes():
     f=open('contrast_annotation.txt')
@@ -64,7 +65,22 @@ def get_design_matrix(coding,taskcodes):
 
 try:
     beta_hat=numpy.load('/Users/poldrack/data/selftracking/task_encoding_model/encoding_beta.npy')
-
+    names=['face',
+ 'place',
+ 'manmade_objects',
+ 'words',
+ 'characters',
+ 'body_parts',
+ 'novel_characters',
+ 'response',
+ 'responsetime',
+ 'motion',
+ 'number',
+ 'maintenance',
+ 'manipulation',
+ 'inhibition',
+ 'error_detection']
+ 
 except:
     coding,names=get_codes()
 
@@ -73,9 +89,14 @@ except:
     contrastdata=load_data(files)
 
     desmtx=get_design_matrix(coding,taskcodes)
-
-    beta_hat=numpy.linalg.inv(desmtx.T.dot(desmtx)).dot(desmtx.T.dot(contrastdata))
-
+    desmtx=sm.add_constant(desmtx)
+    
+    tstat=numpy.zeros(contrastdata.shape[1])
+    for i in range(contrastdata.shape[1]):
+        reg=sm.OLS(contrastdata[:,i],desmtx)
+        results=reg.fit()
+        tstat=results
+    
 lh=nibabel.gifti.GiftiImage()
 rh=nibabel.gifti.GiftiImage()
 nvert=32492
@@ -87,7 +108,7 @@ for i in range(beta_hat.shape[0]):
             datatype=16,
             ordering='F',
             meta={'AnatomicalStructurePrimary':'CortexLeft',
-            'Name':'beta%d'%int(i+1)}))
+            'Name':'tstat%d'%int(i+1)}))
         
     darray_rh=beta_hat[i,nvert:].astype(numpy.float32)
     rh.add_gifti_data_array(nibabel.gifti.GiftiDataArray.from_array(darray_rh,
@@ -95,6 +116,6 @@ for i in range(beta_hat.shape[0]):
             datatype=16,
             ordering='F',
             meta={'AnatomicalStructurePrimary':'CortexRight',
-            'Name':'beta%d-%s'%(int(i+1),names[i])}))
+            'Name':'tstat%d-%s'%(int(i+1),names[i])}))
 nibabel.gifti.giftiio.write(lh,'/Users/poldrack/Dropbox/data/selftracking/task_encoding_model/encoding_beta.LH.func.gii')
 nibabel.gifti.giftiio.write(rh,'/Users/poldrack/Dropbox/data/selftracking/task_encoding_model/encoding_beta.RH.func.gii')
