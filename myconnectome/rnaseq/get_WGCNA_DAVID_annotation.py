@@ -3,18 +3,26 @@ get clusters and annotations for each module
 """
 
 
-import sys
-sys.path.append('../')
+import os
 
 import logging
-import traceback as tb
-import suds.metrics as metrics
+#import traceback as tb
+#import suds.metrics as metrics
 from tests import *
 from suds import *
 from suds.client import Client
-from datetime import datetime
+#from datetime import datetime
 import cPickle
 import mygene
+
+
+basedir=os.environ['MYCONNECTOME_DIR']
+try:
+    authentication_email=os.environ['DAVID_EMAIL']
+except:
+    print """you need to set the DAVID_EMAIL environment variable to an email
+    address with access to the DAVID API (david.abcc.ncifcrf.gov/)
+    """
 
 def load_assignments(infile):
     genedict={}
@@ -25,7 +33,6 @@ def load_assignments(infile):
     return genedict
     
 def get_module_genelists(genedict):
-    modules=list(set(genedict.values()))
     genelists={}
     for k in genedict.iterkeys():
         if not genelists.has_key(genedict[k]):
@@ -35,14 +42,8 @@ def get_module_genelists(genedict):
     return genelists
   
 
-
-#add a list
-if 1:
-  try:
-    chartReports_path=cPickle.load(open('/Users/poldrack/data/selftracking/rna-seq/WGCNA/DAVID_chartReport_path_thr8_prefilt_rinreg.pkl','rb'))
-    chartReports_GO=cPickle.load(open('/Users/poldrack/data/selftracking/rna-seq/WGCNA/DAVID_chartReport_GO_thr8_prefilt_rinreg.pkl','rb'))
-  except: 
-    a=load_assignments('/Users/poldrack/data/selftracking/rna-seq/WGCNA/module_assignments_thr8_prefilt_rinPCreg.txt')
+def get_WGCNA_DAVID_annotation(fdr_thresh=0.1,ngenes_to_print=10):
+    a=load_assignments(os.path.join(basedir,'rna-seq/WGCNA/module_assignments_thr8_prefilt_rinPCreg.txt'))
     cluster_genes=get_module_genelists(a)
     cluster_genes.pop(0)  # remove unassigned module
         
@@ -64,11 +65,10 @@ if 1:
     print client
     
     #authenticate user email 
-    print client.service.authenticate('poldrack@utexas.edu')
+    print client.service.authenticate(authentication_email)
     
     chartReports_path={}
     chartReports_GO={}
-    chartReports_disease={}
     entrez={}
     
     mg=mygene.MyGeneInfo()
@@ -107,42 +107,37 @@ if 1:
         client.service.setCategories(cats_GO)
         chartReports_GO[modnum]= client.service.getChartReport(thd, count)
             
+        # write output files
+
+        f_gc=open(os.path.join(basedir,'rna-seq/WGCNA/DAVID_thr8_prefilt_rin3PCreg_path_set%03d.txt'%modnum),'w')
+        clustgenes=[]
+        goodrecs=[]
+        moddata=chartReports_path[modnum]
+        for gc in range(len(moddata)):
+            clust=moddata[gc]
+            if clust['benjamini']<fdr_thresh:
+                    goodrecs.append('%f\t%f\t%s'%(clust['benjamini'],clust['foldEnrichment'],clust['termName']))
+                    clustgenes.append(clust['geneIds'])
+        if len(goodrecs)>0:
+            for r in goodrecs:
+                f_gc.write('%s\n'%r)
+            f_gc.write('%s\n'%','.join(cluster_genes[modnum][:ngenes_to_print]))
+        f_gc.close()
     
-    cPickle.dump(chartReports_path,open('/Users/poldrack/data/selftracking/rna-seq/WGCNA/DAVID_chartReport_path_thr8_prefilt_rinreg.pkl','wb'))
-    cPickle.dump(chartReports_GO,open('/Users/poldrack/data/selftracking/rna-seq/WGCNA/DAVID_chartReport_GO_thr8_prefilt_rinreg.pkl','wb'))
-     
-fdr_thresh=0.1
-
-for modnum in range(len(cluster_genes)+1):
-    if modnum==0:
-        continue
-    f_gc=open('/Users/poldrack/data/selftracking/rna-seq/WGCNA/DAVID_thr8_prefilt_rin3PCreg_path_set%03d.txt'%modnum,'w')
-    clustgenes=[]
-    goodrecs=[]
-    moddata=chartReports_path[modnum]
-    for gc in range(len(moddata)):
-        clust=moddata[gc]
-        if clust['benjamini']<fdr_thresh:
-                goodrecs.append('%f %s'%(clust['benjamini'],clust['termName']))
-                clustgenes.append(clust['geneIds'])
-    if len(goodrecs)>0:
-        for r in goodrecs:
-            f_gc.write('%s\n'%r)
-        f_gc.write('%s\n'%','.join(cluster_genes[modnum]))
-    f_gc.close()
-
-    f_gc=open('/Users/poldrack/data/selftracking/rna-seq/WGCNA/DAVID_thr8_prefilt_rin3PCreg_GO_set%03d.txt'%modnum,'w')
-    clustgenes=[]
-    goodrecs=[]
-    moddata=chartReports_GO[modnum]
-    for gc in range(len(moddata)):
-        clust=moddata[gc]
-        if clust['benjamini']<fdr_thresh:
-                goodrecs.append('%f %s'%(clust['benjamini'],clust['termName']))
-                clustgenes.append(clust['geneIds'])
-    if len(goodrecs)>0:
-        for r in goodrecs:
-            f_gc.write('%s\n'%r)
-        f_gc.write('%s\n'%','.join(cluster_genes[modnum]))
-    f_gc.close()
-
+        f_gc=open(os.path.join(basedir,'rna-seq/WGCNA/DAVID_thr8_prefilt_rin3PCreg_GO_set%03d.txt'%modnum),'w')
+        clustgenes=[]
+        goodrecs=[]
+        moddata=chartReports_GO[modnum]
+        for gc in range(len(moddata)):
+            clust=moddata[gc]
+            if clust['benjamini']<fdr_thresh:
+                    goodrecs.append('%f\t%f\t%s'%(clust['benjamini'],clust['foldEnrichment'],clust['termName']))
+                    clustgenes.append(clust['geneIds'])
+        if len(goodrecs)>0:
+            for r in goodrecs:
+                f_gc.write('%s\n'%r)
+            f_gc.write('%s\n'%','.join(cluster_genes[modnum][:ngenes_to_print]))
+        f_gc.close()
+    
+if __name__ == "__main__":
+    get_WGCNA_DAVID_annotation()

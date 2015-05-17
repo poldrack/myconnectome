@@ -9,23 +9,28 @@ output: html_document
 This code loads the variance stabilized data (residualized against RIN and the first 3 PCs across subjects) and performs weighted gene coexpression network analysis (WGCNA).
 
 First load the library:
-```{r messs}
+```{r setup}
 library(WGCNA)
 allowWGCNAThreads(2)
 options(stringsAsFactors = FALSE);
 library(knitr)
+
+basedir='/Users/poldrack/data_unsynced/myconnectome/rna-seq'
+save_data=TRUE
+
+outdir=sprintf("%s/WGCNA",basedir)
 ```
 
 ####Load the data
-```{r}
-vsdata=read.table('/Users/poldrack/data/selftracking/rna-seq/varstab_data_prefiltered_rin_3PC_regressed.txt') #'http://s3.amazonaws.com/openfmri/ds031/RNA-seq/varstab_data_rin_3PC_regressed.txt')
+```{r loadData}
+vsdata=read.table(sprintf('%s/varstab_data_prefiltered_rin_3PC_regressed.txt',basedir) )
 datExpr=t(vsdata)
 ```
 
 
 #### Call the network topology analysis function
 
-```{r}
+```{r pickThresh}
 powers = c(c(1:10), seq(from = 12, to=20, by=2))
 
 sft = pickSoftThreshold(datExpr, powerVector = powers, verbose = 5)
@@ -35,7 +40,7 @@ sft = pickSoftThreshold(datExpr, powerVector = powers, verbose = 5)
 
 
 
-```{r}
+```{r plotPickThresh}
 sizeGrWindow(9, 5)
 par(mfrow = c(1,2));
 
@@ -61,7 +66,7 @@ Based on these results, we choose power=8 to obtain fit of r^2~0.8
 
 ####Run WGCNA estimation
 
-```{r}
+```{r runWGCNA}
 
 net = blockwiseModules(datExpr, power = 8,corType='bicor',
 TOMType = "unsigned", minModuleSize = 20,
@@ -75,25 +80,24 @@ verbose = 3,maxBlockSize=4000)
 #### Save the data
 This can be turned on by setting save_data=TRUE
 
-```{r}
-save_data=TRUE
+```{r saveData}
 
 if (save_data) {
-  save(net,file='/Users/poldrack/Dropbox/data/selftracking/rna-seq/WGCNA/net-thr8-prefilt-rinPCreg-48sess.Rdata')
-  write.table(net$MEs, file='/Users/poldrack/Dropbox/data/selftracking/rna-seq/WGCNA/MEs-thr8-prefilt-rinPCreg-48sess.txt',row.names=FALSE,col.names=TRUE)
+  save(net,file=sprintf('%s/net-thr8-prefilt-rinPCreg-48sess.Rdata',outdir))
+  write.table(net$MEs, file=sprintf('%s/MEs-thr8-prefilt-rinPCreg-48sess.txt',outdir),row.names=FALSE,col.names=TRUE)
 }
 ```
 
 #### Plot WGCNA results
 
-```{r}
+```{r plotResults}
 
 mergedColors = labels2colors(net$colors)
 plotDendroAndColors(net$dendrograms[[1]], mergedColors[net$blockGenes[[1]]],
 "Module colors",
 dendroLabels = FALSE, hang = 0.03,
 addGuide = TRUE, guideHang = 0.05)
-pdf('/Users/poldrack/Dropbox/Documents/Papers/SelfTracking/figures/wgcna_tree.pdf')
+pdf(sprintf('%s/wgcna_tree.pdf',outdir))
 mergedColors = labels2colors(net$colors)
 plotDendroAndColors(net$dendrograms[[1]], mergedColors[net$blockGenes[[1]]],
 "Module colors",
@@ -106,17 +110,17 @@ dev.off()
 
 #### Save module assignments per gene
 
-```{r}
+```{r saveModAssn}
 modules=as.data.frame(net$colors)
 row.names(modules)=row.names(vsdata)
 if (save_data) {
-  write.table(modules,file='/Users/poldrack/Dropbox/data/selftracking/rna-seq/WGCNA/module_assignments_thr8_prefilt_rinPCreg.txt',col.names=FALSE,row.names=TRUE,quote=FALSE)
+  write.table(modules,file=sprintf('%s/module_assignments_thr8_prefilt_rinPCreg.txt',outdir),col.names=FALSE,row.names=TRUE,quote=FALSE)
 }
 ```
 
 #### get hub genes using module membership (KME)
 
-```{r}
+```{r saveHubGenes}
 skme=signedKME(datExpr,net$MEs)
 hubgenes=c()
 nhubs=5
@@ -129,7 +133,7 @@ for (i in 1:(ncol(skme)-1)) {
 	}
 kable(as.data.frame(hubgenes))
 if (save_data) {
-  write.table(hubgenes,file='/Users/poldrack/Dropbox/data/selftracking/rna-seq/WGCNA/hubgenes_thr8_prefilt_rinPCreg.txt',col.names=FALSE,row.names=TRUE,quote=FALSE)
+  write.table(hubgenes,file=sprintf('%s/hubgenes_thr8_prefilt_rinPCreg.txt',outdir),col.names=FALSE,row.names=TRUE,quote=FALSE)
 }
 
 

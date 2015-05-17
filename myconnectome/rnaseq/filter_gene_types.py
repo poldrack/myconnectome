@@ -8,7 +8,7 @@ Created on Thu Apr 30 15:18:26 2015
 
 import os,glob
 import numpy
-from load_counts import *
+from load_counts import load_counts
 import gtf_to_genes
 import logging
 import pandas as pd
