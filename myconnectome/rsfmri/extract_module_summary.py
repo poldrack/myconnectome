@@ -32,7 +32,7 @@ def extract_module_summary():
     nmods=len(network_names)
     
     datadir=os.path.join(basedir,'combined_data_scrubbed')
-    outdir=os.path.join(basedir,'analyses/rsfmri_analyses')
+    outdir=os.path.join(basedir,'rsfmri')
     if not os.path.exists(outdir):
         os.makedirs(outdir)
         
@@ -46,7 +46,7 @@ def extract_module_summary():
     
     subcodes=[i.strip() for i in open(os.path.join(basedir,'subcodes.txt')).readlines()]
     
-    f=open(os.path.join(basedir,'analyses/rsfmri_analyses/module_assignments.txt'))
+    f=open(os.path.join(basedir,'rsfmri/module_assignments.txt'))
     roinum=[]
     hemis=[]
     parcelnum=[]

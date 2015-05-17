@@ -21,7 +21,7 @@ def pcor_from_precision(P,zero_diagonal=1):
     return pcor
 
 stdir=os.environ['MYCONNECTOME_DIR']
-basedir=os.path.join(stdir,'analyses/rsfmri_analyses')
+basedir=os.path.join(stdir,'rsfmri')
 datadir=os.path.join(stdir,'combined_data_scrubbed')
 
 def get_corrdata():

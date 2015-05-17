@@ -49,9 +49,9 @@ def extract_module_assignments():
             print 'problem with LH:',n
         modulevox['R'][n]=mvox[0]
     
-    if not os.path.exists(os.path.join(basedir,'analyses/rsfmri_analyses')):
-        os.makedirs(os.path.join(basedir,'analyses/rsfmri_analyses'))
-    f=open(os.path.join(basedir,'analyses/rsfmri_analyses/module_assignments.txt'),'w')
+    if not os.path.exists(os.path.join(basedir,'rsfmri')):
+        os.makedirs(os.path.join(basedir,'rsfmri'))
+    f=open(os.path.join(basedir,'rsfmri/module_assignments.txt'),'w')
     ctr=0
     for h in ['L','R']:
         parcelkeys=modulevox[h].keys()
