@@ -31,7 +31,7 @@ if not os.path.exists(os.path.join(rnaseqdir,'rin.txt')):
 
 # check R dependencies
 
-R_dependencies=['knitr','WGCNA','DESeq','RColorBrewer','vsn','gplots','asstit']
+R_dependencies=['knitr','WGCNA','DESeq','RColorBrewer','vsn','gplots']
 
 f=open(os.path.join(filepath,'check_depends.R'),'w')
 f.write('# automatically generated knitr command file\n')
