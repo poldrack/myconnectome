@@ -1,55 +1,9 @@
 # these functions load the data used for the MyConnectome study
 
+source("../config.R")
 
-test_load_myconnectome_data = function() {
-	# test loading of all data
-	# check sums of numeric variables, allowing for some rounding error
 	
-	print("This tool requires installation of the R.cache package")
-	
-	require(R.cache)
-	
-	print("testing all variables against stored checksums, this will take a few moments...")
-	print("you can safely ignore warnings about NAs induced by coercion...")
-	
-    print('testing behavioral data...')
-	behav=load_behav_data()
-	stopifnot(getChecksum(behav)=="1c26494a2a3da1ac3e00f6a5704b03d4")
-
-    print('testing diary data...')
-	diary_data=load_diary_data()
-	stopifnot(getChecksum(diary_data)=="2a04da4ac8a0fc6e422e155590a5fe09")
-	
-    print('testing rnaseq data...')
-	rnaseq_data=load_rnaseq_data()
-	stopifnot(getChecksum(rnaseq_data)=="9807743db2afa5ce23a432bb30184ba5")
-	
-    print('testing immport data...')
-	immport=load_ImmPort_data()
-	stopifnot(getChecksum(immport)=="df979f524c61337058adbff3bdd03d3e")
-	
-    print('testing metab data...')
-	metab=load_metab_data()
-	stopifnot( getChecksum(metab) == "eb309f07afca9d0d2a633cdc18b0ce19")
-	
-    print('testing food data...')
-	food=load_food_data()
-	stopifnot(getChecksum(food) == "57ecfbdaf43cb586bf653345e18cd28d")
-	
-    print('testing fd data...')
-	fd=load_fd_data()
-	stopifnot(getChecksum(fd) == "bc5139aa411e9d2cb7d649f5b01af985")
-	
-    print('testing wincorr data...')
-	wincorr=load_fmri_data('wincorr')
-	stopifnot(getChecksum(wincorr) == "29bc5e23e47b46285900a2a1909a8cff")
-
-
-	print('All checksums confirmed')
-	
-	}
-	
-load_behav_data = function (infile="http://s3.amazonaws.com/openfmri/ds031/behavior/trackingdata.txt") {
+load_behav_data = function (infile=sprintf('%s/behavior/trackingdata.txt',basedir)) {
 	
 	# load behav data
 	behav = read.table(infile, na.strings = '.', header=TRUE)
@@ -79,24 +33,12 @@ load_behav_data = function (infile="http://s3.amazonaws.com/openfmri/ds031/behav
 
 }
 
-load_diary_data=function(infile='http://s3.amazonaws.com/openfmri/ds031/diary/term_date.txt',goodvars=c('allergy','exercise')) {
-	termdata=read.table(infile,header=FALSE)
-	dates=read.table('http://s3.amazonaws.com/openfmri/ds031/diary/diary_dates.txt')$V1
-	terms=as.character(read.table('http://s3.amazonaws.com/openfmri/ds031/diary/diary_terms.txt')$V1)
-	names(termdata)=terms
-	termdata=subset(termdata,select=goodvars)
-	termdata$date=as.Date(dates)
-	# remove obvious useless terms
-	return(termdata)
-	
-	}
-	
 	
 load_rnaseq_data = function(use_ME=TRUE,limit_ME_to_enriched=FALSE,scale=FALSE,
-                            varstab_file='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/varstab_data_prefiltered_rin_3PC_regressed.txt',
-                            me_file='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/MEs-thr14-prefilt-rinPCreg-48sess.txt',
-                            datefile='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/drawdates.txt',
-                            descfile='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/module_descriptions.txt') {
+                            varstab_file=sprintf('%s/rna-seq/varstab_data_prefiltered_rin_3PC_regressed.txt',basedir),
+                            me_file=sprintf('%s/rna-seq/WGCNA/MEs-thr8-prefilt-rinPCreg-48sess.txt',basedir),
+                            datefile=sprintf('%s/rna-seq/drawdates.txt',basedir),
+                            descfile=sprintf('%s/rna-seq/WGCNA/module_descriptions.txt',basedir)) {
 	rnaseq.dat.full= read.table(varstab_file, na.strings='.', header=TRUE)
 	rna_subcodes=names(rnaseq.dat.full)
 	rna_labels=row.names(rnaseq.dat.full)
@@ -140,7 +82,8 @@ load_rnaseq_data = function(use_ME=TRUE,limit_ME_to_enriched=FALSE,scale=FALSE,
 
 }
 	
-load_ImmPort_data = function(datefile='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/drawdates.txt',infile='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/ImmPort_eigengenes_prefilt_rin3PCreg.txt') {
+load_ImmPort_data = function(datefile=sprintf('%s/rna-seq/drawdates.txt',basedir),
+                             infile=sprintf('%s/rna-seq/ImmPort/ImmPort_eigengenes_prefilt_rin3PCreg.txt',basedir)) {
 	clusterdata.dat= as.data.frame(t(read.table(infile, na.strings='.', header=FALSE,row.names=1)))
 
 	d=read.table(datefile)
@@ -148,15 +91,28 @@ load_ImmPort_data = function(datefile='http://s3.amazonaws.com/openfmri/ds031/RN
 	return(clusterdata.dat)
 	}
 
+load_rsfmri_subcodes=function(infile=sprintf('%s/subcodes.txt',basedir)) {
+  sc=read.table(infile,header=FALSE)$V1
+  return(sc)
+}
+load_rnaseq_subcodes=function(infile=sprintf('%s/rna-seq/rnaseq-subcodes.txt',basedir)) {
+  sc=read.table(infile,header=FALSE)$V1
+  return(sc)
+}
+load_rnaseq_drawdates=function(infile=sprintf('%s/rna-seq/drawdates.txt',basedir)) {
+  d=read.table(infile,header=FALSE)$V1
+  dates=as.Date(d,'%m/%d/%Y')
+  return(dates)
+}
+
+# use pre-made cluster description files because these must be done by hand
 load_metab_data = function(use_clustered_data=TRUE,
-                           clust_file='http://s3.amazonaws.com/openfmri/ds031/metabolomics/apclust_eigenconcentrations.txt',
+                           clust_file=sprintf('%s/metabolomics/apclust_eigenconcentrations.txt',basedir),
                            exclude_unenriched=FALSE,
                            clust_desc_file='http://s3.amazonaws.com/openfmri/ds031/metabolomics/apclust_descriptions.txt',
                            logtransform=TRUE,exclude_unnamed=TRUE,
-                           infile='http://s3.amazonaws.com/openfmri/ds031/metabolomics/metabolomics.txt',
-                           labelfile='http://s3.amazonaws.com/openfmri/ds031/metabolomics/metabolomics_labels.txt',
-                           datefile='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/drawdates.txt',
-                           subcodes='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/pathsubs.txt') {
+                           infile=sprintf('%s/metabolomics/metabolomics.txt',basedir),
+                           labelfile=sprintf('%s/metabolomics/metabolomics_labels.txt',basedir)) {
 	
 	if (use_clustered_data) {
     logtransform=FALSE  # because they were already transformed
@@ -187,20 +143,19 @@ load_metab_data = function(use_clustered_data=TRUE,
 		}
 	}
 	
-	d=read.table(datefile)
-	metab.dat$date=as.Date(d$V1,'%m/%d/%Y')
+	metab.dat$date=load_rnaseq_drawdates()
 
-	row.names(metab.dat)=read.table(subcodes)$V1
+	row.names(metab.dat)=load_rnaseq_subcodes()
 
 	return(metab.dat)	
 	}
 
 
-load_food_data = function() {
+load_food_data = function(infile=sprintf('%s/behavior/food_data.txt',basedir)) {
 	# laod behav data to get dates
 	behav=load_behav_data()
 	
-	food = read.table("http://s3.amazonaws.com/openfmri/ds031/behavior/food_data.txt", na.strings = '.', header=TRUE)
+	food = read.table(infile, na.strings = '.', header=TRUE)
 	food$date=behav$date[behav$subcode %in% food$subcode]
 
 	# combine olive oil and vinegar as they are perfectly correlated
@@ -210,43 +165,37 @@ load_food_data = function() {
 	return(food)
 	}
 	
-load_fd_data=function() {
+load_fd_data=function(fdfile=sprintf('%s/rsfmri/mean_fd.txt',basedir)) {
 	behav=load_behav_data()
-	subcodes=read.table("http://s3.amazonaws.com/openfmri/ds031/rsfmri/subcodes.txt",header=FALSE)
-	dates=behav$date[behav$subcode %in% subcodes$V1]
-	fd=read.table('http://s3.amazonaws.com/openfmri/ds031/rsfmri/mean_fd.txt',header=FALSE)
+	subcodes=load_rsfmri_subcodes()
+	dates=behav$date[behav$subcode %in% subcodes]
+	fd=read.table(fdfile,header=FALSE)
 	fd$date=dates
 	return(fd)
 	
 	}
 	
-load_autocorr_data = function(infile='/Users/poldrack/Dropbox/data/selftracking/rsfmri/autocorr_data.txt') {
-	# laod behav data to get dates
-	behav=load_behav_data()
-	subcodes=read.table("http://s3.amazonaws.com/openfmri/ds031/rsfmri/subcodes.txt",header=FALSE)
-	dates=behav$date[behav$subcode %in% subcodes$V1]
-	data = read.table(infile)
-	data$date=dates
-	return(data)
-	}
 	
 load_fmri_data = function (type='wincorr') {
-	
+
+source('../config.R')
 # laod behav data to get dates
 behav=load_behav_data()
 
-subcodes=read.table("http://s3.amazonaws.com/openfmri/ds031/rsfmri/subcodes.txt",header=FALSE)
-dates=behav$date[behav$subcode %in% subcodes$V1]
+subcodes=load_rsfmri_subcodes()
+
+dates=behav$date[behav$subcode %in% subcodes]
 
 if (type=='wincorr') {
-	fmridatafile="http://s3.amazonaws.com/openfmri/ds031/rsfmri/module_within_corr.txt"
-	network_names=c('1:Default','2:Second Visual','3:Frontal-Parietal','4.5:First Visual','5:First Dorsal Attention',
-                  '6:Second Dorsal Attention','7:Ventral Attention-Language','8:Salience','9:Cingulo-opercular',
-                  '10:Somatomotor','11.5:Frontal-Parietal-Other','15:Medial Parietal',
-                  '16:Parieto Occipital')
+	fmridatafile=sprintf("%s/analyses/rsfmri_analyses/module_within_corr.txt",basedir)
+	network_names=c('1:Default','2:Visual_2','3:Fronto_Parietal','4.5:Visual_1','5:Dorsal_Attention',
+                  '7:Ventral_Attention','8:Salience','9:Cingulo_opercular',
+                  '10:Somatomotor','11.5:Fronto_Parietal_2','15:Medial_Parietal',
+                  '16:Parieto_Occipital')
   } else if (type=='bwcorr') {
-    fmridatafile="http://s3.amazonaws.com/openfmri/ds031/rsfmri/module_between_corr.txt"
-    network_names=as.character(read.table("http://s3.amazonaws.com/openfmri/ds031/rsfmri/bwmod_corr_labels_joined.txt",sep='\t',header=FALSE)$V1)
+    fmridatafile=sprintf("%s/analyses/rsfmri_analyses/module_between_corr.txt",basedir)
+    network_names=as.character(read.table(sprintf('%s/analyses/rsfmri_analyses/bwmod_corr_labels.txt',basedir),
+      sep='\t',header=FALSE)$V1)
     }	
   else {stop(sprintf('data type %s not found',type))}
 
@@ -261,12 +210,36 @@ data$date=dates
 load_network_data=function(
     infile='http://s3.amazonaws.com/openfmri/ds031/rsfmri/netstats_all.txt') {
 	behav=load_behav_data()
-	datamat=read.table(infile,header=TRUE)
+  modularity=read.table('http://s3.amazonaws.com/openfmri/ds031/rsfmri/modularity_weighted_louvain_bct.txt')
+  efficiency=read.table('http://s3.amazonaws.com/openfmri/ds031/rsfmri/geff_pos.txt')
 	subcodes=read.table("http://s3.amazonaws.com/openfmri/ds031/rsfmri/subcodes.txt",header=FALSE)
 	dates=behav$date[behav$subcode %in% subcodes$V1]
+  datamat=cbind(modularity,efficiency)
+  names(datamat)=c('modularity_weighted','efficiency_weighted')
 	row.names(datamat)=subcodes$V1
 	datamat$date=dates
 	return(datamat)
 	
 
 	}
+
+load_participation_index=function(infile='http://s3.amazonaws.com/openfmri/ds031/rsfmri/PIpos_weighted_louvain_bct.txt'){
+  behav=load_behav_data()
+  datamat=as.data.frame(t(read.table(infile,header=FALSE)))
+  subcodes=read.table("http://s3.amazonaws.com/openfmri/ds031/rsfmri/subcodes.txt",header=FALSE)
+  dates=behav$date[behav$subcode %in% subcodes$V1]
+  row.names(datamat)=subcodes$V1
+  datamat$date=dates
+  return(datamat)
+}
+
+
+load_mod_degree=function(infile='http://s3.amazonaws.com/openfmri/ds031/rsfmri/module_degree_z.txt'){
+  behav=load_behav_data()
+  datamat=as.data.frame(t(read.table(infile,header=FALSE)))
+  subcodes=read.table("http://s3.amazonaws.com/openfmri/ds031/rsfmri/subcodes.txt",header=FALSE)
+  dates=behav$date[behav$subcode %in% subcodes$V1]
+  row.names(datamat)=subcodes$V1
+  datamat$date=dates
+  return(datamat)
+}
