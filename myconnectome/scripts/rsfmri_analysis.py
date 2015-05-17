@@ -3,7 +3,6 @@ run processing for rsfmri analysis
 """
 
 from myconnectome.rsfmri import *
-#from myconnectome.rsfmri.get_rsfmri_data import get_all_data
 
 import os
 
