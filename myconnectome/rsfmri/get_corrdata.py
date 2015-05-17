@@ -1,5 +1,6 @@
 """
-load data from tim laumann and process
+compute correlations and save to numpy file
+
 """
 
 import numpy
@@ -19,43 +20,47 @@ def pcor_from_precision(P,zero_diagonal=1):
                 pcor[i,j]=0
     return pcor
 
-basedir='/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses'
-datadir='/corral-repl/utexas/poldracklab/data/selftracking/combined_data'
-# first compute correlations
+stdir=os.environ['MYCONNECTOME_DIR']
+basedir=os.path.join(stdir,'analyses/rsfmri_analyses')
+datadir=os.path.join(stdir,'combined_data_scrubbed')
 
-corrfile=os.path.join(basedir,'corrdata.npy')
-subcodefile=os.path.join(basedir,'subcodes.txt')
-
-
-# compute correlations
-# drop first 50 timepoints due to startup artifact from noise cancellation
-
-subfiles=glob.glob(os.path.join(datadir,'sub*.txt'))
-subfiles.sort()
-subcodes=[i.split('/')[-1].replace('.txt','') for i in subfiles]
-for s in range(len(subcodes)):
-    print 'processing',subcodes[s],subfiles[s]
-    data=numpy.loadtxt(subfiles[s])[50:,:]
+def get_corrdata():
+    # first compute correlations
     
-    tmask=numpy.loadtxt(os.path.join(basedir,'tmasks/%s.txt'%subcodes[s]))[50:]
-    data=data[tmask==1,:]
+    corrfile=os.path.join(basedir,'corrdata.npy')
+    subcodefile=os.path.join(stdir,'subcodes.txt')
     
-    if s==0:
-        utr=numpy.triu_indices(data.shape[1],1)
-        corrdata=numpy.zeros((len(subcodes),len(utr[0])))
-        #pcorrdata=numpy.zeros((len(subcodes),len(utr[0])))
-        f=open(subcodefile,'w')
-        for i in subcodes:
-            f.write(i+'\n')
-        f.close()
-
-    cc=numpy.corrcoef(data.T)
-    corrdata[s,:]=cc[utr]
     
-
-
-numpy.save(corrfile,corrdata)
-
+    # compute correlations
+    # drop first 50 timepoints due to startup artifact from noise cancellation
+    
+    subfiles=glob.glob(os.path.join(datadir,'sub*.txt'))
+    subfiles.sort()
+    subcodes=[i.split('/')[-1].replace('.txt','') for i in subfiles]
+    for s in range(len(subcodes)):
+        print 'processing',subcodes[s],subfiles[s]
+        data=numpy.loadtxt(subfiles[s])[50:,:]
         
+        tmask=numpy.loadtxt(os.path.join(stdir,'tmasks/%s.txt'%subcodes[s]))[50:]
+        data=data[tmask==1,:]
         
+        if s==0:
+            utr=numpy.triu_indices(data.shape[1],1)
+            corrdata=numpy.zeros((len(subcodes),len(utr[0])))
+            #pcorrdata=numpy.zeros((len(subcodes),len(utr[0])))
+            f=open(subcodefile,'w')
+            for i in subcodes:
+                f.write(i+'\n')
+            f.close()
+    
+        cc=numpy.corrcoef(data.T)
+        corrdata[s,:]=cc[utr]
+        
+    
+    
+    numpy.save(corrfile,corrdata)
+    
+        
+if __name__ == "__main__":
+    get_corrdata()   
     
