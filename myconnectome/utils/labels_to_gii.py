@@ -12,6 +12,8 @@ import os
 import numpy
 import unittest
 
+
+
 class MyTest(unittest.TestCase):
     def test_output(self):
         testdata=numpy.vstack((numpy.arange(1,621),numpy.ones(620))).T
@@ -24,13 +26,12 @@ class MyTest(unittest.TestCase):
         self.assertEqual(lhimg.darrays[0].meta.data[1].value,varnames[0])
         self.assertEqual(lhimg.darrays[1].meta.data[1].value,varnames[1])
         
-def load_parcellations(lhparcfile='/Users/poldrack/Dropbox/data/selftracking/parcellation/all_selected_L_parcel_renumbered.func.gii',
-                       rhparcfile='/Users/poldrack/Dropbox/data/selftracking/parcellation/all_selected_R_parcel_renumbered.func.gii'):
+def load_parcellations(lhparcfile,rhparcfile):
     lh=nibabel.gifti.giftiio.read(lhparcfile)
     rh=nibabel.gifti.giftiio.read(rhparcfile)
     return lh,rh
     
-def labels_to_gii(datamat,varnames,filestem,basedir='./'):
+def labels_to_gii(datamat,varnames,filestem,basedir='./',outdir='./'):
     
     assert datamat.shape[0]==620
     try:
@@ -39,13 +40,13 @@ def labels_to_gii(datamat,varnames,filestem,basedir='./'):
         datamat=datamat[:,None]
         
     nvars=datamat.shape[1]
-    
-    lh,rh=load_parcellations()
+    lhparcfile=os.path.join(basedir,'parcellation/all_selected_L_new_parcel_renumbered.func.gii')
+    rhparcfile=os.path.join(basedir,'parcellation/all_selected_R_new_parcel_renumbered.func.gii')
+
+    lh,rh=load_parcellations(lhparcfile,rhparcfile)
         
     lh_labels=lh.darrays[0].data.copy()
     rh_labels=rh.darrays[0].data.copy()
-    labeled_regions_lh=numpy.unique(lh_labels)
-    labeled_regions_rh=numpy.unique(rh_labels)
     
     lhimg=nibabel.gifti.GiftiImage()
     rhimg=nibabel.gifti.GiftiImage()
@@ -72,8 +73,8 @@ def labels_to_gii(datamat,varnames,filestem,basedir='./'):
             meta={'AnatomicalStructurePrimary':'CortexRight','Name':varnames[j]}))
     
     if filestem:
-        nibabel.gifti.giftiio.write(lhimg,os.path.join(basedir,'lh_%s.func.gii'%filestem))
-        nibabel.gifti.giftiio.write(rhimg,os.path.join(basedir,'rh_%s.func.gii'%filestem))
+        nibabel.gifti.giftiio.write(lhimg,os.path.join(outdir,'lh_%s.func.gii'%filestem))
+        nibabel.gifti.giftiio.write(rhimg,os.path.join(outdir,'rh_%s.func.gii'%filestem))
     
     return lhimg,rhimg
 
