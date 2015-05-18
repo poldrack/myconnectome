@@ -27,6 +27,10 @@ if not os.path.exists(rnaseqdir):
 
 if not os.path.exists(os.path.join(rnaseqdir,'rin.txt')):
     get_file_from_s3('ds031/RNA-seq/rin.txt',os.path.join(rnaseqdir,'rin.txt'))
+if not os.path.exists(os.path.join(rnaseqdir,'drawdates.txt')):
+    get_file_from_s3('ds031/RNA-seq/drawdates.txt',os.path.join(rnaseqdir,'drawdates.txt'))
+if not os.path.exists(os.path.join(rnaseqdir,'rnaseq-subcodes.txt')):
+    get_file_from_s3('ds031/RNA-seq/pathsubs.txt',os.path.join(rnaseqdir,'rnaseq-subcodes.txt'))
 
 
 # check R dependencies
@@ -103,3 +107,30 @@ if not os.path.exists(os.path.join(rnaseqdir,'ImmPort/ImmPort_eigengenes_prefilt
 # do annotation using DAVID
 if not os.path.exists(os.path.join(rnaseqdir,'WGCNA/DAVID_thr8_prefilt_rin3PCreg_GO_set001.txt')):
     get_WGCNA_DAVID_annotation.get_WGCNA_DAVID_annotation()
+    
+# do annotation using DAVID
+if not os.path.exists(os.path.join(rnaseqdir,'WGCNA/module_descriptions')):
+    get_module_descriptions.get_module_descriptions()
+    
+# do snyderome preparation
+if not os.path.exists(os.path.join(rnaseqdir,'snyderome/Snyderome_data_preparation.html')):
+    if not os.path.exists(os.path.join(rnaseqdir,'snyderome')):
+        os.mkdir(os.path.join(rnaseqdir,'snyderome'))
+    f=open(os.path.join(filepath,'knit_snyderome_prep.R'),'w')
+    f.write('# automatically generated knitr command file\n')
+    f.write('require(knitr)\n')
+    f.write('require(markdown)\n')
+    f.write('setwd("%s")\n'%os.path.join(rnaseqdir,'snyderome'))
+    f.write("knit('%s/Snyderome_data_preparation.Rmd', '%s/Snyderome_data_preparation.md')\n"%
+        (filepath.replace('scripts','rnaseq'),os.path.join(rnaseqdir,'snyderome')))
+    f.write("markdownToHTML('%s/Snyderome_data_preparation.md', '%s/Snyderome_data_preparation.html')\n"%
+        (os.path.join(rnaseqdir,'snyderome'),os.path.join(rnaseqdir,'snyderome')))
+    f.close()
+    if show_R_web_reports:
+        browseURL(paste('file://', file.path(getwd(),'Snyderome_data_preparation.html'), sep='')) # open file in browser   
+    run_shell_cmd('Rscript %s/knit_snyderome_prep.R'%filepath)
+
+# do comparison to snyderome
+if not os.path.exists(os.path.join(rnaseqdir,'rna-seq/snyderome_vs_myconnectome.txt')):
+    compare_snyderome_myconnectome.compare_snyderome_myconnectome()
+ 
