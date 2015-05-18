@@ -3,18 +3,11 @@ get clusters and annotations for each module
 """
 
 
-import os
+import os,sys
 
 import logging
-#import traceback as tb
-#import suds.metrics as metrics
-from tests import *
-from suds import *
 from suds.client import Client
-#from datetime import datetime
-import cPickle
 import mygene
-
 
 basedir=os.environ['MYCONNECTOME_DIR']
 try:
@@ -23,6 +16,14 @@ except:
     print """you need to set the DAVID_EMAIL environment variable to an email
     address with access to the DAVID API (david.abcc.ncifcrf.gov/)
     """
+
+def setup_logging():
+    if sys.version_info < (2, 5):
+        fmt = '%(asctime)s [%(levelname)s] @%(filename)s:%(lineno)d\n%(message)s\n'
+    else:
+        fmt = '%(asctime)s [%(levelname)s] %(funcName)s() @%(filename)s:%(lineno)d\n%(message)s\n'
+    logging.basicConfig(level=logging.INFO, format=fmt)
+    
 
 def load_assignments(infile):
     genedict={}

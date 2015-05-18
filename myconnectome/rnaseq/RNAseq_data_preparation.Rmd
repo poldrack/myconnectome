@@ -7,51 +7,53 @@ output: html_document
 
 This code loads the gene-level read count data and performs a variance-stabilizing transform using DESeq, and saves the resulting data for further analysis. First we must load the relevant libraries:
 
-``` {r message=FALSE}
+``` {r setup, message=FALSE}
 library(DESeq)
 library(vsn)
 library("RColorBrewer")
 library("gplots")
 
+basedir='/Users/poldrack/data_unsynced/myconnectome/rna-seq'
 ```
 
 ####Load the data from the cloud and estimate size factors for correction
 ### use data that have been filtered for abundance (4>mean<10000) and removed snoRNAs
-```{r}
-cdsFull=newCountDataSetFromHTSeqCount(read.table('http://s3.amazonaws.com/openfmri/ds031/RNA-seq/htcount_files.txt'),directory='/Users/poldrack/data/selftracking/rna-seq/htcount_files_filtered') #'http://s3.amazonaws.com/openfmri/ds031/RNA-seq/htcount_files')
+```{r loadData}
+cdsFull=newCountDataSetFromHTSeqCount(read.table('http://s3.amazonaws.com/openfmri/ds031/RNA-seq/htcount_files.txt'),directory='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/htcount_files_filtered')
 
 cdsFull = estimateSizeFactors( cdsFull )
 ```
 
 ####Compute mean expression for each gene across sesssions
-```{r}
+```{r computeMeans}
 rs = rowMeans ( counts ( cdsFull ))
 allgenes=rownames(counts(cdsFull))
 ```
 
 ####Remove genes with excessively high or low expression levels
-```{r}
+```{r cleanGenes}
 use = (rs>4 & rs<10000)
 cds=cdsFull[use,]
 usedgenes=rownames(counts(cds))
 ```
 
 ####Generate variance-stabilized count data and save to file
-```{r}
+```{r varstab}
 cdsBlind = estimateDispersions( cds, method="blind" ,fitType='local')
 vsd = varianceStabilizingTransformation( cdsBlind )
 vsdata=getVarianceStabilizedData(cdsBlind)
-write.table(vsdata,'/Users/poldrack/Dropbox/data/selftracking/rna-seq/varstab_data_prefiltered.txt')
+write.table(vsdata,sprintf('%s/varstab_data_prefiltered.txt',basedir))
+
 ```
 
 ####Plot dispersion estimates
 
-```{r}
+```{r plotDispEsts}
 plotDispEsts( cdsBlind )
 ```
 
 ####Plot SD vs. count before and after correction
-```{r}
+```{r plotSD}
 par(mfrow=c(1,2))
 notAllZero = (rowSums(counts(cds))>0)
 meanSdPlot(log2(counts(cds)[notAllZero, ] + 1), ylim = c(0,2.5))
@@ -60,14 +62,14 @@ meanSdPlot(vsd[notAllZero, ], ylim = c(0,2.5))
 
 
 ####Plot clusters of genes/sessions
-```{r}
+```{r plotClustGenes}
 select = order(rowMeans(counts(cdsBlind)), decreasing=TRUE)[1:30]
 hmcol = colorRampPalette(brewer.pal(9, "GnBu"))(100)
 heatmap.2(exprs(vsd)[select,], col = hmcol, trace="none", margin=c(10, 6))
 ```
 
 #### Plot clusters of sessions - to look for outliers
-```{r}
+```{r plotClustSessions}
 dists = dist( t( exprs(vsd) ) )
 mat = as.matrix( dists )
 heatmap.2(mat, trace="none", col = rev(hmcol), margin=c(13, 13))
