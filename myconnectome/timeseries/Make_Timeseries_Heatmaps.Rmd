@@ -12,7 +12,12 @@ Note:  Because of the way that knitr handles large figures, the captions in thes
 First, load the necessary libraries:
 
 ```{r}
-source('http://s3.amazonaws.com/openfmri/ds031/timeseries_analyses/load_myconnectome_data.R')
+source('../config.R')
+
+source('load_myconnectome_data.R')
+
+source('timeseries_helpers.R')
+
 library(gplots)
 ```
 
@@ -20,7 +25,7 @@ library(gplots)
 ```{r}
 behav=load_behav_data()
 wincorr=load_fmri_data('wincorr')
-rnaseq_wgcna=load_rnaseq_data(limit_ME_to_enriched=TRUE)
+netdata=load_network_data()
 xvars=c('panas.positive','panas.negative','panas.fatigue','afterscan.Anxietyduringscan','afterscan.diastolic','afterscan.pulse','afterscan.systolic','morning.Sleepquality','morning.Soreness','prevevening.Alcohol','prevevening.Guthealth','prevevening.Psoriasisseverity','prevevening.Stress', 'prevevening.Timespentoutdoors','temp.mean',"email.LIWCcdi","email.LIWCnegemo","email.LIWCposemo",'zeo.zq')
 
 
@@ -54,7 +59,7 @@ ymar=6
 
 heatmap.2(t(as.matrix(b)),trace='row',scale='row',margins=c(xmar,ymar),dendrogram='row',Colv=FALSE,na.rm=TRUE,na.color='gray',tracecol='black',linecol=FALSE,labRow=behav_names,labCol=behav_dates)
 
-pdf(file='/Users/poldrack/Dropbox/Documents/Papers/SelfTracking/figures/behav_heatmap.pdf',width=16,height=10)
+pdf(file=sprintf('%s/timeseries/behav_heatmap.pdf',basedir),width=16,height=10)
 heatmap.2(t(as.matrix(b)),trace='row',scale='row',margins=c(10,16),dendrogram='row',Colv=FALSE,na.rm=TRUE,na.color='gray',tracecol='black',linecol=FALSE,labRow=behav_names,labCol=behav_dates)
 dev.off()
 
@@ -64,7 +69,7 @@ dev.off()
 
 ```{r}
 w=subset(wincorr,select=-c(date))
-wincorr_names=c('default mode','second visual','fronto-parietal','first visual','first dorsal attention','second dorsal attention','ventral attention/langauge','salience','cingulo-opercular','somatomotor','fronto-parietal (other)','medial parietal','parieto-occipital')
+wincorr_names=c('default mode','second visual','fronto-parietal','first visual','dorsal attention','ventral attention','salience','cingulo-opercular','somatomotor','fronto-parietal-2','medial parietal','parieto-occipital')
 
 scan_dates=c(format(wincorr$date[1],'%Y-%m'))
 anchor=wincorr$date[1]
@@ -79,15 +84,17 @@ for (i in 2:length(wincorr $date)) {
 
 heatmap.2(t(as.matrix(w)),trace='row',scale='row',margins=c(xmar,ymar),dendrogram='row',Colv=FALSE,na.rm=TRUE,na.color='gray',tracecol='black',linecol=FALSE,labRow=wincorr_names,labCol=scan_dates,key=FALSE)
 
-pdf(file='/Users/poldrack/Dropbox/Documents/Papers/SelfTracking/figures/wincorr_heatmap.pdf',width=16,height=10)
+pdf(file=sprintf('%s/timeseries/wincorr_heatmap.pdf',basedir),width=16,height=10)
 heatmap.2(t(as.matrix(w)),trace='row',scale='row',margins=c(10,16),dendrogram='row',Colv=FALSE,na.rm=TRUE,na.color='gray',tracecol='black',linecol=FALSE,labRow=wincorr_names,labCol=scan_dates,key=FALSE)
 dev.off()
 
 ```
 
+
 #### Make heatmap for WGCNA data
 
 ```{r}
+rnaseq_wgcna=load_rnaseq_data(limit_ME_to_enriched=TRUE)
 rna=subset(rnaseq_wgcna,select=-c(date))
 draw_dates=c(format(rnaseq_wgcna$date[1],'%Y-%m'))
 anchor= rnaseq_wgcna$date[1]
@@ -102,7 +109,7 @@ for (i in 2:length(rnaseq_wgcna$date)) {
 
 heatmap.2(t(as.matrix(rna)),trace='row',scale='row',margins=c(xmar,ymar),dendrogram='row',Colv=FALSE,na.rm=TRUE,na.color='gray',tracecol='black',linecol=FALSE,labRow=names(rna),labCol=draw_dates,key=FALSE)
 
-pdf(file='/Users/poldrack/Dropbox/Documents/Papers/SelfTracking/figures/wgcna_heatmap.pdf',width=16,height=10)
+pdf(file=sprintf('%s/timeseries/wgcna_heatmap.pdf',basedir),width=16,height=10)
 heatmap.2(t(as.matrix(rna)),trace='row',scale='row',margins=c(10,16),dendrogram='row',Colv=FALSE,na.rm=TRUE,na.color='gray',tracecol='black',linecol=FALSE,labRow=names(rna),labCol=draw_dates,key=FALSE)
 
 dev.off()
