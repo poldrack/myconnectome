@@ -187,15 +187,19 @@ subcodes=load_rsfmri_subcodes()
 dates=behav$date[behav$subcode %in% subcodes]
 
 if (type=='wincorr') {
-	fmridatafile=sprintf("%s/analyses/rsfmri_analyses/module_within_corr.txt",basedir)
+	fmridatafile=sprintf("%s/rsfmri/module_within_corr.txt",basedir)
 	network_names=c('1:Default','2:Visual_2','3:Fronto_Parietal','4.5:Visual_1','5:Dorsal_Attention',
                   '7:Ventral_Attention','8:Salience','9:Cingulo_opercular',
                   '10:Somatomotor','11.5:Fronto_Parietal_2','15:Medial_Parietal',
                   '16:Parieto_Occipital')
   } else if (type=='bwcorr') {
-    fmridatafile=sprintf("%s/analyses/rsfmri_analyses/module_between_corr.txt",basedir)
-    network_names=as.character(read.table(sprintf('%s/analyses/rsfmri_analyses/bwmod_corr_labels.txt',basedir),
-      sep='\t',header=FALSE)$V1)
+    fmridatafile=sprintf("%s/rsfmri/module_between_corr.txt",basedir)
+    namelist=read.table(sprintf('%s/rsfmri/bwmod_corr_labels.txt',basedir),
+      sep='\t',header=FALSE)
+    network_names=c()
+    for (i in 1:dim(namelist)[1]) {
+      network_names=rbind(network_names,sprintf("%s-%s",as.character(namelist[i,1]),as.character(namelist[i,2])))
+    }
     }	
   else {stop(sprintf('data type %s not found',type))}
 
@@ -207,39 +211,29 @@ data$date=dates
 	return(data)
 	}
 	
-load_network_data=function(
-    infile='http://s3.amazonaws.com/openfmri/ds031/rsfmri/netstats_all.txt') {
+load_network_data=function() {
+  source("../config.R")
 	behav=load_behav_data()
-  modularity=read.table('http://s3.amazonaws.com/openfmri/ds031/rsfmri/modularity_weighted_louvain_bct.txt')
-  efficiency=read.table('http://s3.amazonaws.com/openfmri/ds031/rsfmri/geff_pos.txt')
-	subcodes=read.table("http://s3.amazonaws.com/openfmri/ds031/rsfmri/subcodes.txt",header=FALSE)
-	dates=behav$date[behav$subcode %in% subcodes$V1]
+  modularity=read.table(sprintf('%s/rsfmri/modularity_weighted_louvain_bct.txt',basedir))
+  efficiency=read.table(sprintf('%s/rsfmri/geff_pos.txt',basedir))
+	subcodes=load_rsfmri_subcodes()
+	dates=behav$date[behav$subcode %in% subcodes]
   datamat=cbind(modularity,efficiency)
   names(datamat)=c('modularity_weighted','efficiency_weighted')
-	row.names(datamat)=subcodes$V1
+	row.names(datamat)=subcodes
 	datamat$date=dates
 	return(datamat)
 	
 
 	}
 
-load_participation_index=function(infile='http://s3.amazonaws.com/openfmri/ds031/rsfmri/PIpos_weighted_louvain_bct.txt'){
+load_participation_index=function(infile=sprintf('%s/rsfmri/PIpos_weighted_louvain_bct.txt',basedir)){
   behav=load_behav_data()
   datamat=as.data.frame(t(read.table(infile,header=FALSE)))
-  subcodes=read.table("http://s3.amazonaws.com/openfmri/ds031/rsfmri/subcodes.txt",header=FALSE)
-  dates=behav$date[behav$subcode %in% subcodes$V1]
-  row.names(datamat)=subcodes$V1
+  subcodes=load_rsfmri_subcodes()
+  dates=behav$date[behav$subcode %in% subcodes]
+  row.names(datamat)=subcodes
   datamat$date=dates
   return(datamat)
 }
 
-
-load_mod_degree=function(infile='http://s3.amazonaws.com/openfmri/ds031/rsfmri/module_degree_z.txt'){
-  behav=load_behav_data()
-  datamat=as.data.frame(t(read.table(infile,header=FALSE)))
-  subcodes=read.table("http://s3.amazonaws.com/openfmri/ds031/rsfmri/subcodes.txt",header=FALSE)
-  dates=behav$date[behav$subcode %in% subcodes$V1]
-  row.names(datamat)=subcodes$V1
-  datamat$date=dates
-  return(datamat)
-}
