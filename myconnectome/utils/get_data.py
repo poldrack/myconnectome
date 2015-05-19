@@ -42,7 +42,7 @@ def extract_tarball(tar_url, extract_path='.'):
 
     
  
-def get_s3_directory(dirname,outputdir=None,verbose=True):
+def get_s3_directory(dirname,outputdir=None,verbose=True,filestem=None):
     conn = boto.connect_s3(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
     bucket = conn.get_bucket(bucket_name)
     if not outputdir:
@@ -51,6 +51,8 @@ def get_s3_directory(dirname,outputdir=None,verbose=True):
         os.makedirs(outputdir)
     for f in bucket.list('ds031/'+dirname):
         if f.name=='ds031/'+dirname+'/':
+            continue
+        if filestem and not f.name.find(filestem)==0:
             continue
         try:
             if verbose:
