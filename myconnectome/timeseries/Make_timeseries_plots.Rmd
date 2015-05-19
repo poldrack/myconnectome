@@ -13,15 +13,8 @@ First load the relevant libraries and data.
 ```{r}
 library(forecast)
 library(knitr)
-source('data_utilities.R')
+basedir=Sys.getenv('MYCONNECTOME_DIR')
 
-source('../config.R')
-
-source('load_myconnectome_data.R')
-
-source('timeseries_helpers.R')
-
-source('../timeseries/est_bivariate_arima_model.R')
 
 datamat=load_behav_data() 
 varname='behav'
