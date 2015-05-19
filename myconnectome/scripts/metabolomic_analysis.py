@@ -8,6 +8,7 @@ from myconnectome.utils.get_data import *
 
 
 filepath=os.path.dirname(os.path.abspath(__file__))
+basepath=os.path.dirname(filepath)
 
 basedir=os.environ['MYCONNECTOME_DIR']
 metabdir=os.path.join(basedir,'metabolomics')
@@ -15,6 +16,18 @@ if not os.path.exists(metabdir):
     os.mkdir(metabdir)
     
 show_R_web_reports=False
+
+# check R dependencies
+
+R_dependencies=['apcluster']
+
+f=open(os.path.join(filepath,'check_depends.R'),'w')
+f.write('# automatically generated knitr command file\n')
+f.write('source("%s/utils/pkgTest.R")\n'%basepath)
+for d in R_dependencies:
+    f.write('pkgTest("%s")\n'%d)
+f.close()
+run_shell_cmd('Rscript %s/check_depends.R'%filepath)
 
 if not os.path.exists(os.path.join(metabdir,'metabolomics.txt')):
     get_file_from_s3('ds031/metabolomics/metabolomics.txt',os.path.join(metabdir,'metabolomics.txt'))
@@ -28,6 +41,7 @@ if not os.path.exists(os.path.join(metabdir,'Metabolomics_clustering.html')):
     f.write('# automatically generated knitr command file\n')
     f.write('require(knitr)\n')
     f.write('require(markdown)\n')
+    f.write('source("%s/timeseries/load_myconnectome_data.R")\n'%basepath)
     f.write('setwd("%s")\n'%metabdir)
     f.write("knit('%s/Metabolomics_clustering.Rmd', '%s/Metabolomics_clustering.md')\n"%
         (filepath.replace('scripts','metabolomics'),metabdir))
