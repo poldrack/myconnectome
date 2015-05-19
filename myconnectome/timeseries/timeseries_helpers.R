@@ -1,7 +1,8 @@
 # helper functions for timeseries analyses
 
 require(knitr)
-source('../config.R')
+
+basedir=Sys.getenv('MYCONNECTOME_DIR')
 
 kable_latex = function(data,varname,tabledir=sprintf('%s/timeseries/tables',basedir)) {
   if (nrow(data) > 30) {lt=TRUE} else {lt=FALSE}
