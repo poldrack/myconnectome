@@ -24,7 +24,7 @@ if not os.path.exists(os.path.join(basedir,'rsfmri/mean_fd.txt')):
 
 # make renumbered parcel file
 if not os.path.exists(os.path.join(basedir,'parcellation/all_selected_L_new_parcel_renumbered.func.gii')):
-    mk_renumbered_parcel_file()
+    mk_renumbered_parcel_file.mk_renumbered_parcel_file()
 
 # get parcel info
 if not os.path.exists(os.path.join(basedir,'parcellation/parcel_data.txt')):
