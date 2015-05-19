@@ -13,13 +13,8 @@ First we need to load some relevant libraries:
 library(forecast)
 library(knitr)
 
-source('../config.R')
 
-source('../timeseries/load_myconnectome_data.R')
-
-source('../timeseries/timeseries_helpers.R')
-
-source('../timeseries/est_bivariate_arima_model.R')
+basedir=Sys.getenv('MYCONNECTOME_DIR')
 
 thresh=0.05  # FDR threshold
 save_latex=TRUE
