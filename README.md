@@ -2,6 +2,9 @@
 
 Data analysis code for the [myconnectome project](http://www.myconnectome.org/)
 
+The goal of this project is to demonstrate reproducible analysis for a large complex dataset.  The package provides a set of scripts that will implement all of the statistical analyses and some of the preprocessing steps for the data from the MyConnectome study, as reported by Poldrack et al. (submitted).  
+
+
 ### Dependencies
 
 The code shared here requires a number of dependencies:
