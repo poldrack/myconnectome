@@ -99,7 +99,7 @@ if not os.path.exists(os.path.join(rnaseqdir,'ImmPort/ImmPort_eigengenes_prefilt
     get_ImmPort_eigengenes.get_ImmPort_eigengenes()
 
 # do annotation using DAVID
-if not os.path.exists(os.path.join(rnaseqdir,'WGCNA/DAVID_thr8_prefilt_rin3PCreg_GO_set001.txt')):
+if not os.path.exists(os.path.join(rnaseqdir,'WGCNA/DAVID_thr8_prefilt_rin3PCreg_GO_set063.txt')):
     get_WGCNA_DAVID_annotation.get_WGCNA_DAVID_annotation()
     
 # do annotation using DAVID
