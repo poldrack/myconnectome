@@ -15,15 +15,15 @@ allowWGCNAThreads(2)
 options(stringsAsFactors = FALSE);
 library(knitr)
 
-basedir='/Users/poldrack/data_unsynced/myconnectome/rna-seq'
+basedir=Sys.getenv('MYCONNECTOME_DIR')
 save_data=TRUE
 
-outdir=sprintf("%s/WGCNA",basedir)
+outdir=sprintf("%s/rna-seq/WGCNA",basedir)
 ```
 
 ####Load the data
 ```{r loadData}
-vsdata=read.table(sprintf('%s/varstab_data_prefiltered_rin_3PC_regressed.txt',basedir) )
+vsdata=read.table(sprintf('%s/rna-seq/varstab_data_prefiltered_rin_3PC_regressed.txt',basedir) )
 datExpr=t(vsdata)
 ```
 
