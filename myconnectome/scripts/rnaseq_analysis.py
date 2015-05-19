@@ -98,9 +98,16 @@ if not os.path.exists(os.path.join(rnaseqdir,'ImmPort/all_ImmPort_pathways.txt')
 if not os.path.exists(os.path.join(rnaseqdir,'ImmPort/ImmPort_eigengenes_prefilt_rin3PCreg.txt')):
     get_ImmPort_eigengenes.get_ImmPort_eigengenes()
 
+
 # do annotation using DAVID
 if not os.path.exists(os.path.join(rnaseqdir,'WGCNA/DAVID_thr8_prefilt_rin3PCreg_GO_set063.txt')):
-    get_WGCNA_DAVID_annotation.get_WGCNA_DAVID_annotation()
+    try:
+        os.environ['DAVID_EMAIL']
+        get_WGCNA_DAVID_annotation.get_WGCNA_DAVID_annotation()
+    except:
+        print 'Environment variable DAVID_EMAIL is not set'
+        print 'downloading precomputed results from S3'
+        get_s3_directory('RNA-seq/DAVID_annotations',os.path.join(basedir,'rna-seq/WGCNA'))
     
 # do annotation using DAVID
 if not os.path.exists(os.path.join(rnaseqdir,'WGCNA/module_descriptions')):
