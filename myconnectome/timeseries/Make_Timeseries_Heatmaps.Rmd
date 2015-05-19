@@ -12,11 +12,8 @@ Note:  Because of the way that knitr handles large figures, the captions in thes
 First, load the necessary libraries:
 
 ```{r}
-source('../config.R')
+basedir=Sys.getenv('MYCONNECTOME_DIR')
 
-source('load_myconnectome_data.R')
-
-source('timeseries_helpers.R')
 
 library(gplots)
 ```
