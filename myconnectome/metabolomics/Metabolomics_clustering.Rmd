@@ -10,9 +10,10 @@ This is code for preprocessing of the metabolomics data for the MyConnectome stu
 First, load the functions that will provide the data:
 
 ```{r setup}
-source('../timeseries/load_myconnectome_data.R')
 
-source('../config.R')
+
+basedir=Sys.getenv('MYCONNECTOME_DIR')
+
 
 save_data=TRUE
 ```
