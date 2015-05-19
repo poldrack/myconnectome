@@ -9,6 +9,7 @@ from myconnectome.utils.get_data import *
 from myconnectome.rsfmri import mk_participation_index_giftis
 
 filepath=os.path.dirname(os.path.abspath(__file__))
+basepath=os.path.dirname(filepath)
 
 show_R_web_reports=False
 
@@ -30,18 +31,12 @@ if not os.path.exists(behavdir):
     get_s3_directory('behavior',behavdir)
 # check R dependencies
 
-R_dependencies=['knitr','forecast','markdown']
+R_dependencies=['knitr','forecast','markdown','zoo']
 
 f=open(os.path.join(filepath,'check_depends.R'),'w')
 f.write('# automatically generated knitr command file\n')
-f.write('pkgTest <- function(x)\n')
-f.write('  {\n')
-f.write('    if (!require(x,character.only = TRUE))\n')
-f.write('    {\n')
-f.write('      install.packages(x,dep=TRUE)\n')
-f.write('        if(!require(x,character.only = TRUE)) stop("Package not found")\n')
-f.write('    }\n')
-f.write('  }\n')
+f.write('source("%s/utils/pkgTest.R")\n'%basepath)
+
 for d in R_dependencies:
     f.write('pkgTest("%s")\n'%d)
 f.close()
@@ -53,6 +48,9 @@ if not os.path.exists(os.path.join(tsdir,'timeseries_analyses.html')):
     f.write('require(knitr)\n')
     f.write('require(markdown)\n')
     f.write('setwd("%s")\n'%tsdir)
+    f.write('source("%s/timeseries/load_myconnectome_data.R")\n'%basepath)
+    f.write('source("%s/timeseries/timeseries_helpers.R")\n'%basepath)
+    f.write('source("%s/timeseries/est_bivariate_arima_model.R")\n'%basepath)
     f.write("knit('%s/timeseries_analyses.Rmd', '%s/timeseries_analyses.md')\n"%
         (filepath.replace('scripts','timeseries'),tsdir))
     f.write("markdownToHTML('%s/timeseries_analyses.md', '%s/timeseries_analyses.html')\n"%
@@ -66,6 +64,10 @@ if not os.path.exists(os.path.join(tsdir,'Make_timeseries_plots.html')):
     f.write('require(knitr)\n')
     f.write('require(markdown)\n')
     f.write('setwd("%s")\n'%tsdir)
+    f.write('source("%s/timeseries/load_myconnectome_data.R")\n'%basepath)
+    f.write('source("%s/timeseries/data_utilities.R")\n'%basepath)
+    f.write('source("%s/timeseries/timeseries_helpers.R")\n'%basepath)
+    f.write('source("%s/timeseries/est_bivariate_arima_model.R")\n'%basepath)
     f.write("knit('%s/Make_timeseries_plots.Rmd', '%s/Make_timeseries_plots.md')\n"%
         (filepath.replace('scripts','timeseries'),tsdir))
     f.write("markdownToHTML('%s/Make_timeseries_plots.md', '%s/Make_timeseries_plots.html')\n"%
@@ -79,6 +81,8 @@ if not os.path.exists(os.path.join(tsdir,'Make_timeseries_heatmaps.html')):
     f.write('require(knitr)\n')
     f.write('require(markdown)\n')
     f.write('setwd("%s")\n'%tsdir)
+    f.write('source("%s/timeseries/data_utilities.R")\n'%basepath)
+    f.write('source("%s/timeseries/timeseries_helpers.R")\n'%basepath)
     f.write("knit('%s/Make_timeseries_heatmaps.Rmd', '%s/Make_timeseries_heatmaps.md')\n"%
         (filepath.replace('scripts','timeseries'),tsdir))
     f.write("markdownToHTML('%s/Make_timeseries_heatmaps.md', '%s/Make_timeseries_heatmaps.html')\n"%
