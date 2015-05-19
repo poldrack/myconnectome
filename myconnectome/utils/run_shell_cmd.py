@@ -1,6 +1,6 @@
 import subprocess
 
-def run_shell_cmd(cmd,cwd=[]):
+def run_shell_cmd(cmd,cwd=[],echo=False):
     """ run a command in the shell using Popen
     """
     stdout_holder=[]
@@ -9,7 +9,8 @@ def run_shell_cmd(cmd,cwd=[]):
     else:
         process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     for line in process.stdout:
-             print line.strip()
+             if echo:
+                 print line.strip()
              stdout_holder.append(line.strip())
     process.wait()
     return stdout_holder
