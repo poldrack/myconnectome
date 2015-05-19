@@ -25,7 +25,7 @@ def check_dependencies():
     needed_deps = ["IPython", "numpy", "scipy", "matplotlib",
                    "sklearn", "statsmodels", 
                    "gtf_to_genes","pandas",
-		   "nibabel","boto"]
+		   "nibabel","boto","suds"]
     missing_deps = []
     for dep in needed_deps:
         try:
