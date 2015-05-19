@@ -179,7 +179,7 @@ load_fd_data=function(fdfile=sprintf('%s/rsfmri/mean_fd.txt',basedir)) {
 	
 load_fmri_data = function (type='wincorr') {
 
-source('../config.R')
+
 # laod behav data to get dates
 behav=load_behav_data()
 
@@ -213,7 +213,7 @@ data$date=dates
 	}
 	
 load_network_data=function() {
-  source("../config.R")
+
 	behav=load_behav_data()
   modularity=read.table(sprintf('%s/rsfmri/modularity_weighted_louvain_bct.txt',basedir))
   efficiency=read.table(sprintf('%s/rsfmri/geff_pos.txt',basedir))
