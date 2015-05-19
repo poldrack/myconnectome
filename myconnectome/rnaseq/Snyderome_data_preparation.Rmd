@@ -7,7 +7,8 @@ output: html_document
 
 
 ```{r setup}
-source('../config.R')
+basedir=Sys.getenv('MYCONNECTOME_DIR')
+
 library(DESeq)
 
 ```
