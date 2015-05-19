@@ -1,6 +1,7 @@
 # these functions load the data used for the MyConnectome study
 
-source("../config.R")
+basedir=Sys.getenv('MYCONNECTOME_DIR')
+
 
 	
 load_behav_data = function (infile=sprintf('%s/behavior/trackingdata.txt',basedir)) {
