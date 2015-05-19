@@ -13,7 +13,8 @@ library(vsn)
 library("RColorBrewer")
 library("gplots")
 
-basedir='/Users/poldrack/data_unsynced/myconnectome/rna-seq'
+basedir=Sys.getenv('MYCONNECTOME_DIR')
+
 ```
 
 ####Load the data from the cloud and estimate size factors for correction
@@ -42,7 +43,7 @@ usedgenes=rownames(counts(cds))
 cdsBlind = estimateDispersions( cds, method="blind" ,fitType='local')
 vsd = varianceStabilizingTransformation( cdsBlind )
 vsdata=getVarianceStabilizedData(cdsBlind)
-write.table(vsdata,sprintf('%s/varstab_data_prefiltered.txt',basedir))
+write.table(vsdata,sprintf('%s/rna-seq/varstab_data_prefiltered.txt',basedir))
 
 ```
 

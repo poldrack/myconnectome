@@ -48,8 +48,6 @@ if not os.path.exists(os.path.join(basedir,'rsfmri/geff_pos.txt')):
     print 'this may take a little while...'
     run_shell_cmd(cmd)
 
-if not os.path.exists(os.path.join(basedir,'rsfmri/lh_PI.func.gii')):
-    mk_participation_index_giftis.mk_participation_index_giftis()
     
 if not os.path.exists(os.path.join(basedir,'parcellation/all_selected_L_new_parcel_renumbered_boundaries.func.gii')):
     mk_parcellation_boundaries.mk_parcellation_boundaries()

@@ -6,7 +6,7 @@ run timeseries analyses for all variables
 import os
 from myconnectome.utils.run_shell_cmd import run_shell_cmd
 from myconnectome.utils.get_data import *
-
+from myconnectome.rsfmri import mk_participation_index_giftis
 
 filepath=os.path.dirname(os.path.abspath(__file__))
 
@@ -86,3 +86,6 @@ if not os.path.exists(os.path.join(tsdir,'Make_timeseries_heatmaps.html')):
     f.close()
     run_shell_cmd('Rscript %s/knit_timeseries_heatmaps.R'%filepath)
 
+
+if not os.path.exists(os.path.join(basedir,'rsfmri/lh_PI.func.gii')):
+    mk_participation_index_giftis.mk_participation_index_giftis()
