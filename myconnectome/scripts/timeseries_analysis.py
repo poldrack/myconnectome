@@ -75,17 +75,18 @@ if not os.path.exists(os.path.join(tsdir,'Make_timeseries_plots.html')):
     f.close()
     run_shell_cmd('Rscript %s/knit_timeseries_plots.R'%filepath)
 
-if not os.path.exists(os.path.join(tsdir,'Make_timeseries_heatmaps.html')):
+if not os.path.exists(os.path.join(tsdir,'Make_Timeseries_Heatmaps.html')):
     f=open(os.path.join(filepath,'knit_timeseries_heatmaps.R'),'w')
     f.write('# automatically generated knitr command file\n')
     f.write('require(knitr)\n')
     f.write('require(markdown)\n')
     f.write('setwd("%s")\n'%tsdir)
+    f.write('source("%s/timeseries/load_myconnectome_data.R")\n'%basepath)
     f.write('source("%s/timeseries/data_utilities.R")\n'%basepath)
     f.write('source("%s/timeseries/timeseries_helpers.R")\n'%basepath)
-    f.write("knit('%s/Make_timeseries_heatmaps.Rmd', '%s/Make_timeseries_heatmaps.md')\n"%
+    f.write("knit('%s/Make_Timeseries_Heatmaps.Rmd', '%s/Make_Timeseries_Heatmaps.md')\n"%
         (filepath.replace('scripts','timeseries'),tsdir))
-    f.write("markdownToHTML('%s/Make_timeseries_heatmaps.md', '%s/Make_timeseries_heatmaps.html')\n"%
+    f.write("markdownToHTML('%s/Make_Timeseries_Heatmaps.md', '%s/Make_Timeseries_Heatmaps.html')\n"%
         (tsdir,tsdir))
     f.close()
     run_shell_cmd('Rscript %s/knit_timeseries_heatmaps.R'%filepath)
