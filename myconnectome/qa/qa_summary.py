@@ -63,7 +63,7 @@ num_fd=[]
 quality=[]
 tsnr=[]
 
-exclude_bad_subs=False
+exclude_bad_subs=True
 
 subcodes=[i.strip() for i in open('/Users/poldrack/code/myconnectome/rsfmri_analyses/subcodes.txt').readlines()]
 
