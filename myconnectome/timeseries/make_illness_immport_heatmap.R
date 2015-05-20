@@ -1,7 +1,8 @@
 # cluster MEs and make surface plot
+source('http://s3.amazonaws.com/openfmri/ds031/timeseries_analyses/load_myconnectome_data.R')
 
-rnaseq=load_rnaseq_data(varstab_file='/Users/poldrack/Dropbox/data/selftracking/rna-seq/varstab_data_rinregressed.txt',me_file='/Users/poldrack/Dropbox/data/selftracking/rna-seq/WGCNA/MEs-thr8-rinreg-48sess.txt',datefile='/Users/poldrack/Dropbox/data/selftracking/rna-seq/drawdates.txt')
-immport=load_ImmPort_data(infile='/Users/poldrack/Dropbox/data/selftracking/rna-seq/ImmPort/ImmPort_eigengenes_rinregressed.txt',datefile='/Users/poldrack/Dropbox/data/selftracking/rna-seq/drawdates.txt')
+rnaseq=load_rnaseq_data()
+immport=load_ImmPort_data()
 
 dates=immport$date
 rnaseq$date=NULL
@@ -21,4 +22,6 @@ for (i in 1:dim(immport)[2]) {
     max_sym=rbind(max_sym,m)
 }
 
+pdf('/Users/poldrack/Dropbox/Documents/Papers/SelfTracking/figures/illness_expression_heatmap.pdf')
 h=heatmap.2(t(as.matrix(immport)),trace='none',dendrogram='row',Colv=FALSE,labCol=day_annot,scale='row',cellnote=max_sym,notecex=2,notecol='black')
+dev.off()

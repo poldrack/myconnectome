@@ -2,7 +2,7 @@
 mk graph showing relations between differen variables
 """
 
-import pydot
+#import pydot
 import networkx as nx
 import re
 import os,glob
@@ -11,13 +11,13 @@ import numpy
 
 filter_negatives=False
 exclude_metab=False
-exclude_metab_metab=False
+exclude_metab_metab=True
 exclude_gene_gene=True
 filter_gene_modules=False # only include first cluster in each module
-thresh=0.1
+thresh=0.1000000001
 degree_thresh=1
 
-exclude_unenriched=True
+exclude_unenriched=False
 
 def load_dataframe(filename,thresh=0.1):
 	# return p value, t stat, and correlation
@@ -134,7 +134,7 @@ for filename in files_to_load:
 		for x in range(2):
 			name=u'%s'%re.sub(r'[^\x00-\x7F]+',' ', nodenames[x]).replace('"','').replace('&','')
 			if name.find('no enrichment')>-1 and exclude_unenriched:
-				exclude=True
+    				exclude=True
 			nodelabel=''.join(name.split('-')[1:]).replace('"','').replace('_NIST','').split(':')[0]
 			print name,nodelabel
 			if datatypes[x]=='wincorr':
@@ -198,6 +198,7 @@ if degree_thresh>1:
 
 nx.write_gexf(graph,'graph_thresh%.02f%s.gexf'%(thresh,filt))
 nx.write_gml(graph,'graph_thresh%.02f%s.gml'%(thresh,filt))
+nx.write_graphml(graph,'graph_thresh%.02f%s.graphml'%(thresh,filt))
 
 for i in numpy.unique(labels):
 	print ''

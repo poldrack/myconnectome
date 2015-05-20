@@ -5,7 +5,7 @@ wincorr=load_fmri_data('wincorr')
 wincorr$date=NULL
 rnaseq_wgcna=load_rnaseq_data()
 rnaseq_wgcna$date=NULL
-
+OUTPUT_DIR='/Users/poldrack/Dropbox/Documents/Papers/SelfTracking/figures'
 if (!exists('OUTPUT_DIR')) {
 	print('To save results to a specific directory, set OUTPUT_DIR variable to target directory')
 	OUTPUT_DIR=NULL 
@@ -18,8 +18,7 @@ if (is.null(OUTPUT_DIR)) {
 	print('saving output to current directory')
 	}
 
-wincorr.wgcna=read.table('http://s3.amazonaws.com/openfmri/ds031/timeseries_analyses/results/out.dat.wgcna_wincorr.txt')
-
+wincorr.wgcna=read.table('/Users/poldrack/data/selftracking/timeseries_analyses/out.dat.wgcna_wincorr.txt')
 cluster_terms=as.character(read.table('/Users/poldrack/Dropbox/data/selftracking/rna-seq/WGCNA/module_descriptions.txt',header=FALSE,sep='\t')$V2)
 
 data=matrix(data=0,nrow= dim(rnaseq_wgcna)[2],ncol=13)
