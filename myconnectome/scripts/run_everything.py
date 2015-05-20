@@ -62,5 +62,10 @@ filepath=os.path.dirname(os.path.abspath(__file__))
 basepath=os.path.dirname(filepath)
 
 
-execfile('%s/rsfmri_analysis.py'%basepath)
+execfile('%s/scripts/rsfmri_analysis.py'%basepath)
 
+execfile('%s/scripts/rnaseq_analysis.py'%basepath)
+
+execfile('%s/scripts/metabolomic_analysis.py'%basepath)
+
+execfile('%s/scripts/timeseries_analysis.py'%basepath)
