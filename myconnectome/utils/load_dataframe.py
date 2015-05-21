@@ -54,6 +54,35 @@ def load_R_dataframe(filename):
     data=numpy.array(data)
     return data,rowlabels,header
 
+def load_wgcna_module_assignments(filename):
+    """ 
+    load module assignment file
+    """
+    try:
+        # check whether it's a urllib handle
+        filename.url
+        f=filename
+    except:
+        if filename.find('http')==0:
+            f=urllib.urlopen(filename)
+        else:
+            f=open(filename)
+    
+    lines=f.readlines()
+    f.close()
+    data=[]
+    rowlabels=[]
+    
+    for l in lines:
+        # first need to replace spaces contained within quotes
+        l=dequote_string(l)
+        l_s=[i.replace('"','') for i in l.strip().split()]
+        rowlabels.append(l_s[0])
+        data.append([float(i) for i in l_s[1:]])
+    data=numpy.array(data)
+    return data,rowlabels
+
+
 
 def load_dataframe(filename,thresh=0.1):
     f=open(filename)
