@@ -4,7 +4,7 @@ import sys,os
 
 import nibabel.gifti.giftiio
 import nibabel,numpy
-from run_shell_cmd import run_shell_cmd
+from myconnectome.utils.run_shell_cmd import run_shell_cmd
 from myconnectome.utils.set_structure import set_structure
 
 def mk_renumbered_parcel_file():
