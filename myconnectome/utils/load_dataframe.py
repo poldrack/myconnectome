@@ -6,6 +6,8 @@ Created on Sat May  2 15:40:44 2015
 """
 
 import os,glob
+import urllib
+import numpy
 
 def dequote_string(l):
     if l.find('"')<0:
@@ -23,10 +25,40 @@ def dequote_string(l):
             l_dequoted.append(c)
     return ''.join(l_dequoted)
         
+def load_R_dataframe(filename):
+    """ 
+    load an R data frame from text file or url or filehandle
+    """
+    try:
+        # check whether it's a urllib handle
+        filename.url
+        f=filename
+    except:
+        if filename.find('http')==0:
+            f=urllib.urlopen(filename)
+        else:
+            f=open(filename)
     
+    header=f.readline().strip().split()
+    lines=f.readlines()
+    f.close()
+    data=[]
+    rowlabels=[]
+    
+    for l in lines:
+        # first need to replace spaces contained within quotes
+        l=dequote_string(l)
+        l_s=[i.replace('"','') for i in l.strip().split()]
+        rowlabels.append(l_s[0])
+        data.append([float(i) for i in l_s[1:]])
+    data=numpy.array(data)
+    return data,rowlabels,header
+
+
 def load_dataframe(filename,thresh=0.1):
-    # return p value, t stat, and correlation
     f=open(filename)
+    # return p value, t stat, and correlation
+    
     header=f.readline()
     lines=f.readlines()
     f.close()
