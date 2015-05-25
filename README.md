@@ -26,12 +26,19 @@ The code shared here requires a number of dependencies:
 If you don't already have a scientific Python distribution installed, I would recommend [Anaconda](http://continuum.io/downloads).  Beyond the standard scientific Python stack, a number of additional packages are required, which you can install using the following set of commands (assuming that you have Anaconda already installed):
 
 `pip install setuptools`
+
 `conda install --yes pip numpy scipy nose traits networkx`
+
 `conda install --yes dateutil ipython-notebook matplotlib`
+
 `conda install --yes statsmodels boto  pandas scikit-learn`
+
 `pip install nibabel`
+
 `pip install gtf_to_genes`
+
 `pip install suds`
+
 `pip install mygene`
 
 
