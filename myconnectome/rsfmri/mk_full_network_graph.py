@@ -16,7 +16,7 @@ from myconnectome.utils.load_parcel_data import load_parcel_data
 
 basedir=os.environ['MYCONNECTOME_DIR']
 
-def get_full_network_file(days='all',density=0.01):   
+def mk_full_network_graph(days='all',density=0.01):   
     print 'generating network file for',days
     assert days in ['mon','tues','thurs','all']
     
@@ -81,4 +81,4 @@ def get_full_network_file(days='all',density=0.01):
 
 if __name__ == '__main__':
     for day in ['mon','tues','thurs','all']:
-        get_full_network_file(day)
+        mk_full_network_graph(day)
