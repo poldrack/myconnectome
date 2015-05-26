@@ -5,13 +5,15 @@ get network stats
 
 import numpy
 import os,sys
+sys.path.append('/work/01329/poldrack/code')
+
 import scipy.stats
 import igraph
-import efficiency
+from poldracklab.network import efficiency
 import networkx
 import powerlaw
 
-from participation_index import *
+from poldracklab.network import participation_index
 
 def r_to_z(r):
     # fisher transform
@@ -43,15 +45,18 @@ try:
     edge_density=float(sys.argv[2])
 except:
     sess=0
-    edge_density=0.05
+    edge_density=0.01
 
 infile='/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/corrdata.npy'
-outfile='/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/netstats_corr/netstats_%02d_%0.3f.txt'%(sess,edge_density)
+outfile='/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/netstats_corr/netstats_%02d_%.04f.txt'%(sess,edge_density)
+pifile='/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/PI/PI_%02d_%.04f.txt'%(sess,edge_density)
+if not os.path.exists('/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/netstats_corr'):
+    os.mkdir('/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/netstats_corr')
 
 data=numpy.load(infile)
 
 data[numpy.isnan(data)]=0
-adjsize=634
+adjsize=630
 nsess=data.shape[0]
 
 utr=numpy.triu_indices(adjsize,1)
@@ -66,9 +71,10 @@ if 1:
     adj[utr]=data[sess,:] > thresh
 
     graph=networkx.from_numpy_matrix(adj)
+    
+
     # get giant component
     G=networkx.connected_component_subgraphs(graph)[0]
-
     # fit power law to entire graph degree distribution
     results=powerlaw.Fit(graph.degree().values())
     power_exp= results.power_law.alpha
@@ -85,16 +91,18 @@ if 1:
     gg=igraph.Graph.Adjacency(adj.tolist()).as_undirected()
     gg_G= gg.clusters().giant()
     
-    modclust=gg_G.community_multilevel() #gg.community_infomap()
-    modularity_multi=modclust.modularity
-
+    infomap_clust=gg.community_infomap()
+    modularity_infomap=infomap_clust.modularity
+    membership=infomap_clust.membership
+    numpy.savetxt('/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/infomap_assignments/infomap_sess%03d_%.04f.txt'%(sess,edge_density),membership)
+    
     sizethresh=2
-    labels=numpy.array(modclust.membership)
+    labels=numpy.array(infomap_clust.membership)
     for x in numpy.unique(labels):
         if numpy.sum(labels==x)<sizethresh:
             labels[labels==x]=0
 
-    #pi=participation_index(adj,labels)
+    pi=participation_index.participation_index(adj,labels)
     #mean_pi=numpy.mean(pi)
     
     try:
@@ -134,5 +142,6 @@ if 1:
         meansw=0
 
 
-    alldata=numpy.array([modularity_multi,eff,cc,bc,clust,rcc_at_cutoff,apl,power_exp,meansw])
+    alldata=numpy.array([modularity_infomap,eff,cc,bc,clust,rcc_at_cutoff,apl,power_exp,meansw])
     numpy.savetxt(outfile,alldata)
+    numpy.savetxt(pifile,pi)

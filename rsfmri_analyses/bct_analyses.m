@@ -1,20 +1,22 @@
 % get net stats using BCT
 path(path,'/home1/01329/poldrack/BCT')
 
+nrois=630
+
 Q=zeros(84,1);
-clustering_pos=zeros(84,634);
-clustering_neg=zeros(84,634);
-Ppos=zeros(84,634);
-Pneg=zeros(84,634);
+clustering_pos=zeros(84,nrois);
+clustering_neg=zeros(84,nrois);
+Ppos=zeros(84,nrois);
+Pneg=zeros(84,nrois);
 Geff_pos=zeros(84,1);
 Geff_neg=zeros(84,1);
-bwc_pos=zeros(84,634);
-bwc_neg=zeros(84,634);
-mod_degree_z=zeros(84,634);
+bwc_pos=zeros(84,nrois);
+bwc_neg=zeros(84,nrois);
+mod_degree_z=zeros(84,nrois);
 
 basedir='/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses'
 for session = 1:84
-    data=textread(sprintf('/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses/corrdata_files/corrdata_sess%02d.txt',session));
+    data=textread(sprintf('/scratch/01329/poldrack/selftracking/corrdata_files/corrdata_sess%02d.txt',session-1));
     [Ci,Q(session)]=modularity_louvain_und_sign(data);
     [Ppos(session,:), Pneg(session,:)] = participation_coef_sign(data,Ci);
     datapos=data;

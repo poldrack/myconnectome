@@ -20,7 +20,7 @@ def pcor_from_precision(P,zero_diagonal=1):
     return pcor
 
 basedir='/corral-repl/utexas/poldracklab/data/selftracking/analyses/rsfmri_analyses'
-datadir='/corral-repl/utexas/poldracklab/data/selftracking/combined_data'
+datadir='/corral-repl/utexas/poldracklab/data/selftracking/combined_data_scrubbed'
 # first compute correlations
 
 corrfile=os.path.join(basedir,'corrdata.npy')
@@ -37,7 +37,7 @@ for s in range(len(subcodes)):
     print 'processing',subcodes[s],subfiles[s]
     data=numpy.loadtxt(subfiles[s])[50:,:]
     
-    tmask=numpy.loadtxt(os.path.join(basedir,'tmasks/%s.txt'%subcodes[s]))[50:]
+    tmask=numpy.loadtxt('/corral-repl/utexas/poldracklab/data/selftracking/tmasks/%s.txt'%subcodes[s])[50:]
     data=data[tmask==1,:]
     
     if s==0:
