@@ -6,6 +6,7 @@ import os,sys,glob
 import nibabel.gifti.giftiio
 import numpy
 import run_shell_cmd
+import statsmodels.api as sm
 
 #task=1
 #copenum=32
@@ -68,9 +69,12 @@ for hemis in ['L','R']:
         if numpy.sum(W)==0:
             continue
         Y=cope[:,v].reshape((nsess,1))
-        beta_hat = numpy.linalg.inv(X.T.dot(W).dot(X)).dot(X.T).dot(W).dot(Y)   #(X'WX)^{-1} X'WY
-        var_beta_hat = numpy.linalg.inv(X.T.dot(W).dot(X)) #(X'WX)^{-1}
-        tstat[v]=beta_hat / numpy.sqrt(var_beta_hat)
+        wls=sm.WLS(Y,X,weights=1.0/varcope[:,v])
+        res=wls.fit()
+        #beta_hat = numpy.linalg.inv(X.T.dot(W).dot(X)).dot(X.T).dot(W).dot(Y)   #(X'WX)^{-1} X'WY
+        #var_beta_hat = numpy.linalg.inv(X.T.dot(W).dot(X)) #(X'WX)^{-1}
+        #tstat[v]=beta_hat / numpy.sqrt(var_beta_hat)
+        tstat[v]=res.tvalues[0]
 
     outdir='/corral-repl/utexas/poldracklab/data/selftracking/surface_stats_333'
 
