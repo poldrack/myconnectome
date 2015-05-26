@@ -2,16 +2,17 @@
 do encoding model across sessions
 """
 
-import os,glob
+import os,glob,sys,ctypes
 import nibabel.gifti.giftiio
 import numpy
-import statsmodels.api as sm
+import sklearn.linear_model
+
 
 def get_codes():
     f=open('contrast_annotation.txt')
     header=f.readline().strip().split('\t')
     nvars=len(header)-3
-    names={}
+
     coding={}
 
     lines=f.readlines()
@@ -89,20 +90,28 @@ except:
     contrastdata=load_data(files)
 
     desmtx=get_design_matrix(coding,taskcodes)
-    desmtx=sm.add_constant(desmtx)
+    desmtx=desmtx-numpy.mean(desmtx,0)
     
-    tstat=numpy.zeros(contrastdata.shape[1])
+    tstat=numpy.zeros((desmtx.shape[1]-1,32492*2))
+    betahat=numpy.zeros((desmtx.shape[1]-1,32492*2))
+    badctr=0
+    asdf
+    lr=sklearn.linear_model.Lasso(alpha=0.01)
     for i in range(contrastdata.shape[1]):
-        reg=sm.OLS(contrastdata[:,i],desmtx)
-        results=reg.fit()
-        tstat=results
-    
+        lr.fit(desmtx,contrastdata[:,i])
+        asdf
+        resid=contrastdata[:,i] 
+        betahat[:,i]=lr.coef_
+        
+
+tstat[numpy.isnan(tstat)]=0
+
 lh=nibabel.gifti.GiftiImage()
 rh=nibabel.gifti.GiftiImage()
 nvert=32492
 
-for i in range(beta_hat.shape[0]):
-    darray_lh=beta_hat[i,:nvert].astype(numpy.float32)
+for i in range(tstat.shape[0]):
+    darray_lh=tstat[i,:nvert].astype(numpy.float32)
     lh.add_gifti_data_array(nibabel.gifti.GiftiDataArray.from_array(darray_lh,
             intent=11,
             datatype=16,
@@ -110,12 +119,12 @@ for i in range(beta_hat.shape[0]):
             meta={'AnatomicalStructurePrimary':'CortexLeft',
             'Name':'tstat%d'%int(i+1)}))
         
-    darray_rh=beta_hat[i,nvert:].astype(numpy.float32)
+    darray_rh=tstat[i,nvert:].astype(numpy.float32)
     rh.add_gifti_data_array(nibabel.gifti.GiftiDataArray.from_array(darray_rh,
             intent=11,
             datatype=16,
             ordering='F',
             meta={'AnatomicalStructurePrimary':'CortexRight',
             'Name':'tstat%d-%s'%(int(i+1),names[i])}))
-nibabel.gifti.giftiio.write(lh,'/Users/poldrack/Dropbox/data/selftracking/task_encoding_model/encoding_beta.LH.func.gii')
-nibabel.gifti.giftiio.write(rh,'/Users/poldrack/Dropbox/data/selftracking/task_encoding_model/encoding_beta.RH.func.gii')
+nibabel.gifti.giftiio.write(lh,'/corral-repl/utexas/poldracklab/data/selftracking/analyses/task_analyses/encoding_tstat_lasso.LH.func.gii')
+nibabel.gifti.giftiio.write(rh,'/corral-repl/utexas/poldracklab/data/selftracking/analyses/task_analyses/encoding_tstat_lasso.RH.func.gii')
