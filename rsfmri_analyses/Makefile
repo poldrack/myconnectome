@@ -24,3 +24,6 @@ extract_module_summary:
 
 collapse_module_data:
 	python rsfmri_collapse_module_data.py
+
+run_all_netstats:
+	launch -s run_all_netstats.sh -e 4way -p 636 -r 48:00:00 -n netstats
