@@ -1,0 +1,555 @@
+---
+title: "Timeseries plots and trend analysis"
+author: "Russ Poldrack"
+date: "November 2, 2014"
+output: html_document
+---
+
+This code generates timeseries plots for each variable, and performs a test for linear and polynomial trends.
+
+NB: 
+First load the relevant libraries and data.
+
+```{r}
+library(forecast)
+library(knitr)
+basedir=Sys.getenv('MYCONNECTOME_DIR')
+
+
+datamat=load_behav_data() 
+varname='behav'
+sample_spacing=1
+
+xvars=c('panas.positive','panas.negative','panas.fatigue','afterscan.Anxietyduringscan','afterscan.diastolic','afterscan.pulse','afterscan.systolic','morning.Sleepquality','morning.Soreness','prevevening.Alcohol','prevevening.Guthealth','prevevening.Psoriasisseverity','prevevening.Stress', 'prevevening.Timespentoutdoors','temp.mean',"email.LIWCcdi","email.LIWCnegemo","email.LIWCposemo",'zeo.zq')
+
+datamat=subset(datamat,select=c(xvars,'date'))
+
+save_latex=TRUE
+
+
+```
+
+## Behavioral variables
+
+#### Get FDR-corrected p-values for trends
+
+```{r behavModel}
+pvals=c()
+# first get fdr p-vals on trends
+for (varnum in 1:(dim(datamat)[2]-1)) {
+  alldays = seq(min(datamat$date), max(datamat$date), by='1 day')
+  alldays_weekly=seq(min(datamat$date), max(datamat$date), by='1 week')
+	
+	x=get_x_ts(datamat,alldays,scale=FALSE)
+	spacing=60
+	labels=seq(from=as.Date(datamat$date[1]),to=as.Date(datamat$date[length(datamat$date)]),by=spacing)
+	x_ts=na.approx(zoo(x[,varnum]),maxgap=7)
+	
+	x_interp=x_ts
+	x_interp=na.approx(zoo(x[,varnum]))
+	
+	s_poly=(as.numeric(alldays) - mean(as.numeric(alldays)))**2
+	s_poly=(s_poly - mean(s_poly))
+	s_poly=s_poly/max(s_poly)
+	
+	s_lin=as.numeric(alldays) - mean(as.numeric(alldays))
+	s_lin=s_lin/max(s_lin)
+
+	# take weekly mean for auto.arima analysis, due to NAs
+	a=auto.arima(x[,varnum],xreg=cbind(s_poly,s_lin),allowdrift=FALSE)
+	p=cwp(a)
+	poly.loc=which(names(data.frame(p)) == "s_poly")
+	lin.loc=which(names(data.frame(p)) == "s_lin")
+	pvals=rbind(pvals,c(mean(x_ts,na.rm=TRUE), var(a$residuals,na.rm=TRUE),p[4,lin.loc],p[4,poly.loc]))
+}
+p_fdr=p.adjust(pvals[,3:4],method='BH')
+p_fdr=matrix(p_fdr,length(p_fdr)/2,2)
+
+pvals=as.data.frame(pvals)
+pvals[,3:4]=p_fdr
+names(pvals)=c('mean','var(resid)','Linear trend (p-val)','Poly trend (p-val)')
+row.names(pvals)=names(datamat)[1:19]
+
+kable(pvals)
+if (save_latex) {
+  k=kable(pvals,format='latex',digits=3)
+  write(k,file=sprintf('%s/timeseries/tables/behav_timeseries_stats.tex',basedir))
+}
+```
+
+#### Make plots
+
+```{r behavPlot}
+for (varnum in 1:(dim(datamat)[2]-1)) {
+  alldays = seq(min(datamat$date), max(datamat$date), by='1 day')
+	alldays_weekly=seq(min(datamat$date), max(datamat$date), by='1 week')
+	
+	x=get_x_ts(datamat,alldays,scale=FALSE)
+	spacing=60
+	labels=seq(from=as.Date(datamat$date[1]),to=as.Date(datamat$date[length(datamat$date)]),by=spacing)
+	x_ts=na.approx(zoo(x[,varnum]),maxgap=7,na.rm=FALSE)
+	
+	x_interp=x_ts
+	x_interp=na.approx(zoo(x[,varnum]),na.rm=FALSE)
+	x_interp_nonan=na.approx(zoo(x[,varnum]),na.rm=TRUE)
+
+	lo <- loess(x_interp ~ seq(from=start(x_interp)[1],to=end(x_interp)[1],by=sample_spacing),span=0.5)
+	plot(x_ts,xaxt='n',xlab='',ylab=varname,col='black')
+	points(seq(from=start(x_interp)[1],to=end(x_interp)[1],by=sample_spacing),x[,varnum],pch=18)
+	lines(seq(from=start(x_interp_nonan)[1],to=end(x_interp_nonan)[1],by=sample_spacing),lo$fitted,col='blue',lwd=3)
+	axis(2)
+	axis(1,labels=FALSE,at=seq(from=start(x_interp)[1],to=end(x_interp)[1],by=spacing),xlab=FALSE)
+	offset=0.1*(max(x_ts,na.rm=TRUE)-min(x_ts,na.rm=TRUE))
+	text(seq(from=start(x_interp)[1],to=end(x_interp)[1],by=spacing), par("usr")[3] - offset, labels = labels, srt = 45,adj=0.9, xpd = TRUE)
+	title(sprintf('%s - lin p = %0.3f, poly p=%0.3f',names(datamat)[varnum],p_fdr[varnum,1],p_fdr[varnum,2]))	
+}
+```
+
+## Network measures
+
+#### Get p-values for trends
+```{r netdatModel}
+
+datamat=load_network_data() 
+#datamat=subset(datamat,select=c(modularity_weighted,eff_weighted,date))
+varname='netdat'
+sample_spacing=1
+
+pvals=c()
+# first get fdr p-vals on trends
+for (varnum in 1:(dim(datamat)[2]-1)) {
+  alldays = seq(min(datamat$date), max(datamat$date), by='1 day')
+	alldays_weekly=seq(min(datamat$date), max(datamat$date), by='1 week')
+	
+	x=get_x_ts(datamat,alldays,scale=FALSE)
+	spacing=60
+	labels=seq(from=as.Date(datamat$date[1]),to=as.Date(datamat$date[length(datamat$date)]),by=spacing)
+	x_ts=na.approx(zoo(x[,varnum]),maxgap=7)
+	
+	x_interp=x_ts
+	x_interp=na.approx(zoo(x[,varnum]))
+	
+	s_poly=(seq(length(x[,varnum])) - mean(seq(length(x[,varnum]))))**2
+	s_poly=(s_poly - mean(s_poly))
+	s_poly=s_poly/max(s_poly)
+	s_lin=seq(length(x[,varnum])) - mean(seq(length(x[,varnum])))
+	s_lin=s_lin/max(s_lin)
+	
+	# take weekly mean for auto.arima analysis, due to NAs
+	a=auto.arima(x[,varnum],xreg=cbind(s_poly,s_lin),allowdrift=FALSE)
+	p=cwp(a)
+	poly.loc=which(names(data.frame(p)) == "s_poly")
+	lin.loc=which(names(data.frame(p)) == "s_lin")
+	pvals=rbind(pvals,c(mean(x_ts,na.rm=TRUE), var(a$residuals,na.rm=TRUE),p[4,lin.loc],p[4,poly.loc]))
+}
+p_fdr=p.adjust(pvals[,3:4],method='BH')
+p_fdr=matrix(p_fdr,length(p_fdr)/2,2)
+
+pvals=as.data.frame(pvals)
+pvals[,3:4]=p_fdr
+names(pvals)=c('mean','var(resid)','Linear trend (p-val)','Poly trend (p-val)')
+row.names(pvals)=names(datamat)[1:2]
+
+kable(pvals)
+if (save_latex) {
+  k=kable(pvals,format='latex',digits=4)
+  write(k,file=sprintf('%s/timeseries/tables/netdat_timeseries_stats.tex',basedir))
+}
+
+
+```
+
+#### now make plots
+
+```{r netdatPlot}
+for (varnum in 1:(dim(datamat)[2]-1)) {
+	alldays = seq(min(datamat$date), max(datamat$date), by='1 day')
+	alldays_weekly=seq(min(datamat$date), max(datamat$date), by='1 week')
+	
+	x=get_x_ts(datamat,alldays,scale=FALSE)
+	spacing=60
+	labels=seq(from=as.Date(datamat$date[1]),to=as.Date(datamat$date[length(datamat$date)]),by=spacing)
+	x_ts=na.approx(zoo(x[,varnum]),maxgap=7)
+	
+	x_interp=x_ts
+	x_interp=na.approx(zoo(x[,varnum]))
+	lo <- loess(x_interp ~ seq(from=start(x_interp)[1],to=end(x_interp)[1],by=sample_spacing),span=0.5)
+	plot(x_ts,xaxt='n',xlab='',ylab=varname,col='black')
+	points(seq(from=start(x_interp)[1],to=end(x_interp)[1],by=sample_spacing),x[,varnum],pch=18)
+	lines(seq(from=start(x_interp)[1],to=end(x_interp)[1],by=sample_spacing),lo$fitted,col='blue',lwd=3)
+	axis(2)
+	axis(1,labels=FALSE,at=seq(from=start(x_interp)[1],to=end(x_interp)[1],by=spacing),xlab=FALSE)
+	offset=0.1*(max(x_ts,na.rm=TRUE)-min(x_ts,na.rm=TRUE))
+	text(seq(from=start(x_interp)[1],to=end(x_interp)[1],by=spacing), par("usr")[3] - offset, labels = labels, srt = 45,adj=0.9, xpd = TRUE)
+	title(sprintf('%s - lin p = %0.3f, poly p=%0.3f',names(datamat)[varnum],p_fdr[varnum,1],p_fdr[varnum,2]))
+}
+```
+
+
+
+
+## Within-network connectivity 
+
+#### Get p-values for trends
+```{r wincorrModel}
+datamat=load_fmri_data() 
+varname='wincorr'
+sample_spacing=1
+
+pvals=c()
+# first get fdr p-vals on trends
+for (varnum in 1:(dim(datamat)[2]-1)) {
+  alldays = seq(min(datamat$date), max(datamat$date), by='1 day')
+	alldays_weekly=seq(min(datamat$date), max(datamat$date), by='1 week')
+	
+	x=get_x_ts(datamat,alldays,scale=FALSE)
+	spacing=60
+	labels=seq(from=as.Date(datamat$date[1]),to=as.Date(datamat$date[length(datamat$date)]),by=spacing)
+	x_ts=na.approx(zoo(x[,varnum]),maxgap=7)
+	
+	x_interp=x_ts
+	x_interp=na.approx(zoo(x[,varnum]))
+	
+	s_poly=(seq(length(x[,varnum])) - mean(seq(length(x[,varnum]))))**2
+	s_poly=(s_poly - mean(s_poly))
+	s_poly=s_poly/max(s_poly)
+	s_lin=seq(length(x[,varnum])) - mean(seq(length(x[,varnum])))
+	s_lin=s_lin/max(s_lin)
+	
+	# take weekly mean for auto.arima analysis, due to NAs
+	a=auto.arima(x[,varnum],xreg=cbind(s_poly,s_lin),allowdrift=FALSE)
+	p=cwp(a)
+	poly.loc=which(names(data.frame(p)) == "s_poly")
+	lin.loc=which(names(data.frame(p)) == "s_lin")
+	pvals=rbind(pvals,c(mean(x_ts,na.rm=TRUE), var(a$residuals,na.rm=TRUE),p[4,lin.loc],p[4,poly.loc]))
+}
+p_fdr=p.adjust(pvals[,3:4],method='BH')
+p_fdr=matrix(p_fdr,length(p_fdr)/2,2)
+
+pvals=as.data.frame(pvals)
+pvals[,3:4]=p_fdr
+names(pvals)=c('mean','var(resid)','Linear trend (p-val)','Poly trend (p-val)')
+row.names(pvals)=names(datamat)[1:12]
+
+kable(pvals)
+if (save_latex) {
+  k=kable(pvals,format='latex',digits=4)
+  write(k,file=sprintf('%s/timeseries/tables/wincorr_timeseries_stats.tex',basedir))
+}
+
+
+```
+
+#### now make plots
+
+```{r wincorrPlot}
+for (varnum in 1:(dim(datamat)[2]-1)) {
+	alldays = seq(min(datamat$date), max(datamat$date), by='1 day')
+	alldays_weekly=seq(min(datamat$date), max(datamat$date), by='1 week')
+	
+	x=get_x_ts(datamat,alldays,scale=FALSE)
+	spacing=60
+	labels=seq(from=as.Date(datamat$date[1]),to=as.Date(datamat$date[length(datamat$date)]),by=spacing)
+	x_ts=na.approx(zoo(x[,varnum]),maxgap=7)
+	
+	x_interp=x_ts
+	x_interp=na.approx(zoo(x[,varnum]))
+
+	lo <- loess(x_interp ~ seq(from=start(x_interp)[1],to=end(x_interp)[1],by=sample_spacing),span=0.5)
+	plot(x_ts,xaxt='n',xlab='',ylab=varname,col='black')
+	points(seq(from=start(x_interp)[1],to=end(x_interp)[1],by=sample_spacing),x[,varnum],pch=18)
+	lines(seq(from=start(x_interp)[1],to=end(x_interp)[1],by=sample_spacing),lo$fitted,col='blue',lwd=3)
+	axis(2)
+	axis(1,labels=FALSE,at=seq(from=start(x_interp)[1],to=end(x_interp)[1],by=spacing),xlab=FALSE)
+	offset=0.1*(max(x_ts,na.rm=TRUE)-min(x_ts,na.rm=TRUE))
+	text(seq(from=start(x_interp)[1],to=end(x_interp)[1],by=spacing), par("usr")[3] - offset, labels = labels, srt = 45,adj=0.9, xpd = TRUE)
+	title(sprintf('%s - lin p = %0.3f, poly p=%0.3f',names(datamat)[varnum],p_fdr[varnum,1],p_fdr[varnum,2]))
+}
+```
+
+## RNA-seq
+
+```{r rnaseqModel}
+datamat=load_rnaseq_data()
+mod_des=read.table('http://s3.amazonaws.com/openfmri/ds031/RNA-seq/module_descriptions.txt',sep='\t')
+data_names=c()
+for (i in 1:(dim(datamat)[2]-1)) {
+  	data_names=rbind(data_names,sprintf('%s:%s',names(datamat)[i],mod_des$V2[i]))
+		}
+data_names=rbind(data_names,'date')
+names(datamat)=data_names
+
+varname='Eigengene expression'
+sample_spacing=7
+
+# first get pvals
+pvals=c()
+
+for (varnum in 1:(dim(datamat)[2]-1)) {
+	alldays = seq(min(datamat$date), max(datamat$date), by='1 week')
+	
+	x=get_x_ts(datamat,alldays,scale=FALSE)
+	spacing=60
+	labels=seq(from=as.Date(datamat$date[1]),to=as.Date(datamat$date[length(datamat$date)]),by=spacing)
+	x_ts=zoo(x[,varnum])
+	
+	x_interp=x_ts
+	x_interp=na.approx(x_interp)
+	
+	
+	s_poly=(as.numeric(alldays) - mean(as.numeric(alldays)))**2
+	s_poly=(s_poly - mean(s_poly))
+	s_poly=s_poly/max(s_poly)
+	
+	s_lin=as.numeric(alldays) - mean(as.numeric(alldays))
+	s_lin=s_lin/max(s_lin)
+	
+	a=auto.arima(x[,varnum],xreg=cbind(s_poly,s_lin),allowdrift=FALSE)
+	p=cwp(a)
+	poly.loc=which(names(data.frame(p)) == "s_poly")
+	lin.loc=which(names(data.frame(p)) == "s_lin")
+	pvals=rbind(pvals,c(mean(x_ts,na.rm=TRUE), var(a$residuals,na.rm=TRUE),p[4,lin.loc],p[4,poly.loc]))
+
+}
+
+p_fdr=p.adjust(pvals[,3:4],method='BH')
+p_fdr=matrix(p_fdr,length(p_fdr)/2,2)
+
+pvals=as.data.frame(pvals)
+pvals[,3:4]=p_fdr
+names(pvals)=c('mean','var(resid)','Linear trend (p-val)','Poly trend (p-val)')
+
+
+row.names(pvals)=names(datamat)[1:dim(pvals)[1]]
+
+
+kable(pvals)
+if (save_latex) {
+  k=kable(pvals,format='latex',digits=3)
+  write(k,file=sprintf('%s/timeseries/tables/wgcna_timeseries_stats.tex',basedir))
+}
+
+
+
+```
+
+#### Generate plots
+
+```{r rnaseqPlot}
+for (varnum in 1:(dim(datamat)[2]-1)) {
+	alldays = seq(min(datamat$date), max(datamat$date), by='1 week')
+	
+	x=get_x_ts(datamat,alldays,scale=FALSE)
+	spacing=60
+	labels=seq(from=as.Date(datamat$date[1]),to=as.Date(datamat$date[length(datamat$date)]),by=spacing)
+	x_ts=zoo(x[,varnum])
+	
+	x_interp=x_ts
+	x_interp=na.approx(x_interp)
+	
+  pdf(file=sprintf('/Users/poldrack/data/selftracking/rna-seq/timeseries_plots/module%03d.pdf',varnum),width=12,height=4)
+
+	lo <- loess(x_interp ~ seq(from=start(x_interp)[1],to=end(x_interp)[1],by=sample_spacing),span=0.5)
+	pred=predict(lo,se=TRUE)
+	plot(x_ts,xaxt='n',xlab='',ylab=varname,col='black')
+	lines(seq(from=start(x_interp)[1],to=end(x_interp)[1],by=sample_spacing),lo$fitted,col='blue')
+	points(seq(from=start(x_interp)[1],to=end(x_interp)[1],by=sample_spacing),x[,varnum],pch=18)
+	axis(2)
+	axis(1,labels=FALSE,at=seq(from=start(x_interp)[1],to=end(x_interp)[1],by=spacing),xlab=FALSE)
+	offset=0.1*(max(x_ts,na.rm=TRUE)-min(x_ts,na.rm=TRUE))
+	text(seq(from=start(x_interp)[1],to=end(x_interp)[1],by=spacing), par("usr")[3] - offset, labels = labels, srt = 45,adj=0.9, xpd = TRUE)
+	title(sprintf('%s - lin p = %0.3f, poly p=%0.3f',names(datamat)[varnum],p_fdr[varnum,1],p_fdr[varnum,2]))
+  dev.off()
+}
+
+```
+
+
+## Metabolites
+
+#### Get p-values
+
+```{r metabModel}
+datamat=load_metab_data() 
+varname='Metabolite eigenconcentration'
+sample_spacing=7
+
+data_names=c()
+for (i in 1:(dim(datamat)[2]-1)) {
+    data_names=rbind(data_names,sprintf('C%d:%s',i,names(datamat)[i]))
+		}
+data_names=rbind(data_names,'date')
+names(datamat)=data_names
+
+
+
+pvals=c()
+
+# first get pvals
+
+for (varnum in 1:(dim(datamat)[2]-1)) {
+	if (sample_spacing==7) {
+		alldays = seq(min(datamat$date), max(datamat$date), by='1 week')
+	} else {
+		alldays = seq(min(datamat$date), max(datamat$date), by='1 day')
+	}
+
+	
+	x=get_x_ts(datamat,alldays,scale=FALSE)
+	spacing=60
+	labels=seq(from=as.Date(datamat$date[1]),to=as.Date(datamat$date[length(datamat$date)]),by=spacing)
+	x_ts=zoo(x[,varnum])
+	
+	x_interp=x_ts
+	x_interp=na.approx(x_interp,,maxgap=7)
+	
+	
+	s_poly=(as.numeric(alldays) - mean(as.numeric(alldays)))**2
+	s_poly=(s_poly - mean(s_poly))
+	s_poly=s_poly/max(s_poly)
+	
+	s_lin=as.numeric(alldays) - mean(as.numeric(alldays))
+	s_lin=s_lin/max(s_lin)
+	
+	a=auto.arima(x[,varnum],allowdrift=FALSE, xreg=cbind(s_poly,s_lin))
+	p=cwp(a)
+	poly.loc=which(names(data.frame(p)) == "s_poly")
+	lin.loc=which(names(data.frame(p)) == "s_lin")
+	pvals=rbind(pvals,c(mean(x_ts,na.rm=TRUE), var(a$residuals,na.rm=TRUE),p[4,lin.loc],p[4,poly.loc]))
+}
+
+p_fdr=p.adjust(pvals[,3:4],method='BH')
+p_fdr=matrix(p_fdr,length(p_fdr)/2,2)
+
+pvals=as.data.frame(pvals)
+pvals[,3:4]=p_fdr
+names(pvals)=c('mean','var(resid)','Linear trend (p-val)','Poly trend (p-val)')
+
+
+row.names(pvals)=names(datamat)[1:dim(pvals)[1]]
+
+kable(pvals)
+if (save_latex) {
+  k=kable(pvals,format='latex',digits=3)
+  write(k,file=sprintf('%s/timeseries/tables/metab_timeseries_stats.tex',basedir))
+}
+
+
+```
+
+#### Make plots
+
+```{r metabPlot}
+for (varnum in 1:(dim(datamat)[2]-1)) {
+	
+	x=get_x_ts(datamat,alldays,scale=FALSE)
+	spacing=60
+	labels=seq(from=as.Date(datamat$date[1]),to=as.Date(datamat$date[length(datamat$date)]),by=spacing)
+	x_ts=zoo(x[,varnum])
+	
+	x_interp=x_ts
+	x_interp=na.approx(x_interp,maxgap=7)
+	
+
+	lo <- loess(x_interp ~ seq(from=start(x_interp)[1],to=end(x_interp)[1],by=sample_spacing),span=0.5)
+	pred=predict(lo,se=TRUE)
+	plot(x_ts,xaxt='n',xlab='',ylab=varname,col='black')
+	lines(seq(from=start(x_interp)[1],to=end(x_interp)[1],by=sample_spacing),lo$fitted,col='blue')
+	points(seq(from=start(x_interp)[1],to=end(x_interp)[1],by=sample_spacing),x[,varnum],pch=18)
+	axis(2)
+	axis(1,labels=FALSE,at=seq(from=start(x_interp)[1],to=end(x_interp)[1],by=spacing),xlab=FALSE)
+	offset=0.1*(max(x_ts,na.rm=TRUE)-min(x_ts,na.rm=TRUE))
+	text(seq(from=start(x_interp)[1],to=end(x_interp)[1],by=spacing), par("usr")[3] - offset, labels = labels, srt = 45,adj=0.9, xpd = TRUE)
+	title(sprintf('%s - lin p = %0.3f, poly p=%0.3f',names(datamat)[varnum],p_fdr[varnum,1],p_fdr[varnum,2]))
+}
+
+
+```
+
+## ImmPort immune system pathways
+
+```{r immportModel}
+datamat=load_ImmPort_data()
+
+varname='Eigengene expression'
+sample_spacing=7
+varnum=1
+pvals=c()
+# first get pvals
+
+for (varnum in 1:(dim(datamat)[2]-1)) {
+	alldays = seq(min(datamat$date), max(datamat$date), by='1 week')
+	
+	x=get_x_ts(datamat,alldays,scale=FALSE)
+	spacing=60
+	labels=seq(from=as.Date(datamat$date[1]),to=as.Date(datamat$date[length(datamat$date)]),by=spacing)
+	x_ts=zoo(x[,varnum])
+	
+	x_interp=x_ts
+	x_interp=na.approx(x_interp)
+	
+	
+	s_poly=(as.numeric(alldays) - mean(as.numeric(alldays)))**2
+	s_poly=(s_poly - mean(s_poly))
+	s_poly=s_poly/max(s_poly)
+	
+	s_lin=as.numeric(alldays) - mean(as.numeric(alldays))
+	s_lin=s_lin/max(s_lin)
+	
+	a=auto.arima(x[,varnum],xreg=cbind(s_poly,s_lin),allowdrift=FALSE)
+	p=cwp(a)
+	poly.loc=which(names(data.frame(p)) == "s_poly")
+	lin.loc=which(names(data.frame(p)) == "s_lin")
+	pvals=rbind(pvals,c(mean(x_ts,na.rm=TRUE), var(a$residuals,na.rm=TRUE),p[4,lin.loc],p[4,poly.loc]))
+
+}
+
+p_fdr=p.adjust(pvals[,3:4],method='BH')
+p_fdr=matrix(p_fdr,length(p_fdr)/2,2)
+
+pvals=as.data.frame(pvals)
+pvals[,3:4]=p_fdr
+names(pvals)=c('mean','var(resid)','Linear trend (p-val)','Poly trend (p-val)')
+
+row.names(pvals)=names(datamat)[1:15]
+
+kable(pvals)
+if (save_latex) {
+  k=kable(pvals,format='latex',digits=3)
+  write(k,file=sprintf('%s/timeseries/tables/immport_timeseries_stats.tex',basedir))
+}
+
+
+```
+
+#### Make plots
+
+
+```{r immportPlot}
+
+for (varnum in 1:(dim(datamat)[2]-1)) {
+	alldays = seq(min(datamat$date), max(datamat$date), by='1 week')
+	
+	x=get_x_ts(datamat,alldays,scale=FALSE)
+	spacing=60
+	labels=seq(from=as.Date(datamat$date[1]),to=as.Date(datamat$date[length(datamat$date)]),by=spacing)
+	x_ts=zoo(x[,varnum])
+	
+	x_interp=x_ts
+	x_interp=na.approx(x_interp)
+	
+
+	lo <- loess(x_interp ~ seq(from=start(x_interp)[1],to=end(x_interp)[1],by=sample_spacing),span=0.5)
+	pred=predict(lo,se=TRUE)
+	plot(x_ts,xaxt='n',xlab='',ylab=varname,col='black')
+	lines(seq(from=start(x_interp)[1],to=end(x_interp)[1],by=sample_spacing),lo$fitted,col='blue')
+	points(seq(from=start(x_interp)[1],to=end(x_interp)[1],by=sample_spacing),x[,varnum],pch=18)
+	axis(2)
+	axis(1,labels=FALSE,at=seq(from=start(x_interp)[1],to=end(x_interp)[1],by=spacing),xlab=FALSE)
+	offset=0.1*(max(x_ts,na.rm=TRUE)-min(x_ts,na.rm=TRUE))
+	text(seq(from=start(x_interp)[1],to=end(x_interp)[1],by=spacing), par("usr")[3] - offset, labels = labels, srt = 45,adj=0.9, xpd = TRUE)
+	title(sprintf('%s - lin p = %0.3f, poly p=%0.3f',names(datamat)[varnum],p_fdr[varnum,1],p_fdr[varnum,2]))
+}
+
+
+```

@@ -1,0 +1,847 @@
+---
+title: "Timeseries analyses for MyConnectome Project"
+author: "Russ Poldrack"
+date: "November 1, 2014"
+output: html_document
+---
+
+This notebook runs all of the timeseries analyses presented in the MyConnectome paper. Note that this set of analyses will take a good bit of time to run (> 15 mins on a laptop).
+
+First we need to load some relevant libraries:
+
+```{r setup,message=FALSE}
+library(forecast)
+library(knitr)
+
+
+basedir=Sys.getenv('MYCONNECTOME_DIR')
+
+thresh=0.05  # FDR threshold
+save_latex=TRUE
+OUTPUT_DIR=sprintf('%s/timeseries',basedir)
+
+```
+
+
+
+
+
+Load all of the relevant data, changing the variable names as needed.
+
+```{r loadData, message=FALSE,warning=FALSE,error=FALSE}
+behav=load_behav_data()
+wincorr=load_fmri_data('wincorr')
+bwcorr=load_fmri_data('bwcorr')
+netdat=load_network_data()
+fd=load_fd_data()
+food=load_food_data()
+rnaseq_wgcna=load_rnaseq_data(limit_ME_to_enriched=FALSE)
+metab=load_metab_data()
+pindex=load_participation_index()
+
+data_names=c()
+for (i in 1:(dim(metab)[2]-1)) {
+    data_names=rbind(data_names,sprintf('C%d:%s',i,names(metab)[i]))
+  	}
+data_names=rbind(data_names,'date')
+names(metab)=data_names
+
+
+fullmetab=load_metab_data(use_clustered_data=FALSE)
+data_names=c()
+for (i in 1:(dim(fullmetab)[2]-1)) {
+    n=gsub('_NIST','',names(fullmetab)[i])
+    n=gsub('_',' ',n)
+
+    data_names=rbind(data_names,n)
+    }
+data_names=rbind(data_names,'date')
+names(fullmetab)=data_names
+
+
+immport=load_ImmPort_data()
+
+```
+
+Create the subset of data that we are interested in for the behavioral analysis - generate a version without the tuesday/thursday variable for use with the blood data (which are only on tuesdays)
+
+```{r behavSubset}
+xvars=c('panas.positive','panas.negative','panas.fatigue','afterscan.Anxietyduringscan','afterscan.diastolic','afterscan.pulse','afterscan.systolic','morning.Sleepquality','morning.Soreness','prevevening.Alcohol','prevevening.Guthealth','prevevening.Psoriasisseverity','prevevening.Stress', 'prevevening.Timespentoutdoors','TuesThurs', 'temp.mean',"email.LIWCcdi","email.LIWCnegemo","email.LIWCposemo",'zeo.zq')
+
+behav_keep=subset(behav,select=c(xvars,'date'))
+behav_keep_no_tth=subset(behav_keep,select=-TuesThurs)
+```
+
+## Run regression models
+For each set of variables, run the regression model and save outputs.
+
+
+####Behavioral variables vs. each other:
+
+```{r BehavBehav,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('behav','behav')
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {
+d=est_bivariate_arima_model(behav_keep, behav_keep,spacing='1 day',skip_ident=TRUE)
+}
+```
+
+```{r  results="asis"}
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+####Within-module connectivity vs. behavior
+
+```{r wincorrBehav,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('wincorr','behav')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {
+    d=est_bivariate_arima_model(wincorr,behav_keep)
+    }
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+####Between-module connectivity vs. behavior
+
+```{r bwcorrBehav,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('bwcorr','behav')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(bwcorr,behav_keep)}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+####Network measures vs. behavior
+
+```{r netdatBehav,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('netdat','behav')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(netdat,behav_keep)}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+####Participation index vs. behavior
+
+```{r PIbehav,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('pindex','behav')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(pindex,behav_keep)}
+```
+
+```{r  results="asis"}
+print('skipping printout')
+
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+
+####Behavior vs. RNA-seq:
+
+
+```{r wgcnaBehav,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('wgcna','behav')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(rnaseq_wgcna,behav_keep_no_tth,spacing='1 week')}
+```
+
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+
+```
+
+#### Within-module connectivity vs. RNA-seq
+```{r wgcnaWincorr,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('wgcna','wincorr')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(rnaseq_wgcna,wincorr,spacing='1 week')}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+#### Between-module connectivity vs. RNA-seq
+```{r wgcnaBwcorr,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('wgcna','bwcorr')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(rnaseq_wgcna,bwcorr,spacing='1 week')}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+#### Network measures vs. RNA-seq
+```{r wgcnaNetdat,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('wgcna','netdat')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(rnaseq_wgcna,netdat,spacing='1 week')}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+
+
+####ImmPort immune genes vs behavior
+
+```{r immportBehav,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('immport','behav')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(immport,behav_keep_no_tth,spacing='1 week')}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+#### Test specific hypothesis regarding psoriasis
+```{r psorImmport,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('psoriasis','immport')
+psoriasis=subset(behav,select=c(date,prevevening.Psoriasisseverity))
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(immport,psoriasis,spacing='1 week')}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+
+
+####ImmPort immune genes vs within-module connectivity
+
+```{r immportWincorr,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('immport','wincorr')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(immport,wincorr,spacing='1 week')}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+####ImmPort immune genes vs between-module connectivity
+
+```{r immportBwcorr,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('immport','bwcorr')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(immport,bwcorr,spacing='1 week')}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+####ImmPort immune genes vs network measures
+
+```{r immportNetdat,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('immport','netdat')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(immport,netdat,spacing='1 week')}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+####ImmPort immune genes vs food
+```{r foodImmport,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('food','immport')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(food,immport,spacing='1 week')}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+####ImmPort immune genes vs metabolism
+```{r immportMetab,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('immport','metab')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(immport,metab,spacing='1 week')}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+####ImmPort immune genes vs metabolism (full set)
+```{r immportFullmetab,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('immport','fullmetab')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(immport,fullmetab,spacing='1 week')}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+
+
+#### food vs. metabolism
+note: food needs to be X variable because auto.arima doesn't handle binary Y variable
+```{r foodMetab,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('food','metab')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(food,metab,spacing='1 week')}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+#### food vs. metabolism (individual metabolites)
+note: food needs to be X variable because auto.arima doesn't handle binary Y variable
+```{r foodFullmetab,message=FALSE,warning=FALSE,error=FALSE}
+
+vnames=c('food','fullmetab')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(food,fullmetab,spacing='1 week')}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+
+#### behav vs. metabolsm
+```{r behavMetab,message=FALSE,warning=FALSE,error=FALSE}
+
+vnames=c('behav','metab')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(behav_keep_no_tth,metab,spacing='1 week')}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+#### behav vs. metabolsm (full set)
+```{r behavFullmetab,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('behav','fullmetab')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(behav_keep_no_tth,fullmetab,spacing='1 week')}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+
+####metabolism vs. within-network connectivity
+```{r metabWincorr,message=FALSE,warning=FALSE,error=FALSE}
+
+vnames=c('metab','wincorr')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(metab,wincorr,spacing='1 week')}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+####metabolism vs. within-network connectivity (full set of metabolites)
+```{r fullmetabWincorr,message=FALSE,warning=FALSE,error=FALSE}
+
+vnames=c('fullmetab','wincorr')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(fullmetab,wincorr,spacing='1 week')}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+####metabolism vs. between-network connectivity
+```{r metabBwcorr,message=FALSE,warning=FALSE,error=FALSE}
+
+vnames=c('metab','bwcorr')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(metab,bwcorr,spacing='1 week')}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+####metabolism vs. within-network connectivity (full set of metabolites)
+```{r fullmetabBwcorr,message=FALSE,warning=FALSE,error=FALSE}
+
+vnames=c('fullmetab','bwcorr')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(fullmetab,bwcorr,spacing='1 week')}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+####metabolism vs. metabolism
+```{r metabMetab,message=FALSE,warning=FALSE,error=FALSE}
+
+vnames=c('metab','metab')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(metab,metab,skip_ident=TRUE,spacing='1 week')}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+
+#### within-network connectivity 
+```{r wincorrWincorr,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('wincorr','wincorr')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(wincorr,wincorr,skip_ident=TRUE)}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+#### between-network connectivity 
+```{r bwcorrBwcorr,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('bwcorr','bwcorr')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(bwcorr,bwcorr,skip_ident=TRUE)}
+```
+
+```{r  results="asis"}
+print('skipping printout')
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+#### within-network connectivity vs. network measures
+```{r wincorrNetdat,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('wincorr','netdat')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(wincorr,netdat)}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+#### between-network connectivity vs. network measures
+```{r bwcorrNetdat,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('bwcorr','netdat')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(bwcorr,netdat)}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+#### network measures
+```{r netdatNetdat,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('netdat','netdat')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(netdat,netdat,skip_ident=TRUE)}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+#### food vs. within-network connectivity
+```{r foodWincorr,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('food','wincorr')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(food,wincorr)}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+#### food vs. behavior
+Remove food variables that have too many zeros or ones, otherwise will fail
+
+```{r foodBehav,message=FALSE,warning=FALSE,error=FALSE}
+food$apples=NULL  
+food$blueberries=NULL
+behav_keep_no_tth$zeo.zq=NULL
+
+vnames=c('food','behav')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(food,behav_keep_no_tth)}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+#### compare head motion to other measures
+
+#### FD vs. behavior
+```{r fdBehav,message=FALSE,warning=FALSE,error=FALSE}
+
+vnames=c('fd','behav')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(fd,behav_keep)}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+#### FD vs. RNA-seq
+```{r fdWgcna,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('fd','wgcna')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(fd,rnaseq_wgcna,spacing='1 week')}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+#### FD vs. metabolites
+
+```{r fdMetab,message=FALSE,warning=FALSE,error=FALSE}
+
+vnames=c('fd','metab')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(fd,metab,spacing='1 week')}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+#### FD vs. wincorr
+```{r fdWincorr,message=FALSE,warning=FALSE,error=FALSE}
+
+vnames=c('fd','wincorr')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(fd,wincorr)}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+
+#### FD vs. netdat
+```{r fdNetdat,message=FALSE,warning=FALSE,error=FALSE}
+
+vnames=c('fd','netdat')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(fd,netdat)}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+#### RNA-seq 
+
+
+```{r wgcnaWgcna,message=FALSE,warning=FALSE,error=FALSE}
+
+vnames=c('wgcna','wgcna')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(rnaseq_wgcna, rnaseq_wgcna,spacing='1 week',skip_ident=TRUE)}
+```
+
+```{r  results="asis"}
+# turning off output because there are too many significant results here - uncomment to turn it back on
+#kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+#### RNA-seq vs. metabolism
+```{r wgcnaMetab,message=FALSE,warning=FALSE,error=FALSE}
+vnames=c('wgcna','metab')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(rnaseq_wgcna,metab,spacing='1 week')}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+#### RNA-seq vs. metabolism (full set)
+```{r wgcnaFullmetab,message=FALSE,warning=FALSE,error=FALSE}
+
+vnames=c('wgcna','fullmetab')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(rnaseq_wgcna,fullmetab,spacing='1 week')}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+
+
+#### RNA-seq vs. food
+
+
+```{r foodWgcna,message=FALSE,warning=FALSE,error=FALSE}
+
+vnames=c('food','wgcna')
+
+if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
+  print("loading existing file...")
+  d=read.table(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))
+  } else {d=est_bivariate_arima_model(food,rnaseq_wgcna,spacing='1 week')}
+```
+
+```{r  results="asis"}
+
+kable_wrap(d)
+output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
+
+```
+

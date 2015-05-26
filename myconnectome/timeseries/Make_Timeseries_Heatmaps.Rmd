@@ -1,0 +1,117 @@
+---
+title: "Make Timeseries Heatmaps"
+author: "Russ Poldrack"
+date: "November 1, 2014"
+output: html_document
+---
+
+Generate the timeseries heatmap figure for the MyConnectome paper (Figure 2).
+
+Note:  Because of the way that knitr handles large figures, the captions in these figures are cut off.  The figures for the paper were generated outside of knitr in order to make the full legends visible.
+
+First, load the necessary libraries:
+
+```{r}
+basedir=Sys.getenv('MYCONNECTOME_DIR')
+
+
+library(gplots)
+```
+
+####Load and set up the data 
+```{r}
+behav=load_behav_data()
+wincorr=load_fmri_data('wincorr')
+netdata=load_network_data()
+xvars=c('panas.positive','panas.negative','panas.fatigue','afterscan.Anxietyduringscan','afterscan.diastolic','afterscan.pulse','afterscan.systolic','morning.Sleepquality','morning.Soreness','prevevening.Alcohol','prevevening.Guthealth','prevevening.Psoriasisseverity','prevevening.Stress', 'prevevening.Timespentoutdoors','temp.mean',"email.LIWCcdi","email.LIWCnegemo","email.LIWCposemo",'zeo.zq')
+
+
+behav_keep=subset(behav,select=c(xvars,'date'))
+behav_keep$FedFasted=behav$TuesThurs
+behav_keep$FedFasted[is.na(behav_keep$FedFasted)]=1
+```
+
+Give more interepretable names to the variables
+```{r}
+behav_names=c('positive mood','negative mood','fatigue','anxiety during scan','diastolic BP','pulse','systolic BP','sleep quality (rating)','soreness','alcohol intake','gut health','psoriasis severity','stress','time outdoors','mean outdoor temperature','email: categorical-dynamic index','email: negative emotion','email:positive emotion','sleep (ZEO ZQ)','fed vs. fasted')
+```
+
+#### Generate the heatmap for behavioral data
+
+```{r}
+behav_dates=c(format(behav$date[1],'%Y-%m'))
+anchor=behav$date[1]
+for (i in 2:length(behav$date)) {
+  if (months(behav$date[i]) != months(anchor) && behav_dates[i-1]=='') {
+		behav_dates[i]=format(behav$date[i],'%Y-%m')
+		anchor=behav$date[i]
+		} else {
+			behav_dates[i]=''
+		}
+	}
+b=subset(behav_keep,select=-c(date))
+
+xmar=8
+ymar=6
+
+heatmap.2(t(as.matrix(b)),trace='row',scale='row',margins=c(xmar,ymar),dendrogram='row',Colv=FALSE,na.rm=TRUE,na.color='gray',tracecol='black',linecol=FALSE,labRow=behav_names,labCol=behav_dates)
+
+pdf(file=sprintf('%s/timeseries/behav_heatmap.pdf',basedir),width=16,height=10)
+heatmap.2(t(as.matrix(b)),trace='row',scale='row',margins=c(10,16),dendrogram='row',Colv=FALSE,na.rm=TRUE,na.color='gray',tracecol='black',linecol=FALSE,labRow=behav_names,labCol=behav_dates)
+dev.off()
+
+```
+
+#### Make heatmap for within-network connectivity
+
+```{r}
+w=subset(wincorr,select=-c(date))
+wincorr_names=c('default mode','second visual','fronto-parietal','first visual','dorsal attention','ventral attention','salience','cingulo-opercular','somatomotor','fronto-parietal-2','medial parietal','parieto-occipital')
+
+scan_dates=c(format(wincorr$date[1],'%Y-%m'))
+anchor=wincorr$date[1]
+for (i in 2:length(wincorr $date)) {
+  if (months(wincorr$date[i]) != months(anchor) && scan_dates[i-1]=='') {
+		scan_dates[i]=format(wincorr$date[i],'%Y-%m')
+		anchor= wincorr$date[i]
+		} else {
+			scan_dates[i]=''
+		}
+	}
+
+heatmap.2(t(as.matrix(w)),trace='row',scale='row',margins=c(xmar,ymar),dendrogram='row',Colv=FALSE,na.rm=TRUE,na.color='gray',tracecol='black',linecol=FALSE,labRow=wincorr_names,labCol=scan_dates,key=FALSE)
+
+pdf(file=sprintf('%s/timeseries/wincorr_heatmap.pdf',basedir),width=16,height=10)
+heatmap.2(t(as.matrix(w)),trace='row',scale='row',margins=c(10,16),dendrogram='row',Colv=FALSE,na.rm=TRUE,na.color='gray',tracecol='black',linecol=FALSE,labRow=wincorr_names,labCol=scan_dates,key=FALSE)
+dev.off()
+
+```
+
+
+#### Make heatmap for WGCNA data
+
+```{r}
+rnaseq_wgcna=load_rnaseq_data(limit_ME_to_enriched=TRUE)
+rna=subset(rnaseq_wgcna,select=-c(date))
+draw_dates=c(format(rnaseq_wgcna$date[1],'%Y-%m'))
+anchor= rnaseq_wgcna$date[1]
+for (i in 2:length(rnaseq_wgcna$date)) {
+	if (months(rnaseq_wgcna$date[i]) != months(anchor) && draw_dates[i-1]=='') {
+		draw_dates[i]=format(rnaseq_wgcna$date[i],'%Y-%m')
+		anchor= rnaseq_wgcna$date[i]
+		} else {
+			draw_dates[i]=''
+		}
+	}
+
+heatmap.2(t(as.matrix(rna)),trace='row',scale='row',margins=c(xmar,ymar),dendrogram='row',Colv=FALSE,na.rm=TRUE,na.color='gray',tracecol='black',linecol=FALSE,labRow=names(rna),labCol=draw_dates,key=FALSE)
+
+pdf(file=sprintf('%s/timeseries/wgcna_heatmap.pdf',basedir),width=16,height=10)
+heatmap.2(t(as.matrix(rna)),trace='row',scale='row',margins=c(10,16),dendrogram='row',Colv=FALSE,na.rm=TRUE,na.color='gray',tracecol='black',linecol=FALSE,labRow=names(rna),labCol=draw_dates,key=FALSE)
+
+dev.off()
+
+```
+
+
+

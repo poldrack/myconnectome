@@ -1,0 +1,89 @@
+---
+title: "Snyderome data preparation"
+author: "Russ Poldrack"
+date: "May 18, 2015"
+output: html_document
+---
+
+
+```{r setup}
+basedir=Sys.getenv('MYCONNECTOME_DIR')
+
+library(DESeq)
+
+```
+
+
+```{r loadData}
+filenames=read.table('http://s3.amazonaws.com/openfmri/ds031/RNA-seq/snyderome/htcount_files.txt')
+filenames=as.character(filenames$V1)
+htcount_files=c()
+for (i in 1:length(filenames)){
+  htcount_files=rbind(htcount_files,c(filenames[i],filenames[i],i))
+}
+cdsFull=newCountDataSetFromHTSeqCount(htcount_files,
+          directory="http://s3.amazonaws.com/openfmri/ds031/RNA-seq/snyderome")
+cdsFull = estimateSizeFactors( cdsFull )
+
+```
+
+```{r cleanup}
+# get mean expression for each gene across sesssions
+rs = rowMeans ( counts ( cdsFull ))
+allgenes=rownames(counts(cdsFull))
+
+# remove genes with 
+use = (rs>4 & rs<10000)
+cds=cdsFull[use,]
+usedgenes=rownames(counts(cds))
+
+```
+
+
+```{r varstab}
+# generate variance-stabilized count data and save to file
+
+cdsBlind = estimateDispersions( cds, method="blind" ,fitType='local')
+vsd = varianceStabilizingTransformation( cdsBlind )
+vsdata=getVarianceStabilizedData(cdsBlind)
+dir.create(file.path(sprintf('%s/rna-seq',basedir), 'snyderome'), showWarnings = FALSE)
+write.table(vsdata,sprintf('%s/rna-seq/snyderome/varstab_data.txt',basedir))
+
+```
+
+```{r plotDispEsts}
+# plot some diagnostic figures
+
+plotDispEsts( cdsBlind )
+
+
+```
+
+```{r plotSD}
+#plot SD vs. count before and after correction
+library(vsn)
+par(mfrow=c(1,2))
+notAllZero = (rowSums(counts(cds))>0)
+meanSdPlot(log2(counts(cds)[notAllZero, ] + 1), ylim = c(0,2.5))
+meanSdPlot(vsd[notAllZero, ], ylim = c(0,2.5))
+
+```
+
+```{r plotGeneClust}
+# plot clusters of genes/subjects
+library("RColorBrewer")
+library("gplots")
+select = order(rowMeans(counts(cdsBlind)), decreasing=TRUE)[1:30]
+hmcol = colorRampPalette(brewer.pal(9, "GnBu"))(100)
+heatmap.2(exprs(vsd)[select,], col = hmcol, trace="none", margin=c(10, 6))
+
+```
+
+```{r plotSubClust}
+# plot clusters of subjects - to look for outliers
+dists = dist( t( exprs(vsd) ) )
+mat = as.matrix( dists )
+heatmap.2(mat, trace="none", col = rev(hmcol), margin=c(13, 13))
+
+
+```
