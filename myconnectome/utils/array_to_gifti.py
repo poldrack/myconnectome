@@ -8,11 +8,6 @@ import os
 from myconnectome.utils.set_structure import set_structure
 nvert=32492
 
-#lhparc=nibabel.gifti.giftiio.read('/Users/poldrack/data_unsynced/myconnectome/parcellation/all_selected_L_new_parcel_renumbered.func.gii')
-#rhparc=nibabel.gifti.giftiio.read('/Users/poldrack/data_unsynced/myconnectome/parcellation/all_selected_R_new_parcel_renumbered.func.gii')
-#data=numpy.hstack((lhparc.darrays[0].data,rhparc.darrays[0].data))
-#outfilestem='test.'
-#
 
 def array_to_gifti_32k(data,outfilestem,names=None,datatype=16,intent=11,ordering='F'):
     if len(data.shape)==1:
