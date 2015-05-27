@@ -91,18 +91,21 @@ except:
 
     desmtx=get_design_matrix(coding,taskcodes)
     desmtx=desmtx-numpy.mean(desmtx,0)
+    df = desmtx.shape[0] - desmtx.shape[1]
     
-    tstat=numpy.zeros((desmtx.shape[1]-1,32492*2))
-    betahat=numpy.zeros((desmtx.shape[1]-1,32492*2))
+    tstat=numpy.zeros((desmtx.shape[1],32492*2))
+    betahat=numpy.zeros((desmtx.shape[1],32492*2))
     badctr=0
-    asdf
-    lr=sklearn.linear_model.Lasso(alpha=0.01)
+    lr=sklearn.linear_model.RandomizedLasso(n_jobs=11)
     for i in range(contrastdata.shape[1]):
-        lr.fit(desmtx,contrastdata[:,i])
-        asdf
-        resid=contrastdata[:,i] 
+        y=contrastdata[:,i]-numpy.mean(contrastdata[:,i])
+        lr.fit(desmtx,y)
+        resid=y-lr.predict(desmtx)
+        sse=numpy.dot(resid,resid)/float(df)
+        tstat[:,i]=lr.coef_/sse
         betahat[:,i]=lr.coef_
         
+
 
 tstat[numpy.isnan(tstat)]=0
 
