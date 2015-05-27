@@ -6,7 +6,9 @@ import os,glob,sys,ctypes
 import nibabel.gifti.giftiio
 import numpy
 import sklearn.linear_model
+from myconnectome.utils.array_to_gifti import array_to_gifti_32k
 
+print sklearn.linear_model.__file__
 
 def get_codes():
     f=open('contrast_annotation.txt')
@@ -94,17 +96,21 @@ except:
     df = desmtx.shape[0] - desmtx.shape[1]
     
     tstat=numpy.zeros((desmtx.shape[1],32492*2))
+    lrand_scores=numpy.zeros((desmtx.shape[1],32492*2))
     betahat=numpy.zeros((desmtx.shape[1],32492*2))
     badctr=0
-    lr=sklearn.linear_model.RandomizedLasso(n_jobs=11)
+    lrand=sklearn.linear_model.RandomizedLasso(n_jobs=11)
+    lr=sklearn.linear_model.Lasso(alpha=0.01)
+
     for i in range(contrastdata.shape[1]):
         y=contrastdata[:,i]-numpy.mean(contrastdata[:,i])
+        lrand.fit(desmtx,y)
         lr.fit(desmtx,y)
-        resid=y-lr.predict(desmtx)
+        resid=y-desmtx.dot(lr.coef_)
         sse=numpy.dot(resid,resid)/float(df)
         tstat[:,i]=lr.coef_/sse
         betahat[:,i]=lr.coef_
-        
+        lrand_scores[:,i]=lrand.scores_
 
 
 tstat[numpy.isnan(tstat)]=0
@@ -113,21 +119,7 @@ lh=nibabel.gifti.GiftiImage()
 rh=nibabel.gifti.GiftiImage()
 nvert=32492
 
-for i in range(tstat.shape[0]):
-    darray_lh=tstat[i,:nvert].astype(numpy.float32)
-    lh.add_gifti_data_array(nibabel.gifti.GiftiDataArray.from_array(darray_lh,
-            intent=11,
-            datatype=16,
-            ordering='F',
-            meta={'AnatomicalStructurePrimary':'CortexLeft',
-            'Name':'tstat%d'%int(i+1)}))
-        
-    darray_rh=tstat[i,nvert:].astype(numpy.float32)
-    rh.add_gifti_data_array(nibabel.gifti.GiftiDataArray.from_array(darray_rh,
-            intent=11,
-            datatype=16,
-            ordering='F',
-            meta={'AnatomicalStructurePrimary':'CortexRight',
-            'Name':'tstat%d-%s'%(int(i+1),names[i])}))
-nibabel.gifti.giftiio.write(lh,'/corral-repl/utexas/poldracklab/data/selftracking/analyses/task_analyses/encoding_tstat_lasso.LH.func.gii')
-nibabel.gifti.giftiio.write(rh,'/corral-repl/utexas/poldracklab/data/selftracking/analyses/task_analyses/encoding_tstat_lasso.RH.func.gii')
+array_to_gifti_32k(tstat,'/corral-repl/utexas/poldracklab/data/selftracking/analyses/task_analyses/encoding_tstat_lasso',names)
+array_to_gifti_32k(lrand_scores,'/corral-repl/utexas/poldracklab/data/selftracking/analyses/task_analyses/encoding_randlasso_scores',names)
+
+
