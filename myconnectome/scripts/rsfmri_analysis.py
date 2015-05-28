@@ -54,6 +54,13 @@ if not os.path.exists(os.path.join(basedir,'rsfmri/geff_pos.txt')):
       get_file_from_s3('ds031/rsfmri/modularity_weighted_louvain_bct.txt',os.path.join(basedir,'rsfmri/modularity_weighted_louvain_bct.txt'))  
       get_file_from_s3('ds031/rsfmri/PIpos_weighted_louvain_bct.txt',os.path.join(basedir,'rsfmri/PIpos_weighted_louvain_bct.txt'))  
       get_file_from_s3('ds031/rsfmri/geff_pos.txt',os.path.join(basedir,'rsfmri/geff_pos.txt'))  
-    
+      f=open(os.path.join(basedir,'rsfmri/USING_CACHED_RESULTS'),'a')
+      f.write('BCT')
+      f.close()
+      
 if not os.path.exists(os.path.join(basedir,'parcellation/all_selected_L_new_parcel_renumbered_boundaries.func.gii')):
     mk_parcellation_boundaries.mk_parcellation_boundaries()
+
+if not os.path.exists(os.path.join(basedir,'rsfmri/network_graph_all_0.010.graphml')):
+    for day in ['mon','tues','thurs','all']:
+        mk_full_network_graph.mk_full_network_graph(day)
