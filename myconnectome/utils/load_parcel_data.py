@@ -5,7 +5,7 @@ utility function to load parcel data
 
 import numpy
 
-def load_parcel_data(infile='/Users/poldrack/code/selftracking/rsfmri/parcel_data.txt'):
+def load_parcel_data(infile):
     f=open(infile)
     lines=f.readlines()
     f.close()
