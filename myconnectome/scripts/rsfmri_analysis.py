@@ -61,6 +61,7 @@ if not os.path.exists(os.path.join(basedir,'rsfmri/geff_pos.txt')):
 if not os.path.exists(os.path.join(basedir,'parcellation/all_selected_L_new_parcel_renumbered_boundaries.func.gii')):
     mk_parcellation_boundaries.mk_parcellation_boundaries()
 
-if not os.path.exists(os.path.join(basedir,'rsfmri/network_graph_all_0.010.graphml')):
-    for day in ['mon','tues','thurs','all']:
-        mk_full_network_graph.mk_full_network_graph(day)
+# removing this from main script until debugged
+#if not os.path.exists(os.path.join(basedir,'rsfmri/network_graph_all_0.010.graphml')):
+#    for day in ['mon','tues','thurs','all']:
+#        mk_full_network_graph.mk_full_network_graph(day)
