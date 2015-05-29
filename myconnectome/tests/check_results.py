@@ -28,6 +28,11 @@ for f  in metabolomics_files:
     files_to_compare['metabolomics/'+f]='metabolomics/'+f
 
 for f in files_to_compare.iterkeys():
+    try:
+        assert os.path.exists(os.path.join(basedir,f))
+    except:
+        print 'MISSING FILE:',os.path.join(basedir,f)
+        continue
     url='https://s3.amazonaws.com/openfmri/ds031/'+files_to_compare[f]
     raw_data = urllib.urlopen(url)
     try:
@@ -51,22 +56,34 @@ for f in files_to_compare.iterkeys():
 
 # the following have to be set up separately because these file formats are funky
 
-modassn_local=load_wgcna_module_assignments(os.path.join(basedir,'rna-seq/WGCNA/module_assignments_thr8_prefilt_rinPCreg.txt'))
-modassn_repos=load_wgcna_module_assignments('https://s3.amazonaws.com/openfmri/ds031/'+'RNA-seq/module_assignments_thr8_prefilt_rinPCreg.txt')
-if numpy.allclose(modassn_local[0],modassn_repos[0],rtol,atol):
-    print 'PASS: rna-seq/WGCNA/module_assignments_thr8_prefilt_rinPCreg.txt'
-else:
-    maxdiff=numpy.max(modassn_local[0] - modassn_repos[0])
-    print 'FAIL: rna-seq/WGCNA/module_assignments_thr8_prefilt_rinPCreg.txt','maxdiff =',maxdiff
+try:
+    assert os.path.exists(os.path.join(basedir,'rna-seq/WGCNA/module_assignments_thr8_prefilt_rinPCreg.txt'))
+    modassn_local=load_wgcna_module_assignments(os.path.join(basedir,'rna-seq/WGCNA/module_assignments_thr8_prefilt_rinPCreg.txt'))
+    modassn_repos=load_wgcna_module_assignments('https://s3.amazonaws.com/openfmri/ds031/'+'RNA-seq/module_assignments_thr8_prefilt_rinPCreg.txt')
+    if numpy.allclose(modassn_local[0],modassn_repos[0],rtol,atol):
+        print 'PASS: rna-seq/WGCNA/module_assignments_thr8_prefilt_rinPCreg.txt'
+    else:
+        maxdiff=numpy.max(modassn_local[0] - modassn_repos[0])
+        print 'FAIL: rna-seq/WGCNA/module_assignments_thr8_prefilt_rinPCreg.txt','maxdiff =',maxdiff
+except:
+    print 'MISSING FILE:',os.path.join(basedir,'rna-seq/WGCNA/module_assignments_thr8_prefilt_rinPCreg.txt')
+    
+
 
 url='https://s3.amazonaws.com/openfmri/ds031/RNA-seq/MEs-thr8-prefilt-rinPCreg-48sess.txt'
 raw_data = urllib.urlopen(url)
 f='rna-seq/WGCNA/MEs-thr8-prefilt-rinPCreg-48sess.txt'
 repos_data=numpy.loadtxt(raw_data,skiprows=1)
-local_data=numpy.loadtxt(os.path.join(basedir,f),skiprows=1)
+try:
+    assert os.path.exists(os.path.join(basedir,f))
+    
+    local_data=numpy.loadtxt(os.path.join(basedir,f),skiprows=1)
 
-if numpy.allclose(repos_data,local_data,rtol,atol):
-    print 'PASS:',f
-else:
-    maxdiff=numpy.max(repos_data - local_data)
-    print 'FAIL:',f,'maxdiff =',maxdiff
+    if numpy.allclose(repos_data,local_data,rtol,atol):
+        print 'PASS:',f
+    else:
+        maxdiff=numpy.max(repos_data - local_data)
+        print 'FAIL:',f,'maxdiff =',maxdiff
+except:
+    print 'MISSING FILE:',f
+    
