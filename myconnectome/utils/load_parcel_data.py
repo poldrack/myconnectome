@@ -5,27 +5,39 @@ utility function to load parcel data
 
 import numpy
 
-def load_parcel_data(infile='/Users/poldrack/code/selftracking/rsfmri/parcel_data.txt'):
+def load_parcel_data(infile):
     f=open(infile)
     lines=f.readlines()
     f.close()
     
+#    1             DMN
+# 2             Visual 2
+# 3             Fronto-parietal 1
+# 4.5          Visual 1
+# 5             Dorsal Attention
+# 7             Ventral Attention
+# 8             Salience
+# 9             Cingulo-opercular
+# 10        ​   Somato-motor
+# 11.5        Fronto-parietal 2
+# 15           Medial Parietal
+# 16           Parieto-occipital
+
     # 'na' is subcortical
-    network_keys={'Somatomotor': 10,
-     'Frontal-Parietal-Other': 11,
-     'Parietal-Episodic-Retrieval': 12,
-     'Parieto-Occipital': 13,
-     'Default': 1,
-     'Second-Visual': 2,
-     'Frontal-Parietal': 3,
-     'First-Visual-V1+': 4,
-     'First-Dorsal-Attention': 5,
-     'Second-Dorsal-Attention': 6,
-     'Ventral-Attention-Language': 7,
-     'Salience': 8,
-     'Cingulo-opercular': 9,
-     'none':0,
-     'na':14}
+    network_keys={'Somatomotor': 9,
+     'Frontoparietal 2': 10,
+     'Medial_Parietal': 11,
+     'Parieto_occipital': 12,
+     'DMN': 1,
+     'Visual_2': 2,
+     'Frontoparietal_1': 3,
+     'Visual_1': 4,
+     'Dorsal_Attention': 5,
+     'Ventral_Attention': 6,
+     'Salience': 7,
+     'Cingulo_opercular': 8,
+     'Zero':0,
+     'na':13}
 
     fields=['parcelnum','hemis','x','y','z','lobe','region','powernetwork','yeo7network','yeo17network']
     parcelinfo_list=[]

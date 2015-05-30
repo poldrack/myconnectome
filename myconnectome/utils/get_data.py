@@ -71,8 +71,10 @@ def get_all_data(overwrite=False):
               'rsfmri/combined_data_scrubbed':'combined_data_scrubbed',
               'fsaverage_LR32k':'fsaverage_LR32k',
               'aseg':'aseg',
-              'rsfmri/tmasks':'tmasks'}
+              'rsfmri/tmasks':'tmasks',
+              'surface_taskdata':'surface_taskdata'}
     files={'ds031/rsfmri/subcodes.txt':'subcodes.txt',
+           'ds031/rsfmri/daycodes.txt':'daycodes.txt',
            'ds031/parcellation/module_names.txt':'parcellation/module_names.txt'}
            
     for k in datadirs:

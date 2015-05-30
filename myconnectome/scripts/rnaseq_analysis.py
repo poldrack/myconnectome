@@ -108,6 +108,10 @@ if not os.path.exists(os.path.join(rnaseqdir,'WGCNA/DAVID_thr8_prefilt_rin3PCreg
         print 'Environment variable DAVID_EMAIL is not set'
         print 'downloading precomputed results from S3'
         get_s3_directory('RNA-seq/DAVID_annotations',os.path.join(basedir,'rna-seq/WGCNA'))
+        f=open(os.path.join(basedir,'rna-seq/WGCNA/USING_CACHED_RESULTS'),'a')
+        f.write('DAVID')
+        f.close()
+
     
 # do annotation using DAVID
 if not os.path.exists(os.path.join(rnaseqdir,'WGCNA/module_descriptions')):

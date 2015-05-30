@@ -20,7 +20,7 @@ def mk_full_network_graph(days='all',density=0.01):
     print 'generating network file for',days
     assert days in ['mon','tues','thurs','all']
     
-    parceldata=load_parcel_data()
+    parceldata=load_parcel_data(os.path.join(basedir,'parcellation/parcel_data.txt'))
     
     modinfofile=os.path.join(basedir,'rsfmri/module_assignments.txt')
     f=open(modinfofile)
