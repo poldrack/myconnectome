@@ -23,7 +23,7 @@ def check_dependencies():
     # Just make sure dependencies exist, I haven't rigorously
     # tested what the minimal versions that will work are
     needed_deps = ["IPython", "numpy", "scipy", "matplotlib",
-                   "sklearn", "statsmodels", 
+                   "sklearn", "statsmodels", "networkx",
                    "gtf_to_genes","pandas",
 		   "nibabel","boto","suds","mygene"]
     missing_deps = []
