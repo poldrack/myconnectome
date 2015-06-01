@@ -6,9 +6,9 @@ import os,glob,sys,ctypes
 import nibabel.gifti.giftiio
 import numpy
 import sklearn.linear_model
-from myconnectome.utils.array_to_gifti import array_to_gifti_32k
+from array_to_gifti import array_to_gifti_32k
 
-print sklearn.linear_model.__file__
+basedir = '/scratch/projects/UT/poldracklab/poldrack/selftracking/MRI'
 
 def get_codes():
     f=open('contrast_annotation.txt')
@@ -41,7 +41,7 @@ def get_files(coding):
     for t in coding.keys():
         for c in coding[t].keys():
             
-            tcfiles=glob.glob('/corral-repl/utexas/poldracklab/data/selftracking/sub*/model/model%03d/task%03d*333.feat/stats_pipeline/zstat%03d.R.smoothed.func.gii'%(t,t,c))
+            tcfiles=glob.glob(os.path.join(basedir,'sub*/model/model%03d/task%03d*333.feat/stats_pipeline/zstat%03d.R.smoothed.func.gii'%(t,t,c)))
 
             for f in tcfiles:
                 files.append(f)
@@ -101,8 +101,16 @@ except:
     badctr=0
     lrand=sklearn.linear_model.RandomizedLasso(n_jobs=11)
     lr=sklearn.linear_model.Lasso(alpha=0.01)
-
+    ctr=0
+    ctr2=0
     for i in range(contrastdata.shape[1]):
+        if ctr==100:
+            ctr=0
+            ctr2+=1
+            print ctr2
+        else:
+            ctr+=1
+            ctr2+=1
         y=contrastdata[:,i]-numpy.mean(contrastdata[:,i])
         lrand.fit(desmtx,y)
         lr.fit(desmtx,y)
@@ -119,7 +127,10 @@ lh=nibabel.gifti.GiftiImage()
 rh=nibabel.gifti.GiftiImage()
 nvert=32492
 
-array_to_gifti_32k(tstat,'/corral-repl/utexas/poldracklab/data/selftracking/analyses/task_analyses/encoding_tstat_lasso',names)
-array_to_gifti_32k(lrand_scores,'/corral-repl/utexas/poldracklab/data/selftracking/analyses/task_analyses/encoding_randlasso_scores',names)
+numpy.save(os.path.join(basedir,'analyses/task_analyses/encoding_tstat_lasso.npy'),tstat)
+numpy.save(os.path.join(basedir,'analyses/task_analyses/encoding_rand_lasso.npy'),lrand_scores)
+
+array_to_gifti_32k(tstat,os.path.join(basedir,'analyses/task_analyses/encoding_tstat_lasso'),names)
+array_to_gifti_32k(lrand_scores,os.path.join(basedir,'analyses/task_analyses/encoding_randlasso_scores'),names)
 
 
