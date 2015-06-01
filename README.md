@@ -6,16 +6,6 @@ The goal of this project is to demonstrate reproducible analysis for a large and
 
 Users who wish to use this package in a turnkey fashion should try the [Myconnectome-VM](https://github.com/poldrack/myconnectome-vm) which will automatically set up a virtual machine that will complete the full statistical analysis workflow.
 
-## Getting started
-
-To install the package, first clone it to your local machine:
-
-`git clone https://github.com/poldrack/myconnectome.git`
-
-Then run the setup script:
-
-`cd myconnectome`
-`python setup.py install`
 
 ### Dependencies
 
@@ -49,3 +39,24 @@ The packages used here require R 3.0 or greater; I would recommend installing th
 
 Some of the processing operations require the [Connectome Workbench] (http://www.humanconnectome.org/software/get-connectome-workbench.html), which can also be used to visualize the surface-based results.
 
+##### MATLAB
+
+Some of the resting fMRI processing operations using MATLAB with the [Brain Connectivity Toolbox](https://sites.google.com/site/bctnet/).  If you wish for those to be completed on your machine, you must have MATLAB installed with the BCT in your MATLAB path.  If MATLAB is not installed, then those results will be downloaded directly from our archive.
+
+## Getting started
+
+To install the package, first clone it to your local machine:
+
+`git clone https://github.com/poldrack/myconnectome.git`
+
+Then run the setup script:
+
+`cd myconnectome`
+`python setup.py install`
+
+
+Once this is installed, you need to set some environment variables:
+
+- MYCONNECTOME_DIR: this is the directory where all of the results will be put
+- WORKBENCH_BIN_DIR: this is the directory where the Connectome Workbench binary files (e.g. wb_command) are located
+- DAVID_EMAIL: This optional setting specifies an email address that has been registered for the [DAVID web service] (http://david.abcc.ncifcrf.gov/content.jsp?file=WS.html).  If is it not specified, then the results will be downloaded directly from our archive. 
