@@ -4,18 +4,18 @@ use GOBS data with clusters derived from myconnectome
 
 """
 
-import os,sys
+import os
 import numpy
 from  sklearn.decomposition import PCA
-import sklearn.linear_model
 
-pcs_to_regress=5
+stdir=os.environ['MYCONNECTOME_DIR']
+rnaseqdir=os.path.join(stdir,'rna-seq')
+wgcnadir=os.path.join(rnaseqdir,'WGCNA')
 
-basedir='/Users/poldrack/Dropbox/data/selftracking/rna-seq/WGCNA'
-
+gobsdir='/Users/poldrack/data/GOBS-expression/rsfmri'
 genelists={}
 
-f=open(os.path.join(basedir,'module_assignments.txt'))
+f=open(os.path.join(rnaseqdir,'WGCNA/module_assignments_thr8_prefilt_rinPCreg.txt'))
 for l in f.readlines():
     l_s=l.strip().split(' ')
     modnum=int(l_s[1])
@@ -28,8 +28,8 @@ for l in f.readlines():
     
 f.close()
 
-gene_names=[i.strip() for i in open('/Users/poldrack/Dropbox/data/connectome-genome/transcripts/gene_names.txt').readlines()]
-varstabfile='/Users/poldrack/Dropbox/data/connectome-genome/transcripts/expr_common.txt'
+gene_names=[i.strip() for i in open(os.path.join(gobsdir,'gene_names.txt')).readlines()]
+varstabfile=os.path.join(gobsdir,'exprdata_common_snp_exprPC_reg.txt')
 
 f=open(varstabfile)
 exprdata={}
@@ -43,51 +43,6 @@ for l in f.readlines():
         else:
             exprdata[gene_names[g]]=[l_s[g]]
 f.close()
-
-# do PCA across all genes
-all_exprdata=numpy.zeros((len(exprdata['DRD4']),len(exprdata)))
-ctr=0
-for k in gene_names:
-    all_exprdata[:,ctr]=exprdata[k]
-    ctr+=1
-
-pca_allexprdata = PCA(n_components=pcs_to_regress)
-global_pcs=pca_allexprdata.fit_transform(all_exprdata)
-
-# load SNP PCs
-snppcfile='/Users/poldrack/Dropbox/data/connectome-genome/transcripts/safs_pc1-10.csv'
-f=open(snppcfile)
-header=f.readline()
-lines=f.readlines()
-f.close()
-snpdata={}
-
-for l in lines:
-    l_s=l.strip().split(',')
-    snpdata[l_s[0]]=[float(l_s[i]) for i in range(4,14)]
-
-# snp data missing for one subject - fill with zeros
-
-subcodes=[i.strip() for i in open('/Users/poldrack/Dropbox/data/connectome-genome/transcripts/subcodes_common.txt').readlines()]
-
-snp_pcs=numpy.zeros((len(subcodes),10))
-
-snpdata['EJ2303']=numpy.mean(snp_pcs,0)
-
-
-for i in range(len(subcodes)):
-    snp_pcs[i,:]=snpdata[subcodes[i]]
-
-all_pcs=numpy.hstack((global_pcs,snp_pcs))
-linreg=sklearn.linear_model.LinearRegression(fit_intercept=True)
-
-if pcs_to_regress > 0:
-    linreg.fit(all_pcs,all_exprdata)
-    all_exprdata=all_exprdata - linreg.predict(all_pcs)
-
-for i in range(len(gene_names)):
-    exprdata[gene_names[i]]=all_exprdata[:,i]
-
 
 setdata={}
 setdata_genes={}
@@ -132,15 +87,15 @@ for i in range(len(genelists)):
     #print numpy.corrcoef(seteig_rinreg[:,i],setdata[k].T[:,0])[0,1]
     print k,setdata[k].shape,setexplained[i]
     
-f=open(os.path.join(basedir,'cluster_eigengenes_GOBS_reg%dPCs_regSNP.txt'%pcs_to_regress),'w')
+f=open(os.path.join(gobsdir,'cluster_eigengenes_mycmodules.txt'),'w')
 for i in range(len(genelists)):
     f.write('%s\t%s\n'%(genelistkeys[i],'\t'.join(['%f'%j for j in seteig[:,i]])))
 f.close()
 
-f=open(os.path.join(basedir,'cluster_means_GOBS_reg%dPCs_regSNP.txt'%pcs_to_regress),'w')
+f=open(os.path.join(gobsdir,'cluster_means_mycmodules.txt'),'w')
 for i in range(len(genelists)):
     f.write('%s\t%s\n'%(genelistkeys[i],'\t'.join(['%f'%j for j in setmean[:,i]])))
 f.close()
   
-numpy.savetxt(os.path.join(basedir,'cluster_eigengenes_GOBS_explainedvariance_reg%dPCs_regSNP.txt'%pcs_to_regress),setexplained)
+numpy.savetxt(os.path.join(gobsdir,'cluster_eigengenes_GOBS_explainedvariance.txt'),setexplained)
   
