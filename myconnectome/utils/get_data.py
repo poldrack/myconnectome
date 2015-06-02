@@ -19,7 +19,7 @@ AWS_SECRET_ACCESS_KEY ='iqZU2DaJu58jVY5G+dJPsPnteVngB04MihVzScOn'
 bucket_name = 'openfmri'
 
             
-def get_file_from_s3(fname,outfile):
+def get_file_from_s3(fname,outfile,logfile=None):
     
     # connect to the bucket
     conn = boto.connect_s3(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
@@ -28,6 +28,8 @@ def get_file_from_s3(fname,outfile):
     print fname
     print outfile
     k.get_contents_to_file(open(outfile,'wb'))
+    if logfile:
+        open(logfile,'a').write('%s\n'%outfile)
     
     
 def extract_tarball(tar_url, extract_path='.'):
@@ -42,7 +44,7 @@ def extract_tarball(tar_url, extract_path='.'):
 
     
  
-def get_s3_directory(dirname,outputdir=None,verbose=True,filestem=None):
+def get_s3_directory(dirname,outputdir=None,verbose=True,filestem=None,logfile=None):
     conn = boto.connect_s3(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
     bucket = conn.get_bucket(bucket_name)
     if not outputdir:
@@ -57,11 +59,11 @@ def get_s3_directory(dirname,outputdir=None,verbose=True,filestem=None):
         try:
             if verbose:
                 print 'downloading',f.name
-            get_file_from_s3(f.name,os.path.join(outputdir,os.path.basename(f.name)))
+            get_file_from_s3(f.name,os.path.join(outputdir,os.path.basename(f.name)),logfile=logfile)
         except:
             print 'problem getting',f.name
 
-def get_all_data(overwrite=False):
+def get_all_data(overwrite=False,logfile=None):
     """ 
     grab all necessary data from S3
     note that right now, it doesn't check to make sure all files are there, just the directory
@@ -80,11 +82,11 @@ def get_all_data(overwrite=False):
     for k in datadirs:
         outdir=os.path.join(basedir,datadirs[k])
         if not os.path.exists(outdir) or overwrite:
-            get_s3_directory(k,outdir)
+            get_s3_directory(k,outdir,logfile=logfile)
     for k in files:
         outfile=os.path.join(basedir,files[k])
         if not os.path.exists(outfile) or overwrite:
-            get_file_from_s3(k,outfile)
+            get_file_from_s3(k,outfile,logfile=logfile)
 
 def get_raw_func_data(overwrite=False):
     """
@@ -129,9 +131,14 @@ def main(argv):
         if opt == '--rawdiffusion':
             data_to_get.append('raw_diffusion')
     
+    logdir=os.path.join(basedir,'logs')
+    if not os.path.exists(logdir):
+        os.mkdir(logdir)
+    logfile=os.path.join(logdir,'s3_downloads.log')
+    
     if 'all' in data_to_get:
         print 'getting data for main analysis...'
-        get_all_data()
+        get_all_data(logfile=logfile)
     if 'rawfunc' in data_to_get:
         print 'getting raw functional data - will take a while...'
         get_rawfunc_data(overwrite)
@@ -141,15 +148,15 @@ def main(argv):
             os.mkdir(os.path.join(basedir,'anatomy'))
         if not os.path.exists(os.path.join(basedir,'anatomy/anatomy_dicoms.tgz')) or overwrite:
             
-            get_file_from_s3('ds031/anatomy/anatomy_dicoms.tgz',os.path.join(basedir,'anatomy/anatomy_dicoms.tgz'))
+            get_file_from_s3('ds031/anatomy/anatomy_dicoms.tgz',os.path.join(basedir,'anatomy/anatomy_dicoms.tgz'),logfile=logfile)
     if 'anatomy' in data_to_get:
         print 'getting anatomical images'
         if not os.path.exists(os.path.join(basedir,'anatomy')):
             os.mkdir(os.path.join(basedir,'anatomy'))
         if not os.path.exists(os.path.join(basedir,'anatomy/t1w')) or overwrite:
-            get_s3_directory('anatomy/t1w',os.path.join(basedir,'anatomy/t1w'))
+            get_s3_directory('anatomy/t1w',os.path.join(basedir,'anatomy/t1w'),logfile=logfile)
         if not os.path.exists(os.path.join(basedir,'anatomy/t2w')) or overwrite:
-            get_s3_directory('anatomy/t2w',os.path.join(basedir,'anatomy/t2w'))
+            get_s3_directory('anatomy/t2w',os.path.join(basedir,'anatomy/t2w'),logfile=logfile)
     if 'rawdiffusion' in data_to_get:
         print 'not yet implemented'
         
