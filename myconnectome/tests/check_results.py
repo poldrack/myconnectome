@@ -27,12 +27,25 @@ metabolomics_files=['apclust_eigenconcentrations.txt']
 for f  in metabolomics_files:
     files_to_compare['metabolomics/'+f]='metabolomics/'+f
 
+logdir=os.path.join(basedir,'logs')
+logfile=os.path.join(logdir,'s3_downloads.log')
+
+if os.path.exists(logfile):    
+    downloaded_files=[i.strip() for i in open(logfile).readlines()]
+else:
+    downloaded_files=[]
+
 for f in files_to_compare.iterkeys():
     try:
         assert os.path.exists(os.path.join(basedir,f))
     except:
         print 'MISSING FILE:',os.path.join(basedir,f)
         continue
+    
+    if os.path.join(basedir,f) in downloaded_files:
+        print 'USING S3 DOWNLOAD:',f
+        continue
+    
     url='https://s3.amazonaws.com/openfmri/ds031/'+files_to_compare[f]
     raw_data = urllib.urlopen(url)
     try:
