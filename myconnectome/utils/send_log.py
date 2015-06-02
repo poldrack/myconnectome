@@ -13,8 +13,8 @@ def send_log(type=None):
     
     ts = time.time()
     
-    AWS_ACCESS_KEY_ID = 'AKIAILCMWBMWPDHCGQQQ'
-    AWS_SECRET_ACCESS_KEY ='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'
+    AWS_ACCESS_KEY_ID = None
+    AWS_SECRET_ACCESS_KEY =None
     bucket_name = 'myconnectome-log'
     
     conn = boto.connect_s3(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)

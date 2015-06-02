@@ -18,12 +18,13 @@ try:
 except:
     print 'creating base directory:',basedir
     os.mkdir(basedir)
-    
-AWS_ACCESS_KEY_ID = 'AKIAILCMWBMWPDHCGQQQ'
-AWS_SECRET_ACCESS_KEY ='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'
+  
+  
+AWS_ACCESS_KEY_ID = None
+AWS_SECRET_ACCESS_KEY =None
 bucket_name = 'openfmri'
 
-            
+
 def get_file_from_s3(fname,outfile,logfile=None):
     
     # connect to the bucket
