@@ -49,7 +49,7 @@ def extract_tarball(tar_url, extract_path='.'):
     
  
 def get_s3_directory(dirname,outputdir=None,verbose=True,filestem=None,logfile=None):
-    conn = boto.connect_s3()
+    conn = boto.connect_s3(anon=True)
     bucket = conn.get_bucket(bucket_name)
     if not outputdir:
         outputdir=os.path.join(basedir,dirname)
