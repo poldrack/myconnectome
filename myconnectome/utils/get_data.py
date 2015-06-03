@@ -26,7 +26,7 @@ bucket_name = 'openfmri'
 def get_file_from_s3(fname,outfile,logfile=None):
     
     # connect to the bucket
-    conn = boto.connect_s3()
+    conn = boto.connect_s3(anon=True)
     bucket = conn.get_bucket(bucket_name)
     k=boto.s3.key.Key(bucket=bucket,name=fname)
     print fname
