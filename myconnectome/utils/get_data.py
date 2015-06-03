@@ -20,8 +20,8 @@ except:
     os.mkdir(basedir)
   
   
-AWS_ACCESS_KEY_ID = None
-AWS_SECRET_ACCESS_KEY =None
+AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
+AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
 bucket_name = 'openfmri'
 
 
