@@ -6,6 +6,7 @@ compare modules between snyderome and myconnectome datasets
 import glob,os
 import matplotlib.pyplot as plt
 import numpy
+import scipy.stats
 
 basedir=os.environ['MYCONNECTOME_DIR']
 
@@ -37,7 +38,7 @@ def compare_snyderome_myconnectome():
         vars[i,0]=numpy.var(myc_data[matching_genes[i]])
         vars[i,1]=numpy.var(sny_data[matching_genes[i]])
     
-    meancor=numpy.corrcoef(means.T)[0,1]
+    meancor=scipy.stats.spearmanr(means[:,0],means[:,1])[0] # numpy.corrcoef(means.T)[0,1]
     print 'mean correlation:',meancor
     varcor=numpy.corrcoef(vars.T)[0,1]
     diff=means[:,0]-means[:,1]
