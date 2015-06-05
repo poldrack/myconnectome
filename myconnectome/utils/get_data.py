@@ -20,9 +20,13 @@ except:
     os.mkdir(basedir)
   
   
-bucket_name = 'openfmri'
+bucket_name = 'myconnectome'
 
-
+if bucket_name=='myconnectome':
+    dataprefix='data'
+else:
+    dataprefix='ds031'
+    
 def get_file_from_s3(fname,outfile,logfile=None):
     
     # connect to the bucket
@@ -55,8 +59,8 @@ def get_s3_directory(dirname,outputdir=None,verbose=True,filestem=None,logfile=N
         outputdir=os.path.join(basedir,dirname)
     if not os.path.exists(outputdir):
         os.makedirs(outputdir)
-    for f in bucket.list('ds031/'+dirname):
-        if f.name=='ds031/'+dirname+'/':
+    for f in bucket.list('%s/'%dataprefix+dirname):
+        if f.name=='%s/'%dataprefix+dirname+'/':
             continue
         if filestem and not f.name.find(filestem)==0:
             continue
@@ -79,9 +83,9 @@ def get_all_data(overwrite=False,logfile=None):
               'aseg':'aseg',
               'rsfmri/tmasks':'tmasks',
               'surface_taskdata':'surface_taskdata'}
-    files={'ds031/rsfmri/subcodes.txt':'subcodes.txt',
-           'ds031/rsfmri/daycodes.txt':'daycodes.txt',
-           'ds031/parcellation/module_names.txt':'parcellation/module_names.txt'}
+    files={dataprefix+'/rsfmri/subcodes.txt':'subcodes.txt',
+           dataprefix+'/rsfmri/daycodes.txt':'daycodes.txt',
+           dataprefix+'/parcellation/module_names.txt':'parcellation/module_names.txt'}
            
     for k in datadirs:
         outdir=os.path.join(basedir,datadirs[k])
@@ -152,7 +156,7 @@ def main(argv):
             os.mkdir(os.path.join(basedir,'anatomy'))
         if not os.path.exists(os.path.join(basedir,'anatomy/anatomy_dicoms.tgz')) or overwrite:
             
-            get_file_from_s3('ds031/anatomy/anatomy_dicoms.tgz',os.path.join(basedir,'anatomy/anatomy_dicoms.tgz'),logfile=logfile)
+            get_file_from_s3(dataprefix+'/anatomy/anatomy_dicoms.tgz',os.path.join(basedir,'anatomy/anatomy_dicoms.tgz'),logfile=logfile)
     if 'anatomy' in data_to_get:
         print 'getting anatomical images'
         if not os.path.exists(os.path.join(basedir,'anatomy')):
