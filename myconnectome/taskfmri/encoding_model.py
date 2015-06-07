@@ -79,9 +79,11 @@ if __name__=="__main__":
     desmtx=desmtx-numpy.mean(desmtx,0)
     df = desmtx.shape[0] - desmtx.shape[1]
 
+    tstat_lasso=numpy.zeros((desmtx.shape[1],32492*2))
     tstat=numpy.zeros((desmtx.shape[1],32492*2))
-    betahat=numpy.zeros((desmtx.shape[1],32492*2))
+
     badctr=0
+    lm=sklearn.linear_model.LinearRegression()
     lr=sklearn.linear_model.Lasso(alpha=0.01)
     ctr=0
     ctr2=0
@@ -97,20 +99,24 @@ if __name__=="__main__":
         lr.fit(desmtx,y)
         resid=y-desmtx.dot(lr.coef_)
         sse=numpy.dot(resid,resid)/float(df)
-        tstat[:,i]=lr.coef_/sse
-        betahat[:,i]=lr.coef_
+        tstat_lasso[:,i]=lr.coef_/sse
+
+        lm.fit(desmtx,y)
+        resid=y-desmtx.dot(lm.coef_)
+        sse=numpy.dot(resid,resid)/float(df)
+        tstat[:,i]=lm.coef_/sse
 
     
     tstat[numpy.isnan(tstat)]=0
+    tstat_lasso[numpy.isnan(tstat_lasso)]=0
     
-    lh=nibabel.gifti.GiftiImage()
-    rh=nibabel.gifti.GiftiImage()
-    nvert=32492
     
-    numpy.save(os.path.join(basedir,'task/encoding_tstat_lasso.npy'),tstat)
+    numpy.save(os.path.join(basedir,'task/encoding_tstat_lasso.npy'),tstat_lasso)
+    numpy.save(os.path.join(basedir,'task/encoding_tstat.npy'),tstat)
 
     
-    array_to_gifti_32k(tstat,os.path.join(basedir,'task/encoding_tstat_lasso'),names)
+    array_to_gifti_32k(tstat_lasso,os.path.join(basedir,'task/encoding_tstat_lasso'),names)
 
+    array_to_gifti_32k(tstat,os.path.join(basedir,'task/encoding_tstat'),names)
     
     
