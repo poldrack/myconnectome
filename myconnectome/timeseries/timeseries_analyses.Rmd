@@ -16,7 +16,7 @@ library(knitr)
 
 basedir=Sys.getenv('MYCONNECTOME_DIR')
 
-thresh=0.05  # FDR threshold
+thresh=0.1  # FDR threshold
 save_latex=TRUE
 OUTPUT_DIR=sprintf('%s/timeseries',basedir)
 
