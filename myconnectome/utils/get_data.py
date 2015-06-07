@@ -30,7 +30,7 @@ else:
 def get_file_from_s3(fname,outfile,logfile=None):
     
     # connect to the bucket
-    conn = boto.connect_s3(anon=True)
+    conn = boto.connect_s3()
     bucket = conn.get_bucket(bucket_name)
     k=boto.s3.key.Key(bucket=bucket,name=fname)
     print fname
@@ -53,7 +53,7 @@ def extract_tarball(tar_url, extract_path='.'):
     
  
 def get_s3_directory(dirname,outputdir=None,verbose=True,filestem=None,logfile=None):
-    conn = boto.connect_s3(anon=True)
+    conn = boto.connect_s3()
     bucket = conn.get_bucket(bucket_name)
     if not outputdir:
         outputdir=os.path.join(basedir,dirname)
