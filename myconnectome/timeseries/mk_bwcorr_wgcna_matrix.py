@@ -43,6 +43,7 @@ for c in range(len(connections)):
     connection_mtx[connection_nums[c,0],connection_nums[c,1]]+=1
     
 connection_mtx=connection_mtx + connection_mtx.T
+connection_mtx[numpy.tril_indices(connection_mtx.shape[0])]=0
 numpy.savetxt(os.path.join(basedir,'timeseries/bwcorr_wgcna_matrix.txt'),connection_mtx)
 
 f=open(os.path.join(basedir,'timeseries/bwcorr_wgcna_netnames.txt'),'w')
