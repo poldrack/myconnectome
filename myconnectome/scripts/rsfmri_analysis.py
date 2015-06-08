@@ -3,7 +3,7 @@ run processing for rsfmri analysis
 """
 
 from myconnectome.rsfmri import *
-from myconnectome.utils.get_data import get_all_data,get_file_from_s3
+from myconnectome.utils.get_data import get_base_data
 from myconnectome.utils.run_shell_cmd import run_shell_cmd
 
 import os
@@ -54,9 +54,9 @@ if not os.path.exists(os.path.join(basedir,'rsfmri/geff_pos.txt')):
     run_shell_cmd(cmd)
   else:
       print 'MATLAB not available, downloading BCT results from S3'
-      get_file_from_s3('ds031/rsfmri/modularity_weighted_louvain_bct.txt',os.path.join(basedir,'rsfmri/modularity_weighted_louvain_bct.txt'))  
-      get_file_from_s3('ds031/rsfmri/PIpos_weighted_louvain_bct.txt',os.path.join(basedir,'rsfmri/PIpos_weighted_louvain_bct.txt'))  
-      get_file_from_s3('ds031/rsfmri/geff_pos.txt',os.path.join(basedir,'rsfmri/geff_pos.txt'))  
+      get_file_from_s3('rsfmri/modularity_weighted_louvain_bct.txt',os.path.join(basedir,'rsfmri/modularity_weighted_louvain_bct.txt'))  
+      get_file_from_s3('rsfmri/PIpos_weighted_louvain_bct.txt',os.path.join(basedir,'rsfmri/PIpos_weighted_louvain_bct.txt'))  
+      get_file_from_s3('rsfmri/geff_pos.txt',os.path.join(basedir,'rsfmri/geff_pos.txt'))  
       f=open(os.path.join(basedir,'rsfmri/USING_CACHED_RESULTS'),'a')
       f.write('BCT')
       f.close()
