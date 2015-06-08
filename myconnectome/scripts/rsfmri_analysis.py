@@ -54,7 +54,7 @@ if not os.path.exists(os.path.join(basedir,'rsfmri/geff_pos.txt')):
     run_shell_cmd(cmd)
   else:
       print 'MATLAB not available, downloading BCT results from S3'
-      get_directory('bct',basedir)
+      get_directory('bct/',basedir)
       
 if not os.path.exists(os.path.join(basedir,'parcellation/all_selected_L_new_parcel_renumbered_boundaries.func.gii')):
     mk_parcellation_boundaries.mk_parcellation_boundaries()
