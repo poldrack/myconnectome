@@ -29,7 +29,9 @@ def hashfile(fname, blocksize=65536):
 
    
 basedir=os.environ['MYCONNECTOME_DIR']
-basedir='/Users/poldrack/data_unsynced/myconnectome/test2'
+
+dataurl='http://web.stanford.edu/group/poldracklab/myconnectome-data/'
+
 
 # my kludgey code requires the base dir to end in a slash
 if not basedir[-1]=='/':
@@ -74,20 +76,15 @@ def get_base_data(overwrite=False,logfile=None):
     grab all necessary data from S3
     note that right now, it doesn't check to make sure all files are there, just the directory
     """
-    dataurl='http://web.stanford.edu/group/poldracklab/myconnectome-data/'
     print 'getting base data, logging to',logfile
-    get_directory('base/',basedir,dataurl,logfile=logfile)         
+    get_directory('base/',basedir,dataurl,logfile=logfile,overwrite=overwrite)         
 
-def get_raw_func_data(overwrite=False):
+def get_raw_func_data(overwrite=False,logfile=logfile):
     """
     get raw functional data from S3
     """
-    outdir=os.path.join(basedir,'rsfmri/raw_nifti')
-    print 'putting data in',outdir
-    if not os.path.exists(outdir) or overwrite:
-            get_directory('rsfmri/raw_nifti',outdir)
-    else:
-        print 'raw_nifti dir already exists - use -o to overwrite'
+    print 'getting raw rsfmri data, logging to',logfile
+    get_directory('raw_rsfmri/',basedir,dataurl,logfile=logfile,overwrite=overwrite)         
 
     
 def usage():
