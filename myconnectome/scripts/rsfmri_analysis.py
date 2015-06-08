@@ -16,16 +16,14 @@ except:
 logdir=os.path.join(basedir,'logs')
 if not os.path.exists(logdir):
     os.mkdir(logdir)
-logfile=os.path.join(logdir,'s3_downloads.log')
+logfile=os.path.join(logdir,'data_downloads.log')
 
 filepath=os.path.dirname(os.path.abspath(__file__))
 
-get_all_data(logfile=logfile)
+get_base_data(logfile=logfile)
 
 if not os.path.exists(os.path.join(basedir,'rsfmri')):
     os.mkdir(os.path.join(basedir,'rsfmri'))
-if not os.path.exists(os.path.join(basedir,'rsfmri/mean_fd.txt')):
-    get_file_from_s3('ds031/rsfmri/mean_fd.txt',os.path.join(basedir,'rsfmri/mean_fd.txt'),logfile=logfile)
 
 # make renumbered parcel file
 if not os.path.exists(os.path.join(basedir,'parcellation/all_selected_L_new_parcel_renumbered.func.gii')):
