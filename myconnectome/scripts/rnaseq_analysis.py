@@ -26,12 +26,6 @@ rnaseqdir=os.path.join(basedir,'rna-seq')
 if not os.path.exists(rnaseqdir):
     os.mkdir(rnaseqdir)
 
-if not os.path.exists(os.path.join(rnaseqdir,'rin.txt')):
-    get_file_from_s3('ds031/RNA-seq/rin.txt',os.path.join(rnaseqdir,'rin.txt'))
-if not os.path.exists(os.path.join(rnaseqdir,'drawdates.txt')):
-    get_file_from_s3('ds031/RNA-seq/drawdates.txt',os.path.join(rnaseqdir,'drawdates.txt'))
-if not os.path.exists(os.path.join(rnaseqdir,'rnaseq-subcodes.txt')):
-    get_file_from_s3('ds031/RNA-seq/pathsubs.txt',os.path.join(rnaseqdir,'rnaseq-subcodes.txt'))
 
 
 # check R dependencies
@@ -90,10 +84,6 @@ if not os.path.exists(os.path.join(rnaseqdir,'Run_WGCNA.html')):
     run_shell_cmd('Rscript %s/knit_rnaseq_wgcna.R'%filepath)
 
 # extract ImmPort pathways
-if not os.path.exists(os.path.join(rnaseqdir,'ImmPort/all_ImmPort_pathways.txt')):
-    if not os.path.exists(os.path.join(rnaseqdir,'ImmPort')):
-        os.mkdir(os.path.join(rnaseqdir,'ImmPort'))
-    get_file_from_s3('ds031/RNA-seq/all_ImmPort_pathways.txt',os.path.join(rnaseqdir,'ImmPort/all_ImmPort_pathways.txt'))
 
 if not os.path.exists(os.path.join(rnaseqdir,'ImmPort/ImmPort_eigengenes_prefilt_rin3PCreg.txt')):
     get_ImmPort_eigengenes.get_ImmPort_eigengenes()
@@ -107,10 +97,7 @@ if not os.path.exists(os.path.join(rnaseqdir,'WGCNA/DAVID_thr8_prefilt_rin3PCreg
     except:
         print 'Environment variable DAVID_EMAIL is not set'
         print 'downloading precomputed results from S3'
-        get_s3_directory('RNA-seq/DAVID_annotations',os.path.join(basedir,'rna-seq/WGCNA'))
-        f=open(os.path.join(basedir,'rna-seq/WGCNA/USING_CACHED_RESULTS'),'a')
-        f.write('DAVID')
-        f.close()
+        get_directory('DAVID/',basedir)
 
     
 # do annotation using DAVID
