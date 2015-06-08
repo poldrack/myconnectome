@@ -29,12 +29,6 @@ for d in R_dependencies:
 f.close()
 run_shell_cmd('Rscript %s/check_depends.R'%filepath)
 
-if not os.path.exists(os.path.join(metabdir,'metabolomics.txt')):
-    get_file_from_s3('ds031/metabolomics/metabolomics.txt',os.path.join(metabdir,'metabolomics.txt'))
-
-if not os.path.exists(os.path.join(metabdir,'metabolomics_labels.txt')):
-    get_file_from_s3('ds031/metabolomics/metabolomics_labels.txt',os.path.join(metabdir,'metabolomics_labels.txt'))
-
 
 if not os.path.exists(os.path.join(metabdir,'Metabolomics_clustering.html')):
     f=open(os.path.join(filepath,'knit_metab_cluster.R'),'w')
