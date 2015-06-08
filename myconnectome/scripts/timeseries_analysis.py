@@ -27,8 +27,6 @@ if not os.path.exists(os.path.join(tsdir,'tables')):
 
 behavdir=os.path.join(basedir,'behavior')
 
-if not os.path.exists(behavdir):
-    get_s3_directory('behavior',behavdir)
 # check R dependencies
 
 R_dependencies=['knitr','forecast','markdown','zoo']
