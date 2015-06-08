@@ -66,7 +66,7 @@ def get_file(f,dataurl,outdir,logfile=None,overwrite=False):
         hash=hashfile(outfile)
         open(logfile,'a').write('%s\t%s\t%s\n'%(outfile,timestamp(),hash))
 
-def get_directory(dir,outdir,dataurl,overwrite=True,logfile=None):
+def get_directory(dir,outdir,dataurl,overwrite=False,logfile=None):
     c=get_children(dataurl+dir)
     for file in c:
         get_file(file,dataurl+dir,outdir,logfile=logfile,overwrite=overwrite)
@@ -125,7 +125,7 @@ def main(argv):
     
     if 'base' in data_to_get:
         print 'getting data for main analysis...'
-        get_base_data(logfile=logfile)
+        get_base_data(logfile=logfile,overwrite=overwrite)
     if 'rawfunc' in data_to_get:
         print 'getting raw functional data - will take a while...'
         get_raw_func_data(overwrite)
