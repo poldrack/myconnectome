@@ -14,13 +14,13 @@ library("RColorBrewer")
 library("gplots")
 
 basedir=Sys.getenv('MYCONNECTOME_DIR')
-
+dataurl='http://web.stanford.edu/group/poldracklab/myconnectome-data/base/rna-seq'
 ```
 
 ####Load the data from the cloud and estimate size factors for correction
 ### use data that have been filtered for abundance (4>mean<10000) and removed snoRNAs
 ```{r loadData}
-cdsFull=newCountDataSetFromHTSeqCount(read.table('http://s3.amazonaws.com/openfmri/ds031/RNA-seq/htcount_files.txt'),directory='http://s3.amazonaws.com/openfmri/ds031/RNA-seq/htcount_files_filtered')
+cdsFull=newCountDataSetFromHTSeqCount(read.table(sprintf('%s/htcount_files.txt',dataurl)),directory=sprintf('%s/htcount_files_filtered',dataurl))
 
 cdsFull = estimateSizeFactors( cdsFull )
 ```
