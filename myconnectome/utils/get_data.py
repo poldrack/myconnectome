@@ -66,7 +66,7 @@ def get_file(f,dataurl,outdir,logfile=None,overwrite=False):
         hash=hashfile(outfile)
         open(logfile,'a').write('%s\t%s\t%s\n'%(outfile,timestamp(),hash))
 
-def get_directory(dir,outdir,dataurl,overwrite=False,logfile=None):
+def get_directory(dir,outdir,dataurl=dataurl,overwrite=False,logfile=None):
     c=get_children(dataurl+dir)
     for file in c:
         get_file(file,dataurl+dir,outdir,logfile=logfile,overwrite=overwrite)
