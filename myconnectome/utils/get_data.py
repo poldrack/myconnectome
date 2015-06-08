@@ -79,7 +79,7 @@ def get_base_data(overwrite=False,logfile=None):
     print 'getting base data, logging to',logfile
     get_directory('base/',basedir,dataurl,logfile=logfile,overwrite=overwrite)         
 
-def get_raw_func_data(overwrite=False,logfile=logfile):
+def get_raw_func_data(overwrite=False,logfile=None):
     """
     get raw functional data from S3
     """
