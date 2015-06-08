@@ -41,7 +41,7 @@ def get_corrdata():
         print 'processing',subcodes[s],subfiles[s]
         data=numpy.loadtxt(subfiles[s])[50:,:]
         
-        tmask=numpy.loadtxt(os.path.join(stdir,'tmasks/%s.txt'%subcodes[s]))[50:]
+        tmask=numpy.loadtxt(os.path.join(basedir,'tmasks/%s.txt'%subcodes[s]))[50:]
         data=data[tmask==1,:]
         
         if s==0:
