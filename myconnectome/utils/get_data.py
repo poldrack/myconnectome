@@ -64,7 +64,8 @@ def get_file(f,dataurl,outdir,logfile=None,overwrite=False):
     if not os.path.exists(outfile) or overwrite:
         open(outfile,'wb').write(urllib.urlopen(f).read())
         hash=hashfile(outfile)
-        open(logfile,'a').write('%s\t%s\t%s\n'%(outfile,timestamp(),hash))
+        if logfile:
+            open(logfile,'a').write('%s\t%s\t%s\n'%(outfile,timestamp(),hash))
 
 def get_directory(dir,outdir,dataurl=dataurl,overwrite=False,logfile=None):
     c=get_children(dataurl+dir)
