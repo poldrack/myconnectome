@@ -1,0 +1,41 @@
+---
+title: "Combined timeseries table"
+output: html_document
+---
+
+The 40 strongest associations between variables in the Myconnectome data set are listed here, in order of increasing FDR-corrected p-value derived from the ARIMA model.  Associations were excluded if they had a Pearson r $<$ 0.3, which likely reflected degeneracy of the timeseries mode. In addition,  associations were excluded within variable sets for WGCNA, metabolomics, and between-network connectivity due to high numbers of associations within those variable sets, in order to focus more clearly on candidate relationships between variable sets.  
+
+```{r, results='asis',echo=FALSE}
+
+library(knitr)
+
+basedir=Sys.getenv('MYCONNECTOME_DIR')
+if (basedir=='') {basedir='/Users/poldrack/data_unsynced/myconnectome'}
+tsdir=sprintf('%s/timeseries',basedir)
+
+resultfiles=c()
+for (f in dir(tsdir)) {
+  if (!is.na(pmatch('out.dat',f))) {resultfiles=c(resultfiles,f)}
+}
+
+data=c()
+for (r in resultfiles) {
+  if (!grepl('wgcna_wgcna',r) & !grepl('metab_metab',r) & !grepl('bwcorr_bwcorr',r)  & !grepl('pindex',r)) {
+    df=read.table(sprintf('%s/%s',tsdir,r),header=TRUE)
+    vars=strsplit(strsplit(r,'\\.')[[1]][3],'_')[[1]]
+    df$xvartype=vars[1]
+    df$yvartype=vars[2]
+    data=rbind(data,df)
+    }
+}
+data$arima.p[is.na(data$arima.p)]=1
+data=data[data$cor.val>0.3,]
+data$pval_bh=p.adjust(data$arima.p,method='BH')
+
+idx=order(data$pval_bh)
+
+data=data[idx,]
+print(kable(data[1:40,c(12,1,13,2,3,4,10,11)],row.names=FALSE))
+
+
+```
