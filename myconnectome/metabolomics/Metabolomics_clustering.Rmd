@@ -14,7 +14,7 @@ First, load the functions that will provide the data:
 
 basedir=Sys.getenv('MYCONNECTOME_DIR')
 
-
+dataurl='http://web.stanford.edu/group/poldracklab/myconnectome-data/base/metabolomics'
 save_data=TRUE
 ```
 
@@ -29,7 +29,7 @@ metab=scale(metab)
 The annotation tool that we will use requires PubChem IDs, so load those:
 
 ```{r loadCIDs}
-cids=read.table('http://s3.amazonaws.com/openfmri/ds031/metabolomics/pubmed_cids.txt')$V1
+cids=read.table(sprintf('%s/pubmed_cids.txt',dataurl)$V1
 ```
 
 
