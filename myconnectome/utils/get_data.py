@@ -58,7 +58,7 @@ def get_children(url,verbose=False):
                 children=children+c
     return children
 
-def get_file(f,dataurl,outdir,logfile=None,overwrite=False):
+def get_file(f,dataurl,outdir,logfile=None,overwrite=False,verbose=False):
     outfile=f.replace(dataurl,outdir)
     if not os.path.exists(os.path.dirname(outfile)):
         os.makedirs(os.path.dirname(outfile))
