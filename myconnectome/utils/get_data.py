@@ -70,7 +70,7 @@ def get_file(f,dataurl,outdir,logfile=None,overwrite=False,verbose=False):
         while not data and tries<6:
             data=urllib.urlopen(f).read()
             tries+=1
-        if tries>5:
+        if not data:
             print 'problem downloading:',f
             return
         open(outfile,'wb').write(data)
