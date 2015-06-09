@@ -71,6 +71,8 @@ def get_file(f,dataurl,outdir,logfile=None,overwrite=False,verbose=False):
             open(logfile,'a').write('%s\t%s\t%s\n'%(outfile,timestamp(),hash))
 
 def get_directory(dir,outdir,dataurl=dataurl,overwrite=False,logfile=None,verbose=False):
+    if not outdir[-1]=='/':
+        outdir=outdir+'/'
     if verbose:
         print 'checking:',dataurl+dir
     c=get_children(dataurl+dir,verbose=verbose)
