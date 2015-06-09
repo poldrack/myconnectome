@@ -8,9 +8,11 @@ import urllib
 from myconnectome.utils.load_dataframe import load_R_dataframe,load_wgcna_module_assignments
 
 basedir=os.environ['MYCONNECTOME_DIR']
+dataurl='http://web.stanford.edu/group/poldracklab/myconnectome-data/base/'
+
 rtol=atol=1e-08
 
-print 'checking local results against cached data on S3'
+print 'checking local results against cached data'
 
 files_to_compare={}
 rsfmri_files=['modularity_weighted_louvain_bct.txt','PIpos_weighted_louvain_bct.txt',
@@ -28,10 +30,10 @@ for f  in metabolomics_files:
     files_to_compare['metabolomics/'+f]='metabolomics/'+f
 
 logdir=os.path.join(basedir,'logs')
-logfile=os.path.join(logdir,'s3_downloads.log')
+logfile=os.path.join(logdir,'data_downloads.log')
 
 if os.path.exists(logfile):    
-    downloaded_files=[i.strip() for i in open(logfile).readlines()]
+    downloaded_files=[i.strip().split('\t')[0] for i in open(logfile).readlines()]
 else:
     downloaded_files=[]
 
@@ -43,10 +45,10 @@ for f in files_to_compare.iterkeys():
         continue
     
     if os.path.join(basedir,f) in downloaded_files:
-        print 'USING S3 DOWNLOAD:',f
+        print 'USING DOWNLOADED FILE:',f
         continue
     
-    url='https://s3.amazonaws.com/openfmri/ds031/'+files_to_compare[f]
+    url=dataurl+files_to_compare[f]
     raw_data = urllib.urlopen(url)
     try:
         repos_data=numpy.loadtxt(raw_data)
@@ -72,7 +74,7 @@ for f in files_to_compare.iterkeys():
 try:
     assert os.path.exists(os.path.join(basedir,'rna-seq/WGCNA/module_assignments_thr8_prefilt_rinPCreg.txt'))
     modassn_local=load_wgcna_module_assignments(os.path.join(basedir,'rna-seq/WGCNA/module_assignments_thr8_prefilt_rinPCreg.txt'))
-    modassn_repos=load_wgcna_module_assignments('https://s3.amazonaws.com/openfmri/ds031/'+'RNA-seq/module_assignments_thr8_prefilt_rinPCreg.txt')
+    modassn_repos=load_wgcna_module_assignments(dataurl+'rna-seq/module_assignments_thr8_prefilt_rinPCreg.txt')
     if numpy.allclose(modassn_local[0],modassn_repos[0],rtol,atol):
         print 'PASS: rna-seq/WGCNA/module_assignments_thr8_prefilt_rinPCreg.txt'
     else:
