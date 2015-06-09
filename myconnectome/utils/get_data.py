@@ -67,7 +67,7 @@ def get_file(f,dataurl,outdir,logfile=None,overwrite=False,verbose=False):
     if not os.path.exists(outfile) or overwrite:
         data=[]
         tries=0
-        while not data or tries<6:
+        while not data and tries<6:
             data=urllib.urlopen(f).read()
             tries+=1
         if tries>5:
