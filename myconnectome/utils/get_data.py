@@ -44,14 +44,15 @@ except:
     os.mkdir(basedir)
   
  
-def get_children(url):
+def get_children(url,verbose=False):
     children=[]
     if not url[-1]=='/':
         return [url]
     for i in re.findall('''href=["'](.[^"']+)["']''', urllib.urlopen(url).read(), re.I):
             if i.find('?')==0 or i.find('/')==0:
                 continue
-            #print url+i
+            if verbose:
+                print url+i
             c=get_children(url+i)
             if c:
                 children=children+c
@@ -67,9 +68,13 @@ def get_file(f,dataurl,outdir,logfile=None,overwrite=False):
         if logfile:
             open(logfile,'a').write('%s\t%s\t%s\n'%(outfile,timestamp(),hash))
 
-def get_directory(dir,outdir,dataurl=dataurl,overwrite=False,logfile=None):
-    c=get_children(dataurl+dir)
+def get_directory(dir,outdir,dataurl=dataurl,overwrite=False,logfile=None,verbose=False):
+    if verbose:
+        print 'checking:',dataurl+dir
+    c=get_children(dataurl+dir,verbose=verbose)
     for file in c:
+        if verbose:
+            print 'getting',file
         get_file(file,dataurl+dir,outdir,logfile=logfile,overwrite=overwrite)
         
 def get_base_data(overwrite=False,logfile=None):
