@@ -103,7 +103,7 @@ if not os.path.exists(os.path.join(tsdir,'Make_combined_timeseries_table.html'))
     f.write("markdownToHTML('%s/Make_combined_timeseries_table.md', '%s/Make_combined_timeseries_table.html')\n"%
         (tsdir,tsdir))
     f.close()
-    run_shell_cmd('Rscript %s/knit_timeseries_tabel.R'%filepath)
+    run_shell_cmd('Rscript %s/knit_timeseries_table.R'%filepath)
 
 
 if not os.path.exists(os.path.join(basedir,'rsfmri/lh_PI.func.gii')):
