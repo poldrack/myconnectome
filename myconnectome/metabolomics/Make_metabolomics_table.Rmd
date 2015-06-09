@@ -8,7 +8,6 @@ Table showing clusters of metabolites and enriched pathways generated using Impa
 ```{r, results='asis',echo=FALSE}
 
 library(knitr)
-library(xtable)
 
 basedir=Sys.getenv('MYCONNECTOME_DIR')
 if (basedir=='') {basedir='/Users/poldrack/data_unsynced/myconnectome/'}
