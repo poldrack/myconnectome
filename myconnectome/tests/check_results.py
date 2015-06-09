@@ -8,7 +8,6 @@ import urllib
 from myconnectome.utils.load_dataframe import load_R_dataframe,load_wgcna_module_assignments
 
 basedir=os.environ['MYCONNECTOME_DIR']
-basedir='/Users/poldrack/code/myconnectome-vm/myconnectome'
 dataurl='http://web.stanford.edu/group/poldracklab/myconnectome-data/cached/'
 
 rtol=atol=1e-08
