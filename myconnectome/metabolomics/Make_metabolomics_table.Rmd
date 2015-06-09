@@ -1,0 +1,57 @@
+---
+title: "Table S2: Metabolomics clusters"
+output: html_document
+---
+
+Table showing clusters of metabolites and enriched pathways generated using Impala.
+
+```{r, results='asis',echo=FALSE}
+
+library(knitr)
+library(xtable)
+
+basedir=Sys.getenv('MYCONNECTOME_DIR')
+if (basedir=='') {basedir='/Users/poldrack/data_unsynced/myconnectome/'}
+
+all_enrichments=c()
+for (cluster in 1:15) {
+  
+  metnames=read.table(sprintf('%s/metabolomics/apclust_scaled_mod%02d_names.txt',basedir,cluster),header=FALSE)
+  metnames=as.character(gsub("_"," ",metnames$V1))
+  metnames_reshaped=matrix('',ceiling(length(metnames)/4),4)
+  x=1
+  y=1
+  for (i in 1:length(metnames)){
+    metnames_reshaped[y,x]=metnames[i]
+    x=x+1
+    if (x>4) {y=y+1
+              x=1
+              }
+  }
+  cat(sprintf("**Cluster %d:**\n",cluster))
+   cat('\n')
+  print(kable(as.data.frame(metnames_reshaped),col.names=c('Metabolites','','','')))
+   cat('\n')
+  enrichment=read.table(sprintf('%s/metabolomics/impala_results_mod%02d.csv',basedir,cluster),sep=',',header=TRUE)
+  enrichment=enrichment[enrichment$Q_metabolites<0.1,]
+  if (dim(enrichment)[1]>5){enrichment=enrichment[1:5,]}
+  if (dim(enrichment)[1]<1) {cat('No pathway enrichment\n')
+                             cat('\n')}
+  else {
+    enr=subset(enrichment,select=c(pathway_name,pathway_source,Q_metabolites))
+    print(kable(enr))
+    cat('\n')
+    all_enrichments=c(all_enrichments,as.character(enr[,1]))
+}
+    cat('\n')
+}
+
+```
+
+
+```{r,results='asis',echo=FALSE}
+pathenrich=c()
+for (p in unique(all_enrichments)) {
+  pathenrich=c(pathenrich,sum(all_enrichments==p))
+}
+```

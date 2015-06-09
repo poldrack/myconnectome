@@ -1,0 +1,67 @@
+---
+title: "Table S1: Gene expression modules"
+output: html_document
+---
+
+Table showing clusters of metabolites and enriched pathways generated using DAVID.
+
+```{r, results='asis',echo=FALSE}
+
+library(knitr)
+library(xtable)
+
+basedir=Sys.getenv('MYCONNECTOME_DIR')
+if (basedir=='') {basedir='/Users/poldrack/data_unsynced/myconnectome'}
+
+all_enrichments=c()
+hubgenes=read.table(sprintf('%s/rna-seq/WGCNA/hubgenes_thr8_prefilt_rinPCreg.txt',basedir),header=FALSE)[,3:7]
+for (cluster in 1:dim(hubgenes)[1]) {
+  
+  hg=hubgenes[cluster,]
+  cat(sprintf("**Module %d:**\n",cluster))
+   cat('\n')
+  print(kable(hg,col.names=c('Hub genes','','','',''),row.names=FALSE))
+   cat('\n')
+  
+  pathfile=sprintf('%s/rna-seq/WGCNA/DAVID_thr8_prefilt_rin3PCreg_path_set%03d.txt',basedir,cluster)
+  gofile=sprintf('%s/rna-seq/WGCNA/DAVID_thr8_prefilt_rin3PCreg_GO_set%03d.txt',basedir,cluster)
+  enrichment_path=NULL
+  enrichment_go=NULL
+  if (file.exists(pathfile)) {
+    if (file.info(pathfile)$size > 0) {
+      enrichment_path=read.table(pathfile,sep='\t',header=FALSE,fill=TRUE,quote="")
+      enrichment_path=enrichment_path[1:(dim(enrichment_path)[1]-1),]
+    } }
+  if (file.exists(gofile)) {
+    if (file.info(gofile)$size > 0) {
+      enrichment_go=read.table(gofile,sep='\t',header=FALSE,fill=TRUE,quote="")
+      enrichment_go=enrichment_go[1:(dim(enrichment_go)[1]-1),]
+    } }
+  
+  enrichment=rbind(enrichment_go,enrichment_path)
+  
+  if (!is.null(enrichment)) {
+    names(enrichment)=c('Q','Fold enrichment','Pathway/GO term')
+    enrichment=enrichment[order(enrichment[,1]),]
+    if (dim(enrichment)[1]>5){enrichment=enrichment[1:5,]}
+  } 
+  if (is.null(enrichment)) {cat('No pathway/GO term enrichment\n')
+                             cat('\n')}
+  else {
+
+    print(kable(enrichment[c(3,1,2)],row.names=FALSE))
+    cat('\n')
+    all_enrichments=c(all_enrichments,as.character(enrichment[,3]))
+}
+    cat('\n')
+}
+
+```
+
+
+```{r,results='asis',echo=FALSE}
+pathenrich=c()
+for (p in unique(all_enrichments)) {
+  pathenrich=c(pathenrich,sum(all_enrichments==p))
+}
+```
