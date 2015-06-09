@@ -89,6 +89,22 @@ if not os.path.exists(os.path.join(tsdir,'Make_Timeseries_Heatmaps.html')):
     f.close()
     run_shell_cmd('Rscript %s/knit_timeseries_heatmaps.R'%filepath)
 
+if not os.path.exists(os.path.join(tsdir,'Make_combined_timeseries_table.html')):
+    f=open(os.path.join(filepath,'knit_timeseries_table.R'),'w')
+    f.write('# automatically generated knitr command file\n')
+    f.write('require(knitr)\n')
+    f.write('require(markdown)\n')
+    f.write('setwd("%s")\n'%tsdir)
+    f.write('source("%s/timeseries/load_myconnectome_data.R")\n'%basepath)
+    f.write('source("%s/timeseries/data_utilities.R")\n'%basepath)
+    f.write('source("%s/timeseries/timeseries_helpers.R")\n'%basepath)
+    f.write("knit('%s/Make_combined_timeseries_table.Rmd', '%s/Make_combined_timeseries_table.md')\n"%
+        (filepath.replace('scripts','timeseries'),tsdir))
+    f.write("markdownToHTML('%s/Make_combined_timeseries_table.md', '%s/Make_combined_timeseries_table.html')\n"%
+        (tsdir,tsdir))
+    f.close()
+    run_shell_cmd('Rscript %s/knit_timeseries_tabel.R'%filepath)
+
 
 if not os.path.exists(os.path.join(basedir,'rsfmri/lh_PI.func.gii')):
     mk_participation_index_giftis.mk_participation_index_giftis()
