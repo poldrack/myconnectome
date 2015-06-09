@@ -74,7 +74,7 @@ for f in files_to_compare.iterkeys():
 try:
     assert os.path.exists(os.path.join(basedir,'rna-seq/WGCNA/module_assignments_thr8_prefilt_rinPCreg.txt'))
     modassn_local=load_wgcna_module_assignments(os.path.join(basedir,'rna-seq/WGCNA/module_assignments_thr8_prefilt_rinPCreg.txt'))
-    modassn_repos=load_wgcna_module_assignments(dataurl+'rna-seq/module_assignments_thr8_prefilt_rinPCreg.txt')
+    modassn_repos=load_wgcna_module_assignments(dataurl+'rna-seq/WGCNA/module_assignments_thr8_prefilt_rinPCreg.txt')
     if numpy.allclose(modassn_local[0],modassn_repos[0],rtol,atol):
         print 'PASS: rna-seq/WGCNA/module_assignments_thr8_prefilt_rinPCreg.txt'
     else:
@@ -87,7 +87,7 @@ except:
 
 url=dataurl+'/rna-seq/WGCNA/MEs-thr8-prefilt-rinPCreg-48sess.txt'
 raw_data = urllib.urlopen(url)
-f='rna-seq/WGCNA/MEs-thr8-prefilt-rinPCreg-48sess.txt'
+f='rna-seq/WGCNA/module_assignments_thr8_prefilt_rinPCreg.txt'
 repos_data=numpy.loadtxt(raw_data,skiprows=1)
 try:
     assert os.path.exists(os.path.join(basedir,f))
