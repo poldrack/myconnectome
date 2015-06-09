@@ -44,3 +44,17 @@ if not os.path.exists(os.path.join(metabdir,'Metabolomics_clustering.html')):
     f.close()
     run_shell_cmd('Rscript %s/knit_metab_cluster.R'%filepath)
 
+if not os.path.exists(os.path.join(metabdir,'Make_metabolomics_table.html')):
+    f=open(os.path.join(filepath,'knit_metab_table.R'),'w')
+    f.write('# automatically generated knitr command file\n')
+    f.write('require(knitr)\n')
+    f.write('require(markdown)\n')
+    f.write('source("%s/timeseries/load_myconnectome_data.R")\n'%basepath)
+    f.write('setwd("%s")\n'%metabdir)
+    f.write("knit('%s/Make_metabolomics_table.Rmd', '%s/Make_metabolomics_table.md')\n"%
+        (filepath.replace('scripts','metabolomics'),metabdir))
+    f.write("markdownToHTML('%s/Make_metabolomics_table.md', '%s/Make_metabolomics_table.html')\n"%
+        (metabdir,metabdir))
+    f.close()
+    run_shell_cmd('Rscript %s/knit_metab_table.R'%filepath)
+
