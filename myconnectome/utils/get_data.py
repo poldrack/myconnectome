@@ -62,6 +62,8 @@ def get_file(f,dataurl,outdir,logfile=None,overwrite=False):
     outfile=f.replace(dataurl,outdir)
     if not os.path.exists(os.path.dirname(outfile)):
         os.makedirs(os.path.dirname(outfile))
+    if os.path.exists(outfile):
+        print 'file exists:',outfile
     if not os.path.exists(outfile) or overwrite:
         open(outfile,'wb').write(urllib.urlopen(f).read())
         hash=hashfile(outfile)
@@ -75,7 +77,7 @@ def get_directory(dir,outdir,dataurl=dataurl,overwrite=False,logfile=None,verbos
     for file in c:
         if verbose:
             print 'getting',file
-        get_file(file,dataurl+dir,outdir,logfile=logfile,overwrite=overwrite)
+        get_file(file,dataurl+dir,outdir,logfile=logfile,overwrite=overwrite,verbose=verbose)
         
 def get_base_data(overwrite=False,logfile=None):
     """ 
