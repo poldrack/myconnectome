@@ -8,7 +8,8 @@ import urllib
 from myconnectome.utils.load_dataframe import load_R_dataframe,load_wgcna_module_assignments
 
 basedir=os.environ['MYCONNECTOME_DIR']
-dataurl='http://web.stanford.edu/group/poldracklab/myconnectome-data/base/'
+basedir='/Users/poldrack/code/myconnectome-vm/myconnectome'
+dataurl='http://web.stanford.edu/group/poldracklab/myconnectome-data/cached/'
 
 rtol=atol=1e-08
 
@@ -23,7 +24,7 @@ for f  in rsfmri_files:
 
 rnaseq_files=['varstab_data_prefiltered_rin_3PC_regressed.txt']
 for f  in rnaseq_files:
-    files_to_compare['rna-seq/'+f]='RNA-seq/'+f
+    files_to_compare['rna-seq/'+f]='rna-seq/'+f
 
 metabolomics_files=['apclust_eigenconcentrations.txt']
 for f  in metabolomics_files:
@@ -85,7 +86,7 @@ except:
     
 
 
-url='https://s3.amazonaws.com/openfmri/ds031/RNA-seq/MEs-thr8-prefilt-rinPCreg-48sess.txt'
+url=dataurl+'/rna-seq/WGCNA/MEs-thr8-prefilt-rinPCreg-48sess.txt'
 raw_data = urllib.urlopen(url)
 f='rna-seq/WGCNA/MEs-thr8-prefilt-rinPCreg-48sess.txt'
 repos_data=numpy.loadtxt(raw_data,skiprows=1)
