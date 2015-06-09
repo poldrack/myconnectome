@@ -65,7 +65,15 @@ def get_file(f,dataurl,outdir,logfile=None,overwrite=False,verbose=False):
     if os.path.exists(outfile):
         print 'file exists:',outfile
     if not os.path.exists(outfile) or overwrite:
-        open(outfile,'wb').write(urllib.urlopen(f).read())
+        data=[]
+        tries=0
+        while not data or tries<6:
+            data=urllib.urlopen(f).read()
+            tries+=1
+        if tries>5:
+            print 'problem downloading:',f
+            return
+        open(outfile,'wb').write(data)
         hash=hashfile(outfile)
         if logfile:
             open(logfile,'a').write('%s\t%s\t%s\n'%(outfile,timestamp(),hash))
