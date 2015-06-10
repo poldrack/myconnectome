@@ -28,7 +28,7 @@ nicenames={'16_Parieto_Occipital':'ParietoOccip',
  '1_Default':'Default',
  '11.5_Fronto_Parietal_2':'FPother',
  '7_Ventral_Attention':'VentAttn',
- '5_Dorsal_Attention':'DorsAttn1',
+ '5_Dorsal_Attention':'DorsAttn',
  '10_Somatomotor':'Somatomotor',
  '15_Medial_Parietal':'MedParietal',
  '3_Fronto_Parietal':'FrontoParietal'
@@ -50,9 +50,8 @@ for w in winmod.iterkeys():
 for b in bwmod.iterkeys():
     if not b[1]=='modularity_weighted' or bwmod[b][0]>thresh:
         continue
-    key=b[0].replace('Parietal_Episodic_Retrieval','Medial_Parietal').replace('Frontal-Parietal','Frontal_Parietal').replace('-Other','_Other').replace('Parieto-Occipital','Parieto_Occipital').replace('Cingulo-opercular','Cingulo_opercular')
+    key=b[0].replace('Parieto_occipital','Parieto_Occipital').replace('Frontoparietal','Fronto_Parietal').replace('Fronto_Parietal_1','Fronto_Parietal').replace('Frontal-Parietal','Frontal_Parietal').replace('-Other','_Other').replace('Parieto-Occipital','Parieto_Occipital').replace('Cingulo-opercular','Cingulo_opercular')
     key_s=key.split('-')
-    print key_s
     G.add_edge(key_s[0],key_s[1],weight=abs(bwmod[b][2]))
     G.edge[key_s[0]][key_s[1]]['posneg']=int(bwmod[b][2]>0)
     
@@ -62,7 +61,7 @@ G=networkx.Graph()
 for w in winmod.iterkeys():
     key=w[0].replace(':','_').replace('-Other','_Other').replace('Frontal-Parietal','Frontal_Parietal').replace('Parieto-Occipital','Parieto_Occipital').replace('Cingulo-opercular','Cingulo_opercular')
     if not G.has_node(key):
-        if winmod.has_key((w[0],'eff_weighted')):
+        if winmod.has_key((w[0],'efficiency_weighted')):
             G.add_node(key, weight=abs(winmod[(w[0],'efficiency_weighted')][2]))
         else:
             G.add_node(key)
@@ -74,9 +73,8 @@ for w in winmod.iterkeys():
 for b in bwmod.iterkeys():
     if not b[1]=='efficiency_weighted' or bwmod[b][0]>thresh:
         continue
-    key=b[0].replace('Parietal_Episodic_Retrieval','Medial_Parietal').replace('Frontal-Parietal','Frontal_Parietal').replace('-Other','_Other').replace('Parieto-Occipital','Parieto_Occipital').replace('Cingulo-opercular','Cingulo_opercular')
+    key=b[0].replace('Parieto_occipital','Parieto_Occipital').replace('Frontoparietal','Fronto_Parietal').replace('Fronto_Parietal_1','Fronto_Parietal').replace('Frontal-Parietal','Frontal_Parietal').replace('-Other','_Other').replace('Parieto-Occipital','Parieto_Occipital').replace('Cingulo-opercular','Cingulo_opercular')
     key_s=key.split('-')
-    print key_s
     G.add_edge(key_s[0],key_s[1],weight=abs(bwmod[b][2]))
     G.edge[key_s[0]][key_s[1]]['posneg']=int(bwmod[b][2]>0)
     
