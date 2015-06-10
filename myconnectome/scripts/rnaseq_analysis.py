@@ -104,6 +104,20 @@ if not os.path.exists(os.path.join(rnaseqdir,'WGCNA/DAVID_thr8_prefilt_rin3PCreg
 if not os.path.exists(os.path.join(rnaseqdir,'WGCNA/module_descriptions')):
     get_module_descriptions.get_module_descriptions()
     
+# make table
+if not os.path.exists(os.path.join(rnaseqdir,'Make_rnaseq_table.html')):
+    f=open(os.path.join(filepath,'knit_rnaseq_table.R'),'w')
+    f.write('# automatically generated knitr command file\n')
+    f.write('require(knitr)\n')
+    f.write('require(markdown)\n')
+    f.write('setwd("%s")\n'%rnaseqdir)
+    f.write("knit('%s/Make_rnaseq_table.Rmd', '%s/Make_rnaseq_table.md')\n"%
+        (filepath.replace('scripts','rnaseq'),rnaseqdir))
+    f.write("markdownToHTML('%s/Make_rnaseq_table.md', '%s/Make_rnaseq_table.html')\n"%
+        (rnaseqdir,rnaseqdir))
+    f.close()
+    run_shell_cmd('Rscript %s/knit_rnaseq_table.R'%filepath)
+
 # do snyderome preparation
 if not os.path.exists(os.path.join(rnaseqdir,'snyderome/Snyderome_data_preparation.html')):
     if not os.path.exists(os.path.join(rnaseqdir,'snyderome')):
