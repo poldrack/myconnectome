@@ -16,6 +16,16 @@ library(knitr)
 basedir=Sys.getenv('MYCONNECTOME_DIR')
 
 
+require(knitr)
+require(markdown)
+setwd("/Users/poldrack/data_unsynced/myconnectome/timeseries")
+source("/Users/poldrack/code/myconnectome/myconnectome/timeseries/load_myconnectome_data.R")
+source("/Users/poldrack/code/myconnectome/myconnectome/timeseries/data_utilities.R")
+source("/Users/poldrack/code/myconnectome/myconnectome/timeseries/timeseries_helpers.R")
+source("/Users/poldrack/code/myconnectome/myconnectome/timeseries/est_bivariate_arima_model.R")
+
+basedir='/Users/poldrack/data_unsynced/myconnectome'
+
 datamat=load_behav_data() 
 varname='behav'
 sample_spacing=1
@@ -271,7 +281,7 @@ for (varnum in 1:(dim(datamat)[2]-1)) {
 
 ```{r rnaseqModel}
 datamat=load_rnaseq_data()
-mod_des=read.table('http://s3.amazonaws.com/openfmri/ds031/RNA-seq/module_descriptions.txt',sep='\t')
+mod_des=read.table(sprintf('%s/rna-seq/WGCNA/module_descriptions.txt',sep='\t')
 data_names=c()
 for (i in 1:(dim(datamat)[2]-1)) {
   	data_names=rbind(data_names,sprintf('%s:%s',names(datamat)[i],mod_des$V2[i]))
