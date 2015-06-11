@@ -94,9 +94,9 @@ for filename in files_to_load:
 		continue
 			
 	for k in data[f].keys():
-		if data[f][k][1]<0 and filter_negatives:
+            if data[f][k][1]<0 and filter_negatives:
 			continue
-		ktuple=k
+            ktuple=k
             if 'pindex' in datatypes:
                 continue
 		if exclude_metab and 'metab' in datatypes:
