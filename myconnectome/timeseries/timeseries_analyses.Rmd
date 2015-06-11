@@ -279,7 +279,7 @@ output_results(d,vnames,OUTPUT_DIR=OUTPUT_DIR)
 ```
 
 #### Test specific hypothesis regarding mood
-```{r psorImmport,message=FALSE,warning=FALSE,error=FALSE}
+```{r moodImmport,message=FALSE,warning=FALSE,error=FALSE}
 vnames=c('mood','immport')
 mood=subset(behav,select=c(date,panas.positive,panas.negative))
 if (file.exists(paste(OUTPUT_DIR,sprintf('out.dat.%s_%s.txt',vnames[1],vnames[2]),sep='/'))) {
