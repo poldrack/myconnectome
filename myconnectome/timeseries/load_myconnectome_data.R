@@ -110,7 +110,7 @@ load_rnaseq_drawdates=function(infile=sprintf('%s/rna-seq/drawdates.txt',basedir
 load_metab_data = function(use_clustered_data=TRUE,
                            clust_file=sprintf('%s/metabolomics/apclust_eigenconcentrations.txt',basedir),
                            exclude_unenriched=FALSE,
-                           clust_desc_file='http://s3.amazonaws.com/openfmri/ds031/metabolomics/apclust_descriptions.txt',
+                           clust_desc_file=sprintf('%s/metabolomics/apclust_descriptions.txt',basedir),
                            logtransform=TRUE,exclude_unnamed=TRUE,
                            infile=sprintf('%s/metabolomics/metabolomics.txt',basedir),
                            labelfile=sprintf('%s/metabolomics/metabolomics_labels.txt',basedir)) {
