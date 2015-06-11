@@ -349,7 +349,6 @@ for (varnum in 1:(dim(datamat)[2]-1)) {
 	x_interp=x_ts
 	x_interp=na.approx(x_interp)
 	
-  pdf(file=sprintf('/Users/poldrack/data/selftracking/rna-seq/timeseries_plots/module%03d.pdf',varnum),width=12,height=4)
 
 	lo <- loess(x_interp ~ seq(from=start(x_interp)[1],to=end(x_interp)[1],by=sample_spacing),span=0.5)
 	pred=predict(lo,se=TRUE)
@@ -361,8 +360,8 @@ for (varnum in 1:(dim(datamat)[2]-1)) {
 	offset=0.1*(max(x_ts,na.rm=TRUE)-min(x_ts,na.rm=TRUE))
 	text(seq(from=start(x_interp)[1],to=end(x_interp)[1],by=spacing), par("usr")[3] - offset, labels = labels, srt = 45,adj=0.9, xpd = TRUE)
 	title(sprintf('%s - lin p = %0.3f, poly p=%0.3f',names(datamat)[varnum],p_fdr[varnum,1],p_fdr[varnum,2]))
-  dev.off()
-}
+
+  }
 
 ```
 
