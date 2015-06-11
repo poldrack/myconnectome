@@ -154,17 +154,6 @@ for i in degree.iterkeys():
     if degree[i]<1:
         graph.remove_node(i)
 
-nx.write_graphml(graph,'/tmp/tmp.graphml')
-
-import igraph
-G=igraph.read('/tmp/tmp.graphml')
-#c=G.community_infomap()
-c=G.community_multilevel()
-labels=c.membership
-print 'modularity:',c.modularity
-
-for i in range(len(G.vs)):
-    graph.node[G.vs[i]['id']]['module']=labels[i]
 
 h=nx.hits(graph)[0]
 for k in h.iterkeys():
@@ -185,6 +174,28 @@ if degree_thresh>1:
     for n in graph.nodes():
         if graph.degree(n)<degree_thresh:
             graph.remove_node(n)
+
+cc=nx.connected_components(graph)
+nodes_to_remove=[]
+for component in cc:
+    if len(component)<3:
+        for node in component:
+            nodes_to_remove.append(node)
+for node in nodes_to_remove:
+            graph.remove_node(node)
+
+nx.write_graphml(graph,'/tmp/tmp.graphml')
+
+import igraph
+G=igraph.read('/tmp/tmp.graphml')
+#c=G.community_infomap()
+
+c=G.community_multilevel()
+labels=c.membership
+print 'modularity:',c.modularity
+
+for i in range(len(G.vs)):
+    graph.node[G.vs[i]['id']]['module']=labels[i]
 
 nx.write_gexf(graph,os.path.join(basedir,'timeseries/graph_thresh%.02f%s.gexf'%(thresh,filt)))
 nx.write_gml(graph,os.path.join(basedir,'timeseries/graph_thresh%.02f%s.gml'%(thresh,filt)))
