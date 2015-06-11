@@ -8,6 +8,7 @@ import re
 import os,glob
 import numpy
 
+basedir=os.environ['MYCONNECTOME_DIR']
 
 filter_negatives=False
 exclude_metab=False
@@ -49,34 +50,23 @@ def load_dataframe(filename,thresh=0.1):
 			pass
 	return data
 
-cluster_names=['ME%d'%int(i.strip().split()[0]) for i in open('/Users/poldrack/Dropbox/data/selftracking/rna-seq/WGCNA/module_descriptions.txt').readlines()]
-cluster_terms=[' '.join(i.strip().split()[1:]) for i in open('/Users/poldrack/Dropbox/data/selftracking/rna-seq/WGCNA/module_descriptions.txt').readlines()]
+cluster_names=['ME%d'%int(i.strip().split()[0]) for i in open(os.path.join(basedir,'rna-seq/WGCNA/module_descriptions.txt').readlines()]
+cluster_terms=[' '.join(i.strip().split()[1:]) for i in open(os.path.join(basedir,'rna-seq/WGCNA/module_descriptions.txt').readlines()]
 cluster_dict={}
 for i in range(len(cluster_names)):
 	cluster_dict[cluster_names[i]]=cluster_terms[i]
 
 metab_names=['C%d'%i for i in range(1,16)]
-metab_terms=[i.strip() for i in open('/Users/poldrack/Dropbox/data/selftracking/proteomics/apclust_descriptions.txt').readlines()]
+metab_terms=[i.strip() for i in open(os.path.join(basedir,'metabolomics/apclust_descriptions.txt').readlines()]
 metab_dict={}
 for i in range(len(metab_names)):
 	metab_dict[metab_names[i]]=metab_terms[i]
 
-files_to_load=list(set(glob.glob('/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out*.txt')))
+files_to_load=list(set(glob.glob(os.path.join(basedir,'timeseries/out*.txt')))
 
-files_to_load=['/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.wgcna_wincorr.txt',
-			'/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.wincorr_wincorr.txt',
-			'/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.wgcna_wgcna.txt',
-			'/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.wgcna_behav.txt',
-			'/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.wincorr_behav.txt',
-			'/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.behav_behav.txt',
-			'/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.metab_wincorr.txt',
-			'/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.behav_metab.txt',
-            '/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.metab_metab.txt',
-			'/Users/poldrack/Dropbox/data/selftracking/timeseries_analyses/out.dat.wgcna_metab.txt']
-#files_to_load=['metab_metab']
-
-#power_network_names={-1:'none',0:'none',1:'DM',2:'Vis2',3:'FP',4.5:'Vis1',5:'DA1',6:'DA2',7:'VA-Lang',8:'Sal',9:'CO',10:'SOM',11.5:'FPother',15:'PEpisRet',16:'PO'}
-power_network_names={-1:'none',0:'none',1:'DefaultMode',2:'Visual-II',3:'Fronto-parietal',4.5:'Visual-I',5:'DorsalAttn-I',6:'DorsalAttn-II',7:'VentralAttn/Lang',8:'Salience',9:'Cingulo-opercular',10:'Somatomotor',11.5:'OtherFP',15:'Parietal EpisRet',16:'Parieto-occipital'}
+power_network_names={-1:'none',0:'none',1:'DefaultMode',2:'Visual-II',3:'Fronto-parietal',4.5:'Visual-I',
+                     5:'DorsalAttn-I',7:'VentralAttn',8:'Salience',9:'Cingulo-opercular',
+                     10:'Somatomotor',11.5:'FPOther',15:'MedialParietal',16:'Parieto-occipital'}
 node_shapes={'metab':'box','wgcna':'ellipse','food':'triangle','wincorr':'diamond','behav':'hexagon','falff':'invtriangle','netdat':'trapezium'}
 node_classes={'metab':1,'wgcna':2,'food':3,'wincorr':4,'behav':5,'falff':6,'netdat':7}
 
@@ -107,6 +97,8 @@ for filename in files_to_load:
 		if data[f][k][1]<0 and filter_negatives:
 			continue
 		ktuple=k
+            if 'pindex' in datatypes:
+                continue
 		if exclude_metab and 'metab' in datatypes:
 			continue
 		if exclude_metab_metab and datatypes[0]=='metab' and datatypes[1]=='metab':
@@ -164,10 +156,10 @@ for i in degree.iterkeys():
     if degree[i]<1:
         graph.remove_node(i)
 
-nx.write_graphml(graph,'tmp.graphml')
+nx.write_graphml(graph,'/tmp/tmp.graphml')
 
 import igraph
-G=igraph.read('tmp.graphml')
+G=igraph.read('/tmp/tmp.graphml')
 #c=G.community_infomap()
 c=G.community_multilevel()
 labels=c.membership
@@ -196,9 +188,9 @@ if degree_thresh>1:
 		if graph.degree(n)<degree_thresh:
 			graph.remove_node(n)
 
-nx.write_gexf(graph,'graph_thresh%.02f%s.gexf'%(thresh,filt))
-nx.write_gml(graph,'graph_thresh%.02f%s.gml'%(thresh,filt))
-nx.write_graphml(graph,'graph_thresh%.02f%s.graphml'%(thresh,filt))
+nx.write_gexf(graph,os.path.join(basedir,'timeseries/graph_thresh%.02f%s.gexf'%(thresh,filt)))
+nx.write_gml(graph,os.path.join(basedir,'timeseries/graph_thresh%.02f%s.gml'%(thresh,filt)))
+nx.write_graphml(graph,os.path.join(basedir,'timeseries/graph_thresh%.02f%s.graphml'%(thresh,filt)))
 
 for i in numpy.unique(labels):
 	print ''
