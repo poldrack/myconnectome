@@ -275,8 +275,9 @@ datamat=load_rnaseq_data()
 mod_des=read.table(sprintf('%s/rna-seq/WGCNA/module_descriptions.txt',basedir),sep='\t')
 data_names=c()
 for (i in 1:(dim(datamat)[2]-1)) {
-  	data_names=rbind(data_names,sprintf('%s:%s',names(datamat)[i],mod_des$V2[i]))
+  	data_names=rbind(data_names,sprintf('ME%d:%s',i,mod_des$V2[i]))
 		}
+
 data_names=rbind(data_names,'date')
 names(datamat)=data_names
 
