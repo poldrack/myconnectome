@@ -50,19 +50,19 @@ def load_dataframe(filename,thresh=0.1):
 			pass
 	return data
 
-cluster_names=['ME%d'%int(i.strip().split()[0]) for i in open(os.path.join(basedir,'rna-seq/WGCNA/module_descriptions.txt').readlines()]
-cluster_terms=[' '.join(i.strip().split()[1:]) for i in open(os.path.join(basedir,'rna-seq/WGCNA/module_descriptions.txt').readlines()]
+cluster_names=['ME%d'%int(i.strip().split()[0]) for i in open(os.path.join(basedir,'rna-seq/WGCNA/module_descriptions.txt')).readlines()]
+cluster_terms=[' '.join(i.strip().split()[1:]) for i in open(os.path.join(basedir,'rna-seq/WGCNA/module_descriptions.txt')).readlines()]
 cluster_dict={}
 for i in range(len(cluster_names)):
 	cluster_dict[cluster_names[i]]=cluster_terms[i]
 
 metab_names=['C%d'%i for i in range(1,16)]
-metab_terms=[i.strip() for i in open(os.path.join(basedir,'metabolomics/apclust_descriptions.txt').readlines()]
+metab_terms=[i.strip() for i in open(os.path.join(basedir,'metabolomics/apclust_descriptions.txt')).readlines()]
 metab_dict={}
 for i in range(len(metab_names)):
 	metab_dict[metab_names[i]]=metab_terms[i]
 
-files_to_load=list(set(glob.glob(os.path.join(basedir,'timeseries/out*.txt')))
+files_to_load=list(set(glob.glob(os.path.join(basedir,'timeseries/out*.txt'))))
 
 power_network_names={-1:'none',0:'none',1:'DefaultMode',2:'Visual-II',3:'Fronto-parietal',4.5:'Visual-I',
                      5:'DorsalAttn-I',7:'VentralAttn',8:'Salience',9:'Cingulo-opercular',
