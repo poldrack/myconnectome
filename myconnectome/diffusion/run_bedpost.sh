@@ -1,0 +1,1 @@
+bedpostx_gpu /scratch/projects/UT/poldracklab/poldrack/selftracking/MRI/stanford_diffusion/combined_eddy_corrected
