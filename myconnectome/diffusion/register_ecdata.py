@@ -31,9 +31,9 @@ if not os.path.exists(wmsegfile):
     fast.run()
     os.rename(anatfile_brain.replace('.nii.gz','_pve_2.nii.gz'),anatfile_brain.replace('.nii.gz','_wmseg.nii.gz'))
 
-datafiles=glob.glob(os.path.join(basedir,'stanford_diffusion/9697/*ec.nii.gz'))
+if 1:
+    ecdata=os.path.join(basedir,'stanford_diffusion/combined_eddy_corrected/all_pe1_unwarped_dwi_ec.nii.gz')
 
-for ecdata in datafiles:
     ecpath=os.path.basename(ecdata)
     mean_eclowb=ecdata.replace('_ec.nii.gz','_ec_lowb.nii.gz')
 
