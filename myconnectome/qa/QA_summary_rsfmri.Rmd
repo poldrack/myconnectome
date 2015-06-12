@@ -1,0 +1,77 @@
+---
+title: "fMRI QA Overview"
+output: html_document
+---
+
+Quality assurance metrics were computed as described by http://preprocessed-connectomes-project.github.io/quality-assessment-protocol/index.html using Chris Gorgolewski's enh branch https://github.com/chrisfilo/quality-assessment-protocol/tree/enh (note: descriptions of QA measures below are copied directly from the QAP web site).
+
+Data from my connectome project were compared to data for the CORR project obtained from https://raw.githubusercontent.com/preprocessed-connectomes-project/quality-assessment-protocol/master/poster_data/corr_func.csv
+
+The following preprocesing was performed:
+
+1. motion correction: mcflirt using sinc interpolation
+2. compute mean functional from mcflirt output
+3. bet on mean functional to obtain functional brain mask
+
+First, we load the relevant libraries and data
+
+```{r}
+library(knitr)
+basedir=Sys.getenv('MYCONNECTOME_DIR')
+if (!file.exists(basedir)) {
+  basedir='/Users/poldrack/data_unsynced/myconnectome'
+}
+
+myc_qadata=read.table(sprintf('%s/qa/myconnectome_func_qa_goodsubs.csv',basedir),header=TRUE,sep=',')
+myc_qadata$X=NULL
+myc_qadata_full=myc_qadata
+names(myc_qadata_full)=c("Entopy Focus Criterion [EFC]","Foreground-Background Energy Ratio [FBER]","Smoothness[FWHM]","Ghost to Signal Ratio [GSR]","Mean Fractional Displacement", "Percentage of vols with FD>0.2","Median Distance Index",'Image SNR','Temporal SNR')
+
+myc_qadata$func_snr=NULL
+myc_qadata$func_tsnr=NULL
+names(myc_qadata)=c("Entopy Focus Criterion [EFC]","Foreground-Background Energy Ratio [FBER]","Smoothness[FWHM]","Ghost to Signal Ratio [GSR]","Mean Fractional Displacement", "Percentage of vols with FD>0.2","Median Distance Index")
+corr_qadata=read.table(sprintf('%s/qa/corr_func.csv',basedir),header=TRUE,sep=',')
+corr_qadata$X=NULL
+corr_qadata$session=NULL
+corr_qadata$scan=NULL
+corr_qadata$site=NULL
+corr_qadata$subject=NULL
+corr_qadata$func_dvars=NULL
+corr_qadata$func_num_fd=NULL
+
+names(corr_qadata)=c("Entopy Focus Criterion [EFC]","Foreground-Background Energy Ratio [FBER]","Smoothness[FWHM]","Ghost to Signal Ratio [GSR]","Median Distance Index","Mean Fractional Displacement", "Percentage of vols with FD>0.2")
+  
+```
+
+## Make table of summary statistics
+
+```{r,results='asis'}
+myc_mean=apply(myc_qadata,2,mean)
+myc_sd=apply(myc_qadata,2,sd)
+corr_mean=apply(corr_qadata,2,mean)
+corr_sd=apply(corr_qadata,2,sd)
+
+summstats=as.data.frame(cbind(myc_mean,myc_sd,corr_mean,corr_sd))
+kable(summstats)
+```
+
+
+## Make timeseries plots for each variable across sessions with marginal histograms
+
+```{r,results='asis',fig.width=8, fig.height=16}
+#par(mfrow=c(7,2))
+lhist=40
+layMat <- matrix(seq(1,14), ncol=2,nrow=7, byrow=TRUE)
+layout(layMat, widths=c(5/7, 2/7)) #, heights=c(2/7, 5/7))
+for (i in 1:dim(myc_qadata_full)[2]){
+  h=hist(myc_qadata_full[,i],40,plot=FALSE)
+  par(mar=c(4,4,1,0))
+  p=plot(myc_qadata_full[,i], col='black',type='l',main=names(myc_qadata_full)[i],ylab=names(myc_qadata_full)[i],lwd=1.5,xlab='sessions') # line
+  par(mar=c(4,0,1,0))
+  barplot(h$density, axes=FALSE, 
+          #ylim=c(0, max(h$density,myc_qadata[,i])),
+            space=0,horiz=TRUE) # barplot
+  d=density(myc_qadata_full[,i])
+  lines(d$y,seq(0,length(h$density),length.out=length(d$y)),col='blue',lwd=2)
+}
+```

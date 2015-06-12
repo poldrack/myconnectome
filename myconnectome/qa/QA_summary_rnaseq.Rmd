@@ -1,0 +1,130 @@
+---
+title: "RNA-seq QA Overview"
+output: html_document
+---
+
+Quality assurance metrics were computed for each session of RNA-seq data using FastQC and Picard.  
+
+First, we load the relevant libraries and data
+
+```{r}
+library(knitr)
+basedir=Sys.getenv('MYCONNECTOME_DIR')
+if (!file.exists(basedir)) {
+  basedir='/Users/poldrack/data_unsynced/myconnectome'
+}
+
+pbsq=read.table(sprintf('%s/qa/PerBaseSeqQuality.csv',basedir),header=TRUE,row.names=1,sep=',')
+pbgcc=read.table(sprintf('%s/qa/PerBaseGCContent.csv',basedir),header=TRUE,row.names=1,sep=',')
+pbnc=read.table(sprintf('%s/qa/PerBaseNContent.csv',basedir),header=TRUE,row.names=1,sep=',')
+readpos=c(1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100)
+rin=read.table(sprintf('%s/qa/rin.txt',basedir),header=FALSE)$V1
+
+alignment_metrics=read.table(sprintf('%s/qa/alignment_metrics.txt',basedir),
+                             skip=1,header=FALSE,sep='\t')
+subcodes=alignment_metrics$subcode
+
+names(alignment_metrics)=c('subcode','TOTAL_READS','PF_READS','PCT_PF_READS','PF_NOISE_READS','PF_READS_ALIGNED','PCT_PF_READS_ALIGNED','PF_ALIGNED_BASES','PF_HQ_ALIGNED_READS','PF_HQ_ALIGNED_BASES','PF_HQ_ALIGNED_Q20_BASES','PF_HQ_MEDIAN_MISMATCHES','PF_MISMATCH_RATE','PF_HQ_ERROR_RATE','PF_INDEL_RATE','MEAN_READ_LENGTH','READS_ALIGNED_IN_PAIRS','PCT_READS_ALIGNED_IN_PAIRS','BAD_CYCLES','STRAND_BALANCE','PCT_CHIMERAS','PCT_ADAPTER')
+alignment_metrics$subcode=NULL
+
+rnaseq_metrics=read.table(sprintf('%s/qa/rnaseq_metrics.txt',basedir),
+                             skip=1,header=FALSE,sep='\t')
+
+names(rnaseq_metrics)=c('subcode','PF_BASES','PF_ALIGNED_BASES','RIBOSOMAL_BASES','CODING_BASES','UTR_BASES','INTRONIC_BASES','INTERGENIC_BASES','IGNORED_READS','CORRECT_STRAND_READS','INCORRECT_STRAND_READS','PCT_RIBOSOMAL_BASES','PCT_CODING_BASES','PCT_UTR_BASES','PCT_INTRONIC_BASES','PCT_INTERGENIC_BASES','PCT_MRNA_BASES','PCT_USABLE_BASES','PCT_CORRECT_STRAND_READS','MEDIAN_CV_COVERAGE','MEDIAN_5PRIME_BIAS','MEDIAN_3PRIME_BIAS','MEDIAN_5PRIME_TO_3PRIME_BIAS')
+rnaseq_metrics$subcode=NULL
+# remove irrelevant measures 
+rnaseq_metrics$CORRECT_STRAND_READS=NULL
+rnaseq_metrics$PCT_CORRECT_STRAND_READS=NULL
+rnaseq_metrics$INCORRECT_STRAND_READS=NULL
+
+    
+```
+
+### Print table of alignment metrics 
+(obtained using Picard::CollectAlignmentSummaryMetrics.jar)
+
+```{r,results='asis'}
+
+m=sapply(alignment_metrics,mean,na.rm=TRUE)
+sd=sapply(alignment_metrics,sd,na.rm=TRUE)
+df=as.data.frame(cbind(m,sd),col.names=c('Mean','SD'),row.names=names(m))
+kable(df)
+
+```
+
+### Print table of rnaseq metrics 
+(obtained using Picard::CollectRnaSeqMetrics.jar)
+
+```{r,results='asis'}
+
+m=sapply(rnaseq_metrics,mean,na.rm=TRUE)
+sd=sapply(rnaseq_metrics,sd,na.rm=TRUE)
+df=as.data.frame(cbind(m,sd),col.names=c('Mean','SD'),row.names=names(m))
+kable(df)
+
+```
+
+### Plot RNA integrity number (RIN) across sessions
+
+```{r,results='asis',fig.width=8, fig.height=4}
+
+layMat <- matrix(seq(1,2), ncol=2,nrow=1, byrow=TRUE)
+layout(layMat) #, widths=c(5/7, 2/7)) #, heights=c(2/7, 5/7))
+
+plot(rin,lwd=1.5,type='l')
+nbins=12
+
+h=hist(rin,nbins,prob=TRUE)
+
+d=density(rin)
+lines(seq(min(rin),max(rin),length.out=length(d$y)),d$y,lwd=1.5)
+
+```
+
+### Plot QA metrics across read positions
+
+```{r,results='asis',fig.width=8, fig.height=12}
+layMat <- matrix(seq(1,6), ncol=2,nrow=3, byrow=TRUE)
+layout(layMat) #, widths=c(5/7, 2/7)) #, heights=c(2/7, 5/7))
+readlabels=c()
+for (i in 1:length(readpos)) {readlabels=c(readlabels,sprintf('%d',readpos[i])) }
+boxplot(pbsq, xaxt='n',main='Per-base sequence quality',xlab='Read position',ylab='Quality',labels=readlabels)
+axis(1,at=seq(1,length(readlabels)),labels=readlabels)
+plot(apply(pbsq,1,mean),type='l',xlab='Sessions',ylab='Mean per-base sequence quality',lwd=1.5)
+
+boxplot(pbgcc, xaxt='n',main='Per-base GC content',xlab='Read position',ylab='GC content',labels=readlabels)
+axis(1,at=seq(1,length(readlabels)),labels=readlabels)
+plot(apply(pbgcc,1,mean),type='l',xlab='Sessions',ylab='Mean per-base GC content',lwd=1.5)
+
+boxplot(pbnc, xaxt='n',main='Per-base N content',xlab='Read position',ylab='N content',labels=readlabels)
+axis(1,at=seq(1,length(readlabels)),labels=readlabels)
+plot(apply(pbnc,1,mean),type='l',xlab='Sessions',ylab='Mean per-base N content',lwd=1.5)
+
+```
+
+## Plot timeseries for QA variables across sessions with marginal histograms
+
+```{r,results='asis',fig.width=8, fig.height=16}
+#par(mfrow=c(7,2))
+data_to_plot=subset(alignment_metrics,select=c("TOTAL_READS"))
+data_to_plot$PCT_HQ_ALIGNED_READS=alignment_metrics$PF_HQ_ALIGNED_READS/alignment_metrics$TOTAL_READS
+data_to_plot$PCT_CODING_BASES=rnaseq_metrics$CODING_BASES/rnaseq_metrics$PF_ALIGNED_BASES
+data_to_plot$PCT_UTR_BASES=rnaseq_metrics$UTR_BASES/rnaseq_metrics$PF_ALIGNED_BASES
+data_to_plot$PCT_INTRONIC_BASES=rnaseq_metrics$INTRONIC_BASES/rnaseq_metrics$PF_ALIGNED_BASES
+
+nicenames=c('Total Reads','Percent high-quality aligned reads','Percent coding bases','Percent UTR bases','Percent intronic bases')
+lhist=40
+layMat <- matrix(seq(1,10), ncol=2,nrow=5, byrow=TRUE)
+layout(layMat, widths=c(5/7, 2/7)) #, heights=c(2/7, 5/7))
+for (i in 1:dim(data_to_plot)[2]){
+  h=hist(data_to_plot[,i],nbins,plot=FALSE)
+  par(mar=c(4,4,1,0))
+  p=plot(data_to_plot[,i], col='black',type='l',ylab=names(data_to_plot)[i],main=nicenames[i],lwd=1.5,xlab='sessions') # line
+  par(mar=c(4,0,1,0))
+  barplot(h$density, axes=FALSE, 
+          #ylim=c(0, max(h$density,myc_qadata[,i])),
+            space=0,horiz=TRUE) # barplot
+  d=density(data_to_plot[,i])
+  lines(d$y,seq(0,length(h$density),length.out=length(d$y)),col='blue',lwd=2)
+}
+```
