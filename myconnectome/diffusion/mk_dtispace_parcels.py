@@ -51,6 +51,19 @@ if not os.path.exists(warped_subcortical_parcels):
     flirt.inputs.apply_xfm=True
     flirt.run()
 
+wmdti='/corral-repl/utexas/poldracklab/data/selftracking/stanford_diffusion/combined_eddy_corrected/wm_dtimask'
+if not os.path.exists(wmdti):
+    print 'making wm_dtimask'
+    flirt=fsl.FLIRT()
+    flirt.inputs.in_file='/corral-repl/utexas/poldracklab/data/selftracking/freesurfer/mri/aparc+aseg_reg2wasu111.nii.gz'
+    flirt.inputs.out_file=warped_subcortical_parcels
+    flirt.inputs.reference='/corral-repl/utexas/poldracklab/data/selftracking/stanford_diffusion/combined_eddy_corrected/all_pe1_unwarped_dwi_ec_lowb_brain.nii.gz'
+
+    flirt.inputs.in_matrix_file=invmat
+    flirt.inputs.interp='nearestneighbour'
+    flirt.inputs.apply_xfm=True
+    flirt.run()
+    
 # make separate parcel and termination masks
 
 combined_parcels='/corral-repl/utexas/poldracklab/data/selftracking/stanford_diffusion/combined_eddy_corrected/parcels_combined_dtispace.nii.gz'
