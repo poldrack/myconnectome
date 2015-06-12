@@ -51,19 +51,38 @@ if not os.path.exists(warped_subcortical_parcels):
     flirt.inputs.apply_xfm=True
     flirt.run()
 
-wmdti='/corral-repl/utexas/poldracklab/data/selftracking/stanford_diffusion/combined_eddy_corrected/wm_dtimask'
+wmseg='/corral-repl/utexas/poldracklab/data/selftracking/FREESURFER_fs_LR/7112b_fs_LR/sub013_mpr1_on_TRIO_Y_NDC_111_brain_wmseg.nii.gz'
+wmdti='/corral-repl/utexas/poldracklab/data/selftracking/stanford_diffusion/combined_eddy_corrected/wm_dtimask.nii.gz'
+
 if not os.path.exists(wmdti):
     print 'making wm_dtimask'
     flirt=fsl.FLIRT()
-    flirt.inputs.in_file='/corral-repl/utexas/poldracklab/data/selftracking/freesurfer/mri/aparc+aseg_reg2wasu111.nii.gz'
-    flirt.inputs.out_file=warped_subcortical_parcels
+    flirt.inputs.in_file=wmseg
+    
+    flirt.inputs.out_file=wmdti
     flirt.inputs.reference='/corral-repl/utexas/poldracklab/data/selftracking/stanford_diffusion/combined_eddy_corrected/all_pe1_unwarped_dwi_ec_lowb_brain.nii.gz'
 
     flirt.inputs.in_matrix_file=invmat
     flirt.inputs.interp='nearestneighbour'
     flirt.inputs.apply_xfm=True
     flirt.run()
+
+csfseg='/corral-repl/utexas/poldracklab/data/selftracking/FREESURFER_fs_LR/7112b_fs_LR/sub013_mpr1_on_TRIO_Y_NDC_111_brain_pve_0.nii.gz'
+csfdti='/corral-repl/utexas/poldracklab/data/selftracking/stanford_diffusion/combined_eddy_corrected/csf_dtimask.nii.gz'
+
+if not os.path.exists(csfdti):
+    print 'making csf_dtimask'
+    flirt=fsl.FLIRT()
+    flirt.inputs.in_file=csfseg
     
+    flirt.inputs.out_file=csfdti
+    flirt.inputs.reference='/corral-repl/utexas/poldracklab/data/selftracking/stanford_diffusion/combined_eddy_corrected/all_pe1_unwarped_dwi_ec_lowb_brain.nii.gz'
+
+    flirt.inputs.in_matrix_file=invmat
+    flirt.inputs.interp='nearestneighbour'
+    flirt.inputs.apply_xfm=True
+    flirt.run()
+
 # make separate parcel and termination masks
 
 combined_parcels='/corral-repl/utexas/poldracklab/data/selftracking/stanford_diffusion/combined_eddy_corrected/parcels_combined_dtispace.nii.gz'
@@ -105,15 +124,18 @@ for i in numpy.unique(parceldata):
     if i==0:
         continue
     outfile=os.path.join(seed_dir,'parcel%03d.nii.gz'%i)
-    tmp=(parceldata==i).astype('float32')
-    newimg=nibabel.Nifti1Image(tmp,affine=parcelimg.get_affine())
-    newimg.to_filename(outfile)
+    if not os.path.exists(outfile):
+        tmp=(parceldata==i).astype('float32')
+        newimg=nibabel.Nifti1Image(tmp,affine=parcelimg.get_affine())
+        newimg.to_filename(outfile)
+
     
     outfile=os.path.join(term_dir,'parcel%03d.nii.gz'%i)
-    tmp=(parceldata>0).astype('float32')
-    tmp[parceldata==i]=0
-    newimg=nibabel.Nifti1Image(tmp,affine=parcelimg.get_affine())
-    newimg.to_filename(outfile)
+    if not os.path.exists(outfile):
+        tmp=(parceldata>0).astype('float32')
+        tmp[parceldata==i]=0
+        newimg=nibabel.Nifti1Image(tmp,affine=parcelimg.get_affine())
+        newimg.to_filename(outfile)
     
  
                      
