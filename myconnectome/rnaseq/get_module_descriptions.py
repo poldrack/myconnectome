@@ -3,6 +3,7 @@ get module descriptions from annotation files
 """
 
 import os,glob
+import numpy
 
 basedir=os.environ['MYCONNECTOME_DIR']
 rnaseqdir=os.path.join(basedir,'rna-seq')
@@ -10,18 +11,28 @@ wgcnadir=os.path.join(rnaseqdir,'WGCNA')
 
     
 def get_module_descriptions():  
-    david_pathfiles=glob.glob(os.path.join(wgcnadir,'DAVID_thr8_prefilt_rin3PCreg_path_set*.txt'))
-    david_pathfiles.sort()
-    
+    modlines=open(os.path.join(wgcnadir,'hubgenes_thr8_prefilt_rinPCreg.txt')).readlines()
+    modules=[int(i.split()[0]) for i in modlines]
+    david_pathfiles=[os.path.join(wgcnadir,'DAVID_thr8_prefilt_rin3PCreg_path_set%03d.txt'%i) for i in modules]
+
     module_desc=[]
+    
     for file in david_pathfiles:
-        f=open(file)
-        lines=f.readlines()
-        f.close()
-        if len(lines)==0:
-            f=open(file.replace('_path_','_GO_'))
+        lines=[]
+        try:
+            f=open(file)
             lines=f.readlines()
             f.close()
+        except:
+            pass
+        # if there is a pathway, use it - otherwise use GO terms
+        if len(lines)==0:
+            try:
+                f=open(file.replace('_path_','_GO_'))
+                lines=f.readlines()
+                f.close()
+            except:
+                pass
         if len(lines)==0:
             module_desc.append('no enrichment')
         else:
