@@ -51,7 +51,16 @@ for i in modules:
     f.write(i+'\n')
 f.close()
 
-h=numpy.histogram(genenums,numpy.arange(0.5,numpy.max(genenums)+0.5,1))
-for i in range(len(h[0])):
+f=open(os.path.join(basedir,'rna-seq/WGCNA/module_descriptions.txt'))
+mod_desc=[i.strip().split('\t')[1] for i in f.readlines()]
+f.close()
+
+h=numpy.histogram(genenums,numpy.arange(0.5,numpy.max(genenums)+1.5,1))
+idx=numpy.argsort(h[0])[::-1]
+for j in range(len(h[0])):
+    i=idx[j]
     if h[0][i]>0:
-        print i+1,h[0][i]
+        print i+1,mod_desc[i],h[0][i]
+        
+
+
