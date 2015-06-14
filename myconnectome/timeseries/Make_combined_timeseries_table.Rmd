@@ -28,9 +28,11 @@ for (r in resultfiles) {
     data=rbind(data,df)
     }
 }
+cat(dim(data))
 data$arima.p[is.na(data$arima.p)]=1
-data=data[data$cor.val>0.3,]
 data$pval_bh=p.adjust(data$arima.p,method='BH')
+data_full=data
+data=data[data$cor.val>0.3,]
 
 idx=order(data$pval_bh)
 
