@@ -41,16 +41,16 @@ for i in range(len(roipaths)):
 
 
 f1=open('run_all_ptx_%sdistcorr_term_set1.sh'%distcorr,'w')
-f2=open('run_all_ptx_%sdistcorr_term_set2.sh'%distcorr,'w')
+#f2=open('run_all_ptx_%sdistcorr_term_set2.sh'%distcorr,'w')
 
 for i in range(len(roipaths)):
 
   cmd='probtrackx2 -s %s/merged -m %s -x %s/parcel%03d.nii.gz -o roi%03d --opd --os2t --dir=%s/probtrackx_%sdistcorr_roi%03d --targetmasks=%s/paths_roi%03d --waypoints=%s/wm_dtimask.nii.gz --avoid=%s/csf_dtimask.nii.gz -P 50000  --stop=%s/parcel%03d.nii.gz'%(bpxdir,nodif,roidir,i+1,i+1,outdir,distcorr,i+1,pathdir,i+1,basedir,basedir,termdir,i+1)  # --stop=%s/roi%03d.nii.gz 
   if distcorr=='':
         cmd=cmd+' --pd'
-        if i<(len(roipaths)/2):
+        if i<100000: # (len(roipaths)/2):
           f1.write(cmd+'\n')
         else:
           f2.write(cmd+'\n')
 f1.close()
-f2.close()
+#f2.close()
