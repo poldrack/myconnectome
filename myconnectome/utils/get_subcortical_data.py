@@ -9,10 +9,7 @@ import os,nibabel,numpy,sys
 
 outdir='/corral-repl/utexas/poldracklab/data/selftracking/aseg_data'
 
-def get_subcortical_data(datafile):
-
-    datafile=sys.argv[1]
-    
+def get_subcortical_data(datafile):    
     dataimg=nibabel.load(datafile)
     
     data=dataimg.get_data()
