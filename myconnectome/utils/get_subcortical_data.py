@@ -26,8 +26,11 @@ def get_subcortical_data(datafile,basedir='/corral-repl/utexas/poldracklab/data/
     
     asegkeys=asegfields.keys()
     asegkeys.sort()
-    
-    roidata=numpy.zeros((data.shape[3],len(asegkeys)))
+    if len(data.shape)==3:
+        ntp=1
+    else:
+        ntp=data.shape[3]
+    roidata=numpy.zeros((ntp,len(asegkeys)))
     
     for k in range(len(asegkeys)):
         kvox=numpy.where(asegdata==asegkeys[k])
