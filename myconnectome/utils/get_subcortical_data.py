@@ -34,7 +34,11 @@ def get_subcortical_data(datafile,basedir='/corral-repl/utexas/poldracklab/data/
     
     for k in range(len(asegkeys)):
         kvox=numpy.where(asegdata==asegkeys[k])
-        for tp in range(ntp):
+        if ntp==1:
+            tmp=data[:,:,:]
+            roidata[0,k]=numpy.mean(tmp[kvox])
+        else:            
+          for tp in range(ntp):
             tmp=data[:,:,:,tp]
             roidata[tp,k]=numpy.mean(tmp[kvox])
             
