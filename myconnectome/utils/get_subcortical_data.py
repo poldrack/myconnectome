@@ -7,19 +7,17 @@ import os,nibabel,numpy,sys
 
 
 
-outdir='/corral-repl/utexas/poldracklab/data/selftracking/aseg_data'
-
-def get_subcortical_data(datafile):    
+def get_subcortical_data(datafile,basedir='/corral-repl/utexas/poldracklab/data/selftracking'):    
     dataimg=nibabel.load(datafile)
     
     data=dataimg.get_data()
     
-    aseg='/corral-repl/utexas/poldracklab/data/selftracking/freesurfer/mri/aparc+aseg_reg2wasu333.nii.gz'
+    aseg=os.path.join(basedir,'freesurfer/mri/aparc+aseg_reg2wasu333.nii.gz')
     
     asegimg=nibabel.load(aseg)
     asegdata=asegimg.get_data()
     
-    f=open('/corral-repl/utexas/poldracklab/data/selftracking/code/aseg_fields.txt')
+    f=open(os.path.join(basedir,'/aseg/aseg_fields.txt'))
     asegfields={}
     for l in f.readlines():
         l_s=l.strip().split()
