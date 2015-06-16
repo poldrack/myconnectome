@@ -17,7 +17,7 @@ def get_subcortical_data(datafile,basedir='/corral-repl/utexas/poldracklab/data/
     asegimg=nibabel.load(aseg)
     asegdata=asegimg.get_data()
     
-    f=open(os.path.join(basedir,'/aseg/aseg_fields.txt'))
+    f=open(os.path.join(basedir,'aseg/aseg_fields.txt'))
     asegfields={}
     for l in f.readlines():
         l_s=l.strip().split()
