@@ -187,7 +187,7 @@ for i in range(len(subdirs)):
             seriesnum=int(os.path.dirname(taskfile).split('_')[-1])
             infodict=get_infodict_by_num(seriesnum,dcmhdr)
             print infodict['Series Description']
-            outfile=os.path.join(outdir,'%s/functional/sub00001_%s_task%03d_run%03d.nii.gz'%(sesscode,sesscode,t+1,tf+1))
+            outfile=os.path.join(outdir,'%s/functional/sub00001_%s_task%03d_run%03d_bold.nii.gz'%(sesscode,sesscode,t+1,tf+1))
             if not os.path.exists(outfile) or overwrite:
                 logged_copy(taskfile,outfile)
             infofile=outfile.replace('nii.gz','json')
