@@ -1,8 +1,8 @@
 import numpy
 import os
 
-def get_diary_data():
-    basedir='/Users/poldrack/code/selftracking/analysis_metadata'
+basedir=os.environ['MYCONNECTOME_DIR']
+
     
 def get_matching_datasets(d1,d2,s1,s2):
     """
@@ -19,7 +19,7 @@ def get_matching_datasets(d1,d2,s1,s2):
     return d1_joint, d2_joint,joint_subs
 
 def load_immport_data():
-    f=open('/Users/poldrack/Dropbox/data/selftracking/rna-seq/ImmPort/ImmPort_eigengenes_rinregressed.txt')
+    f=open(os.path.join(basedir,'rna-seq/ImmPort/ImmPort_eigengenes_rinregressed.txt'))
     lines=[]
     gene_names=[]
     for l in f.readlines():
@@ -28,13 +28,13 @@ def load_immport_data():
             lines.append([float(l_s[i]) for i in range(1,len(l_s))])
     f.close()
     data=numpy.array(lines).T
-    subcodes=[i.strip() for i in open('/Users/poldrack/Dropbox/data/selftracking/rna-seq/pathsubs.txt').readlines()]
+    subcodes=[i.strip() for i in open(os.path.join(basedir,'rna-seq/pathsubs.txt')).readlines()]
     return data,gene_names,subcodes
     
     
 def load_rnaseq_data(use_wgcna=True):
     if use_wgcna:
-        f=open('/Users/poldrack/Dropbox/data/selftracking/rna-seq/WGCNA/MEs-thr8-rinreg-48sess.txt')
+        f=open(os.path.join(basedir,'rna-seq/WGCNA/MEs-thr8-rinreg-48sess.txt'))
         header=[i.replace('"','') for i in f.readline().strip().split()]
         MEs=[int(i.replace('ME','')) for i in header]
         sort_idx=numpy.argsort(MEs)
@@ -45,9 +45,9 @@ def load_rnaseq_data(use_wgcna=True):
             lines.append([float(l_s[i]) for i in sort_idx])
         f.close()
         data=numpy.array(lines)
-        subcodes=[i.strip() for i in open('/Users/poldrack/Dropbox/data/selftracking/rna-seq/pathsubs.txt').readlines()]
+        subcodes=[i.strip() for i in open(os.path.join(basedir,'rna-seq/pathsubs.txt')).readlines()]
     else:  # use full data
-        f=open('/Users/poldrack/Dropbox/data/selftracking/rna-seq/varstab_data_rinregressed.txt')   
+        f=open(os.path.join(basedir,'rna-seq/varstab_data_rinregressed.txt'))
         subcodes=[i.replace('"','') for i in f.readline().strip().split(' ')]
         
         lines=[]
@@ -58,7 +58,7 @@ def load_rnaseq_data(use_wgcna=True):
             gene_names.append(l_s[0].replace('"',''))
         f.close()
         data=numpy.array(lines).T
-    f=open('/Users/poldrack/Dropbox/data/selftracking/rna-seq/drawdates.txt')  
+    f=open(os.path.join(basedir,'rna-seq/drawdates.txt'))
     dates=[i for i in f.readline().split('\r')]
     f.close()
     return data,gene_names,dates,subcodes
@@ -69,9 +69,9 @@ def load_behav_data(subcodes_limit=None,xvars=None,allsubs=False):
     """
     
     if allsubs:
-        f=open('/Users/poldrack/code/selftracking/analysis_metadata/trackingdata.txt')
+        f=open(os.path.join(basedir,'behavior/trackingdata.txt'))
     else:
-        f=open('/Users/poldrack/code/selftracking/analysis_metadata/trackingdata_goodscans.txt')
+        f=open(os.path.join(basedir,'behavior/trackingdata_goodscans.txt'))
     header=[i for i in f.readline().strip().split('\t')]
     variables=header[2:]  # remove 
     lines=[]
@@ -112,7 +112,7 @@ def load_behav_data(subcodes_limit=None,xvars=None,allsubs=False):
     return behavdata,variables,dates,subcodes
 
 def load_food_data():
-    f=open('/Users/poldrack/code/selftracking/analysis_metadata/food_data.txt')
+    f=open(os.path.join(basedir,'behavior/food_data.txt'))
     header=f.readline().strip().split()
     lines=[i.strip() for i in f.readlines()]
     subcodes=[]
@@ -129,11 +129,11 @@ def load_food_data():
     return data,header[1:],food_dates,subcodes
 
 def load_metab_data():
-    f=open('/Users/poldrack/Dropbox/data/selftracking/rna-seq/drawdates.txt')
+    f=open(os.path.join(basedir,'rna-seq/drawdates.txt'))
     dates=[i.strip() for i in f.readlines()]
     f.close()
-    subcodes=[i.strip() for i in open('/Users/poldrack/Dropbox/data/selftracking/rna-seq/pathsubs.txt').readlines()]
-    f=open('/Users/poldrack/Dropbox/data/selftracking/proteomics/apclust_eigenconcentrations.txt')
+    subcodes=[i.strip() for i in open(os.path.join(basedir,'rna-seq/pathsubs.txt')).readlines()]
+    f=open(os.path.join(basedir,'metabolomics/apclust_eigenconcentrations.txt'))
     header=f.readline()
     lines=f.readlines()
     f.close()
@@ -142,49 +142,49 @@ def load_metab_data():
         l_s=[float(i) for i in l.strip().split()[1:]]
         data.append(l_s)
     data=numpy.array(data)
-    clust_desc=[i.strip() for i in open('/Users/poldrack/Dropbox/data/selftracking/proteomics/apclust_descriptions.txt').readlines()]
+    clust_desc=[i.strip() for i in open(os.path.join(basedir,'metabolomics/apclust_descriptions.txt')).readlines()]
     return data,clust_desc,dates,subcodes
 
 
 def load_wincorr_data():
-    wincorr=numpy.loadtxt('/Users/poldrack/Dropbox/data/selftracking/rsfmri/module_within_corr.txt')
+    wincorr=numpy.loadtxt(os.path.join(basedir,'rsfmri/module_within_corr.txt'))
     netnames=['1_Default','2_Second_Visual','3_Frontal-Parietal','4.5_First_Visual_V1plus',
               '5_First_Dorsal_Attention','6_Second_Dorsal_Attention','7_Ventral_Attention-Language',
               '8_Salience','9_Cingulo-opercular','10_Somatomotor','11.5_Frontal-Parietal_Other',
               '15_Parietal_Episodic_Retrieval','16_Parieto-Occipital']
     
-    subcodes=[i.strip() for i in open('/Users/poldrack/Dropbox/data/selftracking/rsfmri/subcodes.txt').readlines()]
+    subcodes=[i.strip() for i in open(os.path.join(basedir,'subcodes.txt')).readlines()]
     return wincorr,netnames,subcodes
     
 def load_fullcorr_data():
-    fullcorr=numpy.load('/Users/poldrack/Dropbox/data/selftracking/rsfmri/corrdata.npy')
-    subcodes=[i.strip() for i in open('/Users/poldrack/Dropbox/data/selftracking/rsfmri/subcodes.txt').readlines()]
+    fullcorr=numpy.load(os.path.join(basedir,'rsfmri/corrdata.npy'))
+    subcodes=[i.strip() for i in open(os.path.join(basedir,'subcodes.txt')).readlines()]
 
     return fullcorr,subcodes
 
-def load_partialcorr_data(cross_thresh=False,thresh=0.05):
-    thresh_dict={0.01:0,0.025:1,0.05:2,0.075:3,0.1:4}
-    
-    partialcorr=numpy.load('/Users/poldrack/Dropbox/data/selftracking/rsfmri/huge_adj.npy')
-    subcodes=[i.strip() for i in open('/Users/poldrack/Dropbox/data/selftracking/rsfmri/subcodes.txt').readlines()]
-    if not cross_thresh:
-        pc=partialcorr[:,thresh_dict[thresh],:]
-        pc=pc.squeeze()
-    else:
-        pc=numpy.sum(partialcorr,1)
-    v=numpy.var(pc,0)
-    pc_good=pc[:,v>0]
-    return pc_good,subcodes
+#def load_partialcorr_data(cross_thresh=False,thresh=0.05):
+#    thresh_dict={0.01:0,0.025:1,0.05:2,0.075:3,0.1:4}
+#    
+#    partialcorr=numpy.load('/Users/poldrack/Dropbox/data/selftracking/rsfmri/huge_adj.npy')
+#    subcodes=[i.strip() for i in open('/Users/poldrack/Dropbox/data/selftracking/rsfmri/subcodes.txt').readlines()]
+#    if not cross_thresh:
+#        pc=partialcorr[:,thresh_dict[thresh],:]
+#        pc=pc.squeeze()
+#    else:
+#        pc=numpy.sum(partialcorr,1)
+#    v=numpy.var(pc,0)
+#    pc_good=pc[:,v>0]
+#    return pc_good,subcodes
 
-def load_illness_data():
-    f=open('/Users/poldrack/code/selftracking/analysis_metadata/health_and_drawdates.txt')
-    lines=[i.strip().split() for i in f.readlines()]
-    f.close()
-    illness=[]
-    for l in lines:
-        if not l[1]=='none':
-            illness.append(1)
-        else:
-            illness.append(0)
-    illness=numpy.array(illness)
-    return illness
+#def load_illness_data():
+#    f=open('/Users/poldrack/code/selftracking/analysis_metadata/health_and_drawdates.txt')
+#    lines=[i.strip().split() for i in f.readlines()]
+#    f.close()
+#    illness=[]
+#    for l in lines:
+#        if not l[1]=='none':
+#            illness.append(1)
+#        else:
+#            illness.append(0)
+#    illness=numpy.array(illness)
+#    return illness
