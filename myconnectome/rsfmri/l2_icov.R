@@ -2,8 +2,6 @@ library(rags2ridges)
 args <- commandArgs(trailingOnly = TRUE)
 subcode=args[1]
 
-subcode='sub014'
-
 
 basedir='/scratch/projects/UT/poldracklab/poldrack/selftracking/myconnectome/rsfmri/l2icov'
 
@@ -17,11 +15,11 @@ data_orig=data_orig[51:dim(data_orig)[1],]
 
 data=data_orig[tmask==1,]
 
-o=optPenalty.aLOOCV(as.matrix(data),lambdaMin=0.0001,lambdaMax=1,step=3,graph=FALSE,verbose=TRUE)
+o=optPenalty.aLOOCV(as.matrix(data),lambdaMin=0.0001,lambdaMax=1,step=100,graph=FALSE,verbose=FALSE)
 
 cat(sprintf('%s: optLambda %f\n',subcode,o$optLambda))
 
-pcormtx=pcor(o$optPrec)
+pcormtx=pcor(symm(o$optPrec))
 
 
 outfile=sprintf('%s/%s_pcor.txt',basedir,subcode)
