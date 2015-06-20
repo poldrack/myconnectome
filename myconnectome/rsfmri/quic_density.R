@@ -3,13 +3,20 @@ args <- commandArgs(trailingOnly = TRUE)
 subcode=args[1]
 density=args[2]
 
-basedir='/scratch/projects/UT/poldracklab/poldrack/selftracking/MRI/analyses/rsfmri_analyses/quic'
+basedir='/scratch/projects/UT/poldracklab/poldrack/selftracking/myconnectome/rsfmri/quic'
 
-data=read.table(sprintf('/scratch/projects/UT/poldracklab/poldrack/selftracking/MRI/combined_data_scrubbed/%s.txt',subcode))
+data_orig=read.table(sprintf('/scratch/projects/UT/poldracklab/poldrack/selftracking/MRI/combined_data_scrubbed/%s.txt',subcode))
+tmask_orig=read.table(sprintf('/scratch/projects/UT/poldracklab/poldrack/selftracking/MRI/tmasks/%s.txt',subcode))$V1
+
+# skip first 50 timepoints
+tmask=tmask_orig[51:dim(data_orig)[1]]
+data_orig=data_orig[51:dim(data_orig)[1],]
+
+data=data_orig[tmask==1,]
 
 outfile=sprintf('%s/quic_precision_%s/%s_precision.txt',basedir,density,subcode)
 
-datacov=cov(data)
+datacov=cor(data)
 
 target_density=as.numeric(density)
 
