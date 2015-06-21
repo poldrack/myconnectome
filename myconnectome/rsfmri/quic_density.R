@@ -1,7 +1,10 @@
 library(QUIC)
+library(rags2ridges)
 args <- commandArgs(trailingOnly = TRUE)
 subcode=args[1]
 density=args[2]
+#subcode='sub014'
+#density='0.005'
 
 basedir='/scratch/projects/UT/poldracklab/poldrack/selftracking/myconnectome/rsfmri/quic'
 
@@ -14,7 +17,7 @@ data_orig=data_orig[51:dim(data_orig)[1],]
 
 data=data_orig[tmask==1,]
 
-outfile=sprintf('%s/quic_precision_%s/%s_precision.txt',basedir,density,subcode)
+outfile=sprintf('%s/quic_precision_%s/%s_pcor.txt',basedir,density,subcode)
 
 datacov=cor(data)
 
@@ -96,5 +99,5 @@ while (d_new > target_density) {
 
 print(c(subcode,'best rho:',rho))
 print(c('density:',d_new))
-
-write(q$quic.result$X,file=outfile,sep='\t',ncolumns=dim(q$quic.result$X)[1])
+pc=pcor(symm(q$quic.result$X))
+write(pc,file=outfile,sep='\t',ncolumns=dim(pc)[1])
