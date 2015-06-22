@@ -26,61 +26,61 @@ def z_to_r(z):
 
 basedir=os.environ['MYCONNECTOME_DIR']
 
-corrdata,subcodes=load_fullcorr_data()
-behavdata=load_behav_data()
-dates=behavdata[2]
-corrdata=r_to_z(corrdata)
-
-l2data=numpy.load(os.path.join(basedir,'rsfmri/l2_utr_data.npy'))
-l2data=r_to_z(l2data)
-
-meancorrdata=numpy.mean(corrdata,0)
-meanl2data=numpy.mean(l2data,0)
-
-corrsim_mean=numpy.zeros(corrdata.shape[0])
-corrsim_all=numpy.zeros((corrdata.shape[0],corrdata.shape[0]))
-corrsim_l2_mean=numpy.zeros(corrdata.shape[0])
-corrsim_l2_all=numpy.zeros((corrdata.shape[0],corrdata.shape[0]))
-
-for sess in range(corrdata.shape[0]):
-    corrsim_mean[sess]=numpy.corrcoef(meancorrdata,corrdata[sess,:])[0,1]
-    corrsim_l2_mean[sess]=numpy.corrcoef(meanl2data,l2data[sess,:])[0,1]
-    for s2 in range(corrdata.shape[0]):
-        if sess==s2:
-            continue
-        corrsim_all[sess,s2]=numpy.corrcoef(corrdata[sess,:],corrdata[s2,:])[0,1]
-        corrsim_l2_all[sess,s2]=numpy.corrcoef(l2data[sess,:],l2data[s2,:])[0,1]
+def connectome_similarity_timeseries():
+    behavdata=load_behav_data()
+    dates=behavdata[2]
+    try:
+        corrsim_all=numpy.loadtxt(os.path.join(basedir,'rsfmri/corrsim_all.txt'))
+        corrsim_mean=numpy.loadtxt(os.path.join(basedir,'rsfmri/corrsim_mean.txt'))
+    except:
+        corrdata,subcodes=load_fullcorr_data()
+        corrdata=r_to_z(corrdata)
+        
+        l2data=numpy.load(os.path.join(basedir,'rsfmri/l2_utr_data.npy'))
+        l2data=r_to_z(l2data)
+        
+        meancorrdata=numpy.mean(corrdata,0)
+        meanl2data=numpy.mean(l2data,0)
+        
+        corrsim_mean=numpy.zeros(corrdata.shape[0])
+        corrsim_all=numpy.zeros((corrdata.shape[0],corrdata.shape[0]))
+        corrsim_l2_mean=numpy.zeros(corrdata.shape[0])
+        corrsim_l2_all=numpy.zeros((corrdata.shape[0],corrdata.shape[0]))
+        
+        for sess in range(corrdata.shape[0]):
+            corrsim_mean[sess]=numpy.corrcoef(meancorrdata,corrdata[sess,:])[0,1]
+            corrsim_l2_mean[sess]=numpy.corrcoef(meanl2data,l2data[sess,:])[0,1]
+            for s2 in range(corrdata.shape[0]):
+                if sess==s2:
+                    continue
+                corrsim_all[sess,s2]=numpy.corrcoef(corrdata[sess,:],corrdata[s2,:])[0,1]
+                corrsim_l2_all[sess,s2]=numpy.corrcoef(l2data[sess,:],l2data[s2,:])[0,1]
+            
+        numpy.savetxt(os.path.join(basedir,'rsfmri/corrsim_all.txt'),corrsim_all)
+        numpy.savetxt(os.path.join(basedir,'rsfmri/corrsim_mean.txt'),corrsim_mean)
+        numpy.savetxt(os.path.join(basedir,'rsfmri/l2sim_all.txt'),corrsim_l2_all)
+        numpy.savetxt(os.path.join(basedir,'rsfmri/l2sim_mean.txt'),corrsim_l2_mean)
     
-numpy.savetxt(os.path.join(basedir,'rsfmri/corrsim_all.txt'),corrsim_all)
-numpy.savetxt(os.path.join(basedir,'rsfmri/corrsim_mean.txt'),corrsim_mean)
-numpy.savetxt(os.path.join(basedir,'rsfmri/l2sim_all.txt'),corrsim_all)
-numpy.savetxt(os.path.join(basedir,'rsfmri/l2sim_mean.txt'),corrsim_mean)
+    corrsim_all[numpy.diag_indices(corrsim_all.shape[0])]=corrsim_mean
+    
+    plt.figure(figsize=[12,4])
+    
+    plt.plot(corrsim_mean,linewidth=2)
+    plt.ylabel('Correlation with mean connectivity',fontsize=18)
+    plt.xticks(range(0,84,9),[dates[i] for i in range(0,84,9)],rotation=45)
+    plt.savefig(os.path.join(basedir,'rsfmri/mean_similarity_plot.pdf'),bbox_inches='tight')
+    
+    plt.figure(figsize=[14,12])
+    plt.imshow(corrsim_all,interpolation='nearest',origin='upper')
+    plt.yticks(range(0,84,9),[dates[i] for i in range(0,84,9)])
+    plt.colorbar(shrink=0.6)
+    plt.tick_params(
+        axis='x',          # changes apply to the x-axis
+        which='both',      # both major and minor ticks are affected
+        bottom='off',      # ticks along the bottom edge are off
+        top='off',         # ticks along the top edge are off
+        labelbottom='off') # labels along the bottom edge are off
+    plt.savefig(os.path.join(basedir,'rsfmri/session_corr_similarity_heatmap.pdf'))
 
-corrsim_all[numpy.diag_indices(corrsim_all.shape[0])]=corrsim_mean
-corrsim_l2_all[numpy.diag_indices(corrsim_all.shape[0])]=corrsim_l2_mean
-
-plt.figure(figsize=[16,8])
-plt.plot(corrsim_mean,linewidth=2)
-#plt.hold(True)
-#plt.plot(corrsim_l2_mean,linewidth=2)
-plt.ylabel('Correlation with mean connectivity',fontsize=18)
-plt.xticks(range(0,84,9),[dates[i] for i in range(0,84,9)],rotation=45)
-#plt.legend(['Full correlation','Partial correlation'])
-plt.savefig(os.path.join(basedir,'rsfmri/mean_similarity_plot.pdf'))
-
-plt.figure(figsize=[12,12])
-plt.imshow(corrsim_all,interpolation='nearest',origin='upper')
-plt.yticks(range(0,84,9),[dates[i] for i in range(0,84,9)])
-plt.xticks(range(0,84,9),[dates[i] for i in range(0,84,9)],rotation=45)
-plt.colorbar(shrink=0.6)
-
-plt.savefig(os.path.join(basedir,'rsfmri/session_corr_similarity_heatmap.pdf'))
-
-plt.figure(figsize=[12,12])
-plt.imshow(corrsim_l2_all,interpolation='nearest',origin='upper')
-plt.yticks(range(0,84,9),[dates[i] for i in range(0,84,9)])
-plt.xticks(range(0,84,9),[dates[i] for i in range(0,84,9)],rotation=45)
-plt.colorbar(shrink=0.6)
-
-plt.savefig(os.path.join(basedir,'rsfmri/session_l2_similarity_heatmap.pdf'))
-
+if __name__ == "__main__":
+    connectome_similarity_timeseries()
