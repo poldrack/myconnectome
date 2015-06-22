@@ -21,22 +21,12 @@ def z_to_r(z):
     # inverse transform
     return (numpy.exp(2.0*z) - 1)/(numpy.exp(2.0*z) + 1)
 
-def pcor_from_precision(P,zero_diagonal=1):
-    # given a precision matrix, compute the partial correlation matrix
-    # based on wikipedia page: http://en.wikipedia.org/wiki/Partial_correlat
-    #Using_matrix_inversion
-    pcor=numpy.zeros(P.shape)
-    for i in range(P.shape[0]):
-        for j in range(P.shape[1]):
-            pcor[i,j]=P[i,j]/numpy.sqrt(P[i,i]*P[j,j])
-            if zero_diagonal==1 and i==j:
-                pcor[i,j]=0
-    return pcor
-
 
 basedir=os.environ['MYCONNECTOME_DIR']
 use_abs_corr=False
-
+if use_abs_corr:
+    print 'USING ABOLSUTE CORRELATION VALUES!'
+    
 dtidata=numpy.loadtxt(os.path.join(basedir,'diffusion/tracksumm_distcorr.txt'),skiprows=1)
 dtidata=dtidata[:,1:]
 dtidata=dtidata+dtidata.T
@@ -56,15 +46,19 @@ meandti=dtidata[utr]
 
 task_connectome=numpy.loadtxt(os.path.join(basedir,'taskfmri/task_connectome.txt'))
 taskdata=task_connectome[utr]
+if use_abs_corr:
+    taskdata=numpy.abs(taskdata)
 
 l2data=numpy.load(os.path.join(basedir,'rsfmri/l2_utr_data.npy'))
 l2mean=z_to_r(numpy.mean(r_to_z(l2data),0))
+if use_abs_corr:
+    l2mean=numpy.abs(l2mean)
 
 randshuffle=False
 
 
-tvals=[0.005,0.01,0.025,0.05,0.075] #numpy.arange(0.001,0.5,0.005)
-tstr=['0.005','0.01','0.025','0.05','0.075']
+tvals=[0.005,0.01,0.025,0.05,0.075,0.1] #numpy.arange(0.001,0.5,0.005)
+tstr=['0.005','0.01','0.025','0.05','0.075','0.1']
 nrand=1000
 overlap={'rs-dti':numpy.zeros(len(tvals)),'rs-task':numpy.zeros(len(tvals)),
       'dti-task':numpy.zeros(len(tvals)),'l1-dti':numpy.zeros(len(tvals)),
@@ -79,12 +73,16 @@ l2thresh=numpy.zeros(len(tvals))
 l1thresh=numpy.zeros(len(tvals))
 
 meandti_rand=meandti.copy()
+l1data=numpy.load(os.path.join(basedir,'rsfmri/quic_utr_data_0.1.npy'))
+l1mean=z_to_r(numpy.mean(r_to_z(l1data),0))
+if use_abs_corr:
+    l1mean=numpy.abs(l1mean)
 
 for t in range(len(tvals)):        
     dtibin=meandti>0
     thresh=tvals[t]
-    l1data=numpy.load(os.path.join(basedir,'rsfmri/quic_utr_data_%s.npy'%tstr[t]))
-    l1mean=z_to_r(numpy.mean(r_to_z(l1data),0))
+    #l1data=numpy.load(os.path.join(basedir,'rsfmri/quic_utr_data_%s.npy'%tstr[t]))
+    #l1mean=z_to_r(numpy.mean(r_to_z(l1data),0))
     rsthresh[t]=scipy.stats.scoreatpercentile(meancorr,100-100*thresh)
     dtithresh[t]=scipy.stats.scoreatpercentile(meandti,100-100*thresh)
     taskthresh[t]=scipy.stats.scoreatpercentile(taskdata,100-100*thresh)
@@ -126,5 +124,6 @@ plt.plot(tvals,overlap['rs-dti'],'r',tvals,overlap['l1-dti'],'g',tvals,overlap['
 plt.legend(['Full correlation','Partial correlation [L1]','Partial correlation [L2]','Task'])
 plt.xlabel('Density threshold',fontsize=16)
 plt.ylabel('Proportion of DTI overlap',fontsize=16)
+plt.xlim(0.0,0.11)
 plt.savefig(os.path.join(basedir,'rsfmri/rsfmri_diffusion_overlap.pdf'))
-plt.show()
+
