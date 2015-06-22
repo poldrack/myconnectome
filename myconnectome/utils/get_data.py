@@ -63,7 +63,9 @@ def get_file(f,dataurl,outdir,logfile=None,overwrite=False,verbose=False):
     if not os.path.exists(os.path.dirname(outfile)):
         os.makedirs(os.path.dirname(outfile))
     if os.path.exists(outfile):
-        print 'file exists:',outfile
+        if verbose:
+            print 'file exists:',outfile
+        
     if not os.path.exists(outfile) or overwrite:
         data=[]
         tries=0
