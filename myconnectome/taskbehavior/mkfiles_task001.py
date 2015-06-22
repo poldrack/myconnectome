@@ -26,9 +26,10 @@ for infile in origfiles:
     data=pickle.load(open(infile,'rb'))
     infile=infile.replace('elf-tracking','elf_tracking')
     sessnum=int(os.path.basename(infile).split('_')[2])
-    sesscode='sess%03d'%sessnum
+
+    sesscode='ses%03d'%sessnum
     
-    outfile=os.path.join(outdir,'%s/%s/%s/functional/%s_task001_run001_events.tsv'%(outdir,subcode,sesscode,subcode))
+    outfile=os.path.join(outdir,'%s/%s/%s/functional/%s_%s_task001_run001_events.tsv'%(outdir,subcode,sesscode,subcode,sesscode))
     if not os.path.exists(os.path.dirname(outfile)):
         os.makedirs(os.path.dirname(outfile))
     f=open(outfile,'w')
