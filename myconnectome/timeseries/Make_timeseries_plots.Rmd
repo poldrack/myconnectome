@@ -231,6 +231,7 @@ pvals=as.data.frame(pvals)
 pvals[,3:4]=p_fdr
 names(pvals)=c('mean','var(resid)','Linear trend (p-val)','Poly trend (p-val)')
 row.names(pvals)=names(datamat)[1:12]
+write.table(pvals,file=sprintf('%s/timeseries/tables/wincorr_timeseries_stats.txt',basedir))
 
 kable(pvals)
 if (save_latex) {
@@ -267,6 +268,58 @@ for (varnum in 1:(dim(datamat)[2]-1)) {
 	title(sprintf('%s - lin p = %0.3f, poly p=%0.3f',names(datamat)[varnum],p_fdr[varnum,1],p_fdr[varnum,2]))
 }
 ```
+
+#### Get p-values for trends
+```{r wincorrModel}
+datamat=load_fmri_data(type='bwcorr') 
+varname='bwcorr'
+sample_spacing=1
+
+pvals=c()
+# first get fdr p-vals on trends
+for (varnum in 1:(dim(datamat)[2]-1)) {
+  alldays = seq(min(datamat$date), max(datamat$date), by='1 day')
+  alldays_weekly=seq(min(datamat$date), max(datamat$date), by='1 week')
+	
+	x=get_x_ts(datamat,alldays,scale=FALSE)
+	spacing=60
+	labels=seq(from=as.Date(datamat$date[1]),to=as.Date(datamat$date[length(datamat$date)]),by=spacing)
+	x_ts=na.approx(zoo(x[,varnum]),maxgap=7)
+	
+	x_interp=x_ts
+	x_interp=na.approx(zoo(x[,varnum]))
+	
+	s_poly=(seq(length(x[,varnum])) - mean(seq(length(x[,varnum]))))**2
+	s_poly=(s_poly - mean(s_poly))
+	s_poly=s_poly/max(s_poly)
+	s_lin=seq(length(x[,varnum])) - mean(seq(length(x[,varnum])))
+	s_lin=s_lin/max(s_lin)
+	
+	# take weekly mean for auto.arima analysis, due to NAs
+	a=auto.arima(x[,varnum],xreg=cbind(s_poly,s_lin),allowdrift=FALSE)
+	p=cwp(a)
+	poly.loc=which(names(data.frame(p)) == "s_poly")
+	lin.loc=which(names(data.frame(p)) == "s_lin")
+	pvals=rbind(pvals,c(mean(x_ts,na.rm=TRUE), var(a$residuals,na.rm=TRUE),p[4,lin.loc],p[4,poly.loc]))
+}
+p_fdr=p.adjust(pvals[,3:4],method='BH')
+p_fdr=matrix(p_fdr,length(p_fdr)/2,2)
+
+pvals=as.data.frame(pvals)
+pvals[,3:4]=p_fdr
+names(pvals)=c('mean','var(resid)','Linear trend (p-val)','Poly trend (p-val)')
+row.names(pvals)=names(datamat)[1:12]
+write.table(pvals,file=sprintf('%s/timeseries/tables/bwcorr_timeseries_stats.txt',basedir))
+kable(pvals)
+if (save_latex) {
+  k=kable(pvals,format='latex',digits=4)
+  write(k,file=sprintf('%s/timeseries/tables/bwcorr_timeseries_stats.tex',basedir))
+}
+
+
+```
+
+Skipping plots for bwcorr...
 
 ## RNA-seq
 
