@@ -149,12 +149,19 @@ def load_metab_data():
 def load_wincorr_data():
     wincorr=numpy.loadtxt(os.path.join(basedir,'rsfmri/module_within_corr.txt'))
     netnames=['1_Default','2_Second_Visual','3_Frontal-Parietal','4.5_First_Visual_V1plus',
-              '5_First_Dorsal_Attention','6_Second_Dorsal_Attention','7_Ventral_Attention-Language',
+              '5_Dorsal_Attention','7_Ventral_Attention',
               '8_Salience','9_Cingulo-opercular','10_Somatomotor','11.5_Frontal-Parietal_Other',
-              '15_Parietal_Episodic_Retrieval','16_Parieto-Occipital']
+              '15_Media_Parietal','16_Parieto-Occipital']
     
     subcodes=[i.strip() for i in open(os.path.join(basedir,'subcodes.txt')).readlines()]
     return wincorr,netnames,subcodes
+
+def load_bwcorr_data():
+    wincorr=numpy.loadtxt(os.path.join(basedir,'rsfmri/module_between_corr.txt'))
+    labels=[i.strip().replace('\t','-') for i in open(os.path.join(basedir,'rsfmri/bwmod_corr_labels.txt')).readlines()]
+    
+    subcodes=[i.strip() for i in open(os.path.join(basedir,'subcodes.txt')).readlines()]
+    return wincorr,labels,subcodes
     
 def load_fullcorr_data():
     fullcorr=numpy.load(os.path.join(basedir,'rsfmri/corrdata.npy'))
