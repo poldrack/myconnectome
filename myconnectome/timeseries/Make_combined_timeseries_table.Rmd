@@ -31,15 +31,16 @@ for (r in resultfiles) {
 cat(dim(data))
 data$arima.p[is.na(data$arima.p)]=1
 data$pval_bh=p.adjust(data$arima.p,method='BH')
+data$pval_bonf=p.adjust(data$arima.p,method='bonferroni')
 data_full=data
 data=data[abs(data$cor.val)>0.3,]
 
 idx=order(data$pval_bh)
 
 data=data[idx,]
-print(kable(data[1:40,c(12,1,13,2,3,4,10,11)],row.names=FALSE))
+print(kable(data[1:40,c(12,1,13,2,3,4,10,11,12)],row.names=FALSE))
 
-print(kable(data[1:40,c(12,1,13,2,3,4,10,11)],row.names=FALSE,format='latex'))
-
+kl=kable(data[1:40,c(12,1,13,2,3,4,10,11,12)],row.names=FALSE,format='latex'))
+write(kl,file=sprintf('%s/timeseries/combined_timeseries_table.tex',basedir))
 
 ```
