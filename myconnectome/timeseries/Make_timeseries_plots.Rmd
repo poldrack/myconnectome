@@ -273,7 +273,7 @@ for (varnum in 1:(dim(datamat)[2]-1)) {
 ```
 
 #### Get p-values for trends
-```{r wincorrModel}
+```{r bwcorrModel}
 datamat=load_fmri_data(type='bwcorr') 
 varname='bwcorr'
 sample_spacing=1
