@@ -38,9 +38,9 @@ data=data[abs(data$cor.val)>0.3,]
 idx=order(data$pval_bh)
 
 data=data[idx,]
-print(kable(data[1:40,c(12,1,13,2,3,4,10,11,12)],row.names=FALSE))
+print(kable(data[data$pval_bonf<0.05,c(12,1,13,2,3,4,10,11,14)],row.names=FALSE))
 
-kl=kable(data[1:40,c(12,1,13,2,3,4,10,11,12)],row.names=FALSE,format='latex'))
+kl=kable(data[data$pval_bonf<0.05,c(12,1,13,2,3,4,10,11,14)],row.names=FALSE,format='latex')
 write(kl,file=sprintf('%s/timeseries/combined_timeseries_table.tex',basedir))
 
 ```
