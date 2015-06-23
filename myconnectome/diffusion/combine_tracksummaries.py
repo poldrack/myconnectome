@@ -1,17 +1,21 @@
-
 import numpy
+import sys
 import os
 
+outdir = '/scratch/projects/UT/poldracklab/poldrack/selftracking/MRI/stanford_diffusion/combined_eddy_corrected'
 
+summdir = '%s/tracksummary' %(outdir)
 
-summdir='/scratch/projects/UT/poldracklab/poldrack/selftracking/MRI/DTI/tracksummary'
+summdata=numpy.zeros((630,630))
 
-summdata=numpy.zeros((634,634))
-
-for i in range(1,635):
+for i in range(1,631):
     data=numpy.loadtxt(os.path.join(summdir,'roi%03d.txt'%i))
     summdata[:,i-1]=data
     if numpy.max(data)>=1:
         print i,numpy.max(data)
 
-numpy.savetxt('tracksumm_distcorr.txt',summdata)
+df = pandas.DataFrame(summdata)
+outfile = '%s/tracksumm_distcorr.tsv'%(outdir)
+df.to_csv(outfile,sep="\t")
+print "Output matrix saved as %s" %(outfile)
+#numpy.savetxt('%s/tracksumm_distcorr.txt'%(outdir),summdata)

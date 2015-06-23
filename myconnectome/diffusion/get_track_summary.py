@@ -8,50 +8,36 @@ import numpy
 import nibabel
 
 try:
-    roinum=int(sys.argv[1])
+	roinum=int(sys.argv[1])
 except:
-    roinum=13
+	roinum=1
+#dirname=sys.argv[2]
 
-distcorr=True
+basedir='/scratch/projects/UT/poldracklab/poldrack/selftracking/MRI/stanford_diffusion/combined_eddy_corrected'
 
-if distcorr:
-    dc=''
-else:
-    dc='no'
+roidir=os.path.join(basedir,'probtrackx_outputs_distcorr_term/probtrackx_distcorr_roi%03d'%roinum)
 
-roidir='/scratch/projects/UT/poldracklab/poldrack/selftracking/MRI/DTI/probtrackx_outputs_%sdistcorr_term/probtrackx_%sdistcorr_roi%03d'%(dc,dc,roinum)
-seeddir='/scratch/projects/UT/poldracklab/poldrack/selftracking/MRI/DTI/parcels_dtispace'
+seeddir=basedir
 
-seedsizes=[int(i.strip()) for i in open('seedsizes').readlines()]
-nsamp=numpy.zeros(634)
+tracksummary=os.path.join(basedir,'tracksummary')
+if not os.path.exists(tracksummary):
+	os.mkdir(tracksummary)
 
-if roinum<311:
-        seedhemis='L'
-elif roinum>620:
-    seedhemis='S'
-else:
-        seedhemis='R'
+seedsizes=[int(i.strip()) for i in open('%s/seedsizes' %seeddir).readlines()]
+nsamp=numpy.zeros(630)
 
 waytotal=int(open(os.path.join(roidir,'waytotal')).readline().strip())
 
 
 if waytotal>0:
-  for i in range(1,635):
-    targdir='/scratch/projects/UT/poldracklab/poldrack/selftracking/MRI/DTI/probtrackx_outputs_%sdistcorr/probtrackx_%sdistcorr_roi%03d'%(dc,dc,i)
+  for i in range(1,631):
+    targdir=os.path.join(basedir,'probtrackx_outputs_distcorr_term/probtrackx_distcorr_roi%03d'%i)
     waytotal_targ=int(open(os.path.join(targdir,'waytotal')).readline().strip())
     if waytotal_targ==0:
         continue
-    if i<311:
-        hemis='L'
-    elif i>620:
-        hemis='S'
-    else:
-        hemis='R'
     if i==roinum:
         continue
-
-    img=nibabel.load(os.path.join(roidir,'seeds_to_parcels.%s.bin.clean.%03d.nii.gz'%(hemis,i))).get_data()
+    img = nibabel.load(os.path.join(roidir,'seeds_to_parcel%03d.nii.gz'%(i))).get_data()
     nsamp[i-1]=numpy.sum(img)/float((waytotal*seedsizes[i-1]))
-    
                                   
-numpy.savetxt('tracksummary/roi%03d.txt'%roinum,nsamp)
+numpy.savetxt('%s/roi%03d.txt'%(tracksummary,roinum),nsamp)
