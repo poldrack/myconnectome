@@ -2,39 +2,22 @@
 convert data from washu
 """
 
-import os,glob
+import os,glob,shutil
 from run_shell_cmd import run_shell_cmd
 
-basedir='/scratch/01329/poldrack/selftracking/ds031/washu'
-outbase='/scratch/01329/poldrack/selftracking/ds031/washu/nifti'
+basedir='/scratch/01329/poldrack/selftracking/washu'
+outbase='/scratch/01329/poldrack/selftracking/ds031/sub00001/ses105/functional'
 
 
 
-inputdirs=['vc39556','vc39556_2']
-inputdirs=[os.path.join(basedir,i) for i in inputdirs]
+infiles=glob.glob(os.path.join(basedir,'part*nii.gz'))
+infiles.sort()
 
-for i in range(len(inputdirs)):
-    indir=inputdirs[i]
-    subcode='sub%03d'%int(i+200)
-    incode=os.path.basename(indir)
-    outdir=os.path.join(outbase,subcode)
-
-    if not os.path.exists(outdir):
-        os.mkdir(outdir)
-
-    scan_info=[i.strip().split() for i in open(os.path.join(indir,'%s.studies.txt'%incode)).readlines()]
-
-    boldctr=1
-    for series in range(len(scan_info)):
-        if scan_info[series][2].find('RSFC')==0:
-            studydir=os.path.join(indir,'study%d'%int(series+1))
-            imafile=glob.glob(os.path.join(studydir,'*.IMA'))[0]
-            seriesdir=os.path.join(outdir,'BOLD/rest_run%03d'%boldctr)
-            if not os.path.exists(seriesdir):
-                os.makedirs(seriesdir)
-            outfile=os.path.join(seriesdir,'bold.nii.gz')
-            cmd='mri_convert %s %s'%(imafile,outfile)
-            print cmd
-            run_shell_cmd(cmd)
-            boldctr+=1
-    
+for i in range(len(infiles)):
+    infile=infiles[i]
+    outfile=os.path.join(outbase,'sub00001_ses105_rest001_run%03d_bold.nii.gz'%int(i+1))
+    if not os.path.exists(outfile):
+        shutil.copy(infile,outfile)
+    jsonfile=outfile.replace('.nii.gz','.json')
+    if not os.path.exists(jsonfile):
+        shutil.copy(infile.replace('.nii.gz','.json'),jsonfile)
