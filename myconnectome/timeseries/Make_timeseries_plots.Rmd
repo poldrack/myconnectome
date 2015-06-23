@@ -14,7 +14,7 @@ First load the relevant libraries and data.
 library(forecast)
 library(knitr)
 basedir=Sys.getenv('MYCONNECTOME_DIR')
-
+basedir='/Users/poldrack/data_unsynced/myconnectome'
 
 
 datamat=load_behav_data() 
@@ -112,6 +112,9 @@ for (varnum in 1:(dim(datamat)[2]-1)) {
 ```{r netdatModel}
 
 datamat=load_network_data() 
+meancorsim=read.table(sprintf("%s/rsfmri/corrsim_mean.txt"))$V1
+datamat=cbind(datamat[,1:2],meancorsim,datamat$date)
+
 #datamat=subset(datamat,select=c(modularity_weighted,eff_weighted,date))
 varname='netdat'
 sample_spacing=1
