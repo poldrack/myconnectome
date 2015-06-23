@@ -36,12 +36,12 @@ for o in origdirs:
                     cond.append(condition)
             rundata_array=numpy.array(rundata)
             idx=numpy.argsort(rundata_array[:,0])
-            sesscode=os.path.basename(o)
+            sesscode=os.path.basename(o).replace('sess','ses')
             odir=os.path.join(outdir,'%s/%s/%s/functional'%(outdir,subcode,
                                             sesscode))
             if not os.path.exists(odir):
                 os.makedirs(odir)
-            outfile=os.path.join(odir,'%s_task002_run%03d_events.tsv'%(subcode,r))
+            outfile=os.path.join(odir,'%s_%s_task003_run%03d_events.tsv'%(subcode,sesscode,r))
 
             f=open(outfile,'w')
             f.write('onset\tduration\tcondition\n')

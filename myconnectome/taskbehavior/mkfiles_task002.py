@@ -19,7 +19,7 @@ if not os.path.exists(outdir):
    
 subcode='sub00001'
 
-sesscodes=['sess083','sess084','sess085','sess086','sess088','sess089','sess091','sess092','sess093']
+sesscodes=['ses083','ses084','ses085','ses086','ses088','ses089','ses091','ses092','ses093']
 
 loghdr=['SesNo','Trial','BlockAncher','PrepOn','StimOn','StimOff']
 datahdr=['onset','duration','TrialType','Coherence','Response','ResponseTime','Correct','CorrStop','SSD']
@@ -34,8 +34,8 @@ for sess in range(len(sesscodes)):
     onsets=logdata[:,4] - logdata[:,2]
     duration=logdata[:,5]-logdata[:,3]
     data=numpy.hstack((onsets[:,None],duration[:,None],data))  
-    outfile=os.path.join(outdir,'%s/%s/%s/functional/%s_task002_run001_events.tsv'%(outdir,subcode,
-                                            sesscodes[sess],subcode))
+    outfile=os.path.join(outdir,'%s/%s/%s/functional/%s_%s_task002_run001_events.tsv'%(outdir,subcode,
+                                            sesscodes[sess],subcode,sesscodes[sess]))
     if not os.path.exists(os.path.dirname(outfile)):
         os.makedirs(os.path.dirname(outfile))
     numpy.savetxt(outfile,data,header='\t'.join(datahdr),delimiter='\t',comments='')

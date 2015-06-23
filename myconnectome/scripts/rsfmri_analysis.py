@@ -53,7 +53,7 @@ if not os.path.exists(os.path.join(basedir,'rsfmri/geff_pos.txt')):
     print 'this may take a little while...'
     run_shell_cmd(cmd)
   else:
-      print 'MATLAB not available, downloading BCT results from S3'
+      print 'MATLAB not available, downloading BCT results from repository'
       get_directory('bct/',basedir)
       
 if not os.path.exists(os.path.join(basedir,'parcellation/all_selected_L_new_parcel_renumbered_boundaries.func.gii')):
@@ -62,3 +62,14 @@ if not os.path.exists(os.path.join(basedir,'parcellation/all_selected_L_new_parc
 if not os.path.exists(os.path.join(basedir,'rsfmri/network_graph_all_0.010.graphml')):
     for day in ['mon','tues','thurs','all']:
         mk_full_network_graph.mk_full_network_graph(day)
+
+if not os.path.exists(os.path.join(basedir,'diffusion/adjmtx_binarized_sorted_modules.pdf')):
+    mk_sorted_adjmatrices.mk_sorted_adjmatrices()
+
+if not os.path.exists(os.path.join(basedir,'diffusion/dti_connectome.pdf')):
+    mk_connectome_figures.mk_connectome_figures()
+    
+if not os.path.exists(os.path.join(basedir,'rsfmri/mean_similarity_plot.pdf')):
+    connectome_similarity_timeseries.connectome_similarity_timeseries()
+ 
+   

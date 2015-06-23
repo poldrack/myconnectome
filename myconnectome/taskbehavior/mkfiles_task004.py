@@ -30,7 +30,7 @@ origfiles=glob.glob(os.path.join(origfilesdir,'*csv'))
 
 for datafile in origfiles:
     subnum=int(datafile.split('_')[-2])
-    sesscode='sess%03d'%subnum
+    sesscode='ses%03d'%subnum
     onsets=[]
     
     ons_counter=0.0
@@ -55,7 +55,8 @@ for datafile in origfiles:
 
     events=[]
   
-    outfile=os.path.join(outdir,'%s/%s/%s/functional/%s_task004_run001_events.tsv'%(outdir,subcode,sesscode,subcode))
+    outfile=os.path.join(outdir,'%s/%s/%s/functional/%s_%s_task004_run001_events.tsv'%(outdir,
+                                    subcode,sesscode,subcode,sesscode))
 
     evdir=os.path.join(outdir,'%s/%s/%s/functional'%(outdir,subcode,sesscode))
 
