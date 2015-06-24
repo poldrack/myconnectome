@@ -1,0 +1,17 @@
+
+OUTDIR="/scratch/01329/poldrack/selftracking/ds031/sub00001/ses105/fieldmap"
+
+fslmerge -t $OUTDIR/sub00001_ses105_001_magnitude.nii.gz vc39556/20150402_085939grefieldmapping4x4x432s005a1001_1.nii.gz vc39556/20150402_085939grefieldmapping4x4x432s005a1001_2.nii.gz
+cp vc39556/20150402_085939grefieldmapping4x4x432s006a2001.nii.gz $OUTDIR/sub00001_ses105_001_phasediff.nii.gz 
+
+fslmerge -t $OUTDIR/sub00001_ses105_002_magnitude.nii.gz vc39556/20150402_085939grefieldmapping4x4x432s010a1001_1.nii.gz vc39556/20150402_085939grefieldmapping4x4x432s010a1001_2.nii.gz
+cp vc39556/20150402_085939grefieldmapping4x4x432s011a2001.nii.gz $OUTDIR/sub00001_ses105_002_phasediff.nii.gz 
+
+fslmerge -t $OUTDIR/sub00001_ses105_003_magnitude.nii.gz vc39556/20150402_085939grefieldmapping4x4x432s021a1001_1.nii.gz vc39556/20150402_085939grefieldmapping4x4x432s021a1001_2.nii.gz
+cp vc39556/20150402_085939grefieldmapping4x4x432s022a2001.nii.gz  $OUTDIR/sub00001_ses105_003_phasediff.nii.gz 
+
+fslmerge -t $OUTDIR/sub00001_ses105_004_magnitude.nii.gz vc39556_2/20150402_130334grefieldmapping4x4x432s005a1001_1.nii.gz vc39556_2/20150402_130334grefieldmapping4x4x432s005a1001_2.nii.gz
+cp vc39556_2/20150402_130334grefieldmapping4x4x432s006a2001.nii.gz  $OUTDIR/sub00001_ses105_004_phasediff.nii.gz 
+
+fslmerge -t $OUTDIR/sub00001_ses105_005_magnitude.nii.gz vc39556_2/20150402_130334grefieldmapping4x4x432s017a1001_1.nii.gz vc39556_2/20150402_130334grefieldmapping4x4x432s017a1001_2.nii.gz
+cp vc39556_2/20150402_130334grefieldmapping4x4x432s018a2001.nii.gz  $OUTDIR/sub00001_ses105_005_phasediff.nii.gz 
