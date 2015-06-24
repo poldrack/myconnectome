@@ -1,5 +1,5 @@
 """
-get onsets for superloc data
+get onsets for superloc data - now called task005
 
 REGULAR timing:
 
@@ -55,7 +55,7 @@ for datafile in origfiles:
 
     events=[]
   
-    outfile=os.path.join(outdir,'%s/%s/%s/functional/%s_%s_task004_run001_events.tsv'%(outdir,
+    outfile=os.path.join(outdir,'%s/%s/%s/functional/%s_%s_task005_run001_events.tsv'%(outdir,
                                     subcode,sesscode,subcode,sesscode))
 
     evdir=os.path.join(outdir,'%s/%s/%s/functional'%(outdir,subcode,sesscode))
