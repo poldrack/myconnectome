@@ -15,7 +15,7 @@ infiles.sort()
 
 for i in range(len(infiles)):
     infile=infiles[i]
-    outfile=os.path.join(outbase,'sub00001_ses105_rest001_run%03d_bold.nii.gz'%int(i+1))
+    outfile=os.path.join(outbase,'sub00001_ses105_task001_run%03d_bold.nii.gz'%int(i+1))
     if not os.path.exists(outfile):
         shutil.copy(infile,outfile)
     jsonfile=outfile.replace('.nii.gz','.json')
