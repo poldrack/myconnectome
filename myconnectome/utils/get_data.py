@@ -72,11 +72,16 @@ def get_file(f,dataurl,outdir,logfile=None,overwrite=False,verbose=False,failpas
         chunk_size=1024
         
         print 'getting file:',outfile
-        r=requests.get(f,stream=True)
-        with open(outfile, 'wb') as fd:
-            for chunk in r.iter_content(chunk_size):
-                    fd.write(chunk)
-                    
+        tries=0
+        while tries<10:
+            try:
+                r=requests.get(f,stream=True)
+                with open(outfile, 'wb') as fd:
+                    for chunk in r.iter_content(chunk_size):
+                            fd.write(chunk)
+                break
+            except:
+                tries+=1
 #        while not data and tries<10:
 #            try:
 #                #data=urllib.urlopen(f).read()
