@@ -71,15 +71,15 @@ def get_file(f,dataurl,outdir,logfile=None,overwrite=False,verbose=False):
         tries=0
         print 'getting file:',outfile
 
-        while not data and tries<6:
+        while not data and tries<10:
             try:
                 data=urllib.urlopen(f).read()
             except:
                 pass
             tries+=1
         if not data:
-            print 'problem downloading:',f
-            return
+            raise RuntimeError('problem downloading:%s'%f)
+            
         open(outfile,'wb').write(data)
         hash=hashfile(outfile)
         if logfile:
