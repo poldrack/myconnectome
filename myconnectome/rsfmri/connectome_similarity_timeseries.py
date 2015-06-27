@@ -66,11 +66,13 @@ def connectome_similarity_timeseries():
     plt.figure(figsize=[12,4])
     
     plt.plot(corrsim_mean,linewidth=2)
-    plt.ylabel('Correlation with mean connectivity',fontsize=18)
+    #plt.ylabel('Correlation with mean connectivity',fontsize=18)
     plt.xticks(range(0,84,9),[dates[i] for i in range(0,84,9)],rotation=45)
+    plt.axis([0,83,0.7,0.9])
     plt.savefig(os.path.join(basedir,'rsfmri/mean_similarity_plot.pdf'),bbox_inches='tight')
+
     
-    plt.figure(figsize=[14,12])
+    plt.figure(figsize=[12,12])
     plt.imshow(corrsim_all,interpolation='nearest',origin='upper')
     plt.yticks(range(0,84,9),[dates[i] for i in range(0,84,9)])
     plt.colorbar(shrink=0.6)
