@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-set up behavioral files for task003 (object localizer)
+set up behavioral files for task003 (object localizer) - now called task004
 Created on Wed Jun 17 16:52:44 2015
 
 @author: poldrack
@@ -41,7 +41,7 @@ for o in origdirs:
                                             sesscode))
             if not os.path.exists(odir):
                 os.makedirs(odir)
-            outfile=os.path.join(odir,'%s_%s_task003_run%03d_events.tsv'%(subcode,sesscode,r))
+            outfile=os.path.join(odir,'%s_%s_task004_run%03d_events.tsv'%(subcode,sesscode,r))
 
             f=open(outfile,'w')
             f.write('onset\tduration\tcondition\n')

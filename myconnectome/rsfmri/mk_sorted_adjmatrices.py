@@ -62,7 +62,7 @@ def mk_sorted_adjmatrices():
         plt.plot([0,630],[b,b],'r',linewidth=1.5)
         plt.plot([b,b],[0,630],'r',linewidth=1.5)
     plt.yticks(textlocs,netnames)
-    plt.axis('tight')
+    plt.axis('image')
     plt.title('Diffusion tractography')
     
     plt.savefig(os.path.join(basedir,'diffusion/adjmtx_binarized_sorted_modules.pdf'))
@@ -86,8 +86,9 @@ def mk_sorted_adjmatrices():
         plt.plot([0,630],[b,b],'r',linewidth=1.5)
         plt.plot([b,b],[0,630],'r',linewidth=1.5)
     plt.yticks(textlocs,netnames)
-    plt.axis('tight')
+    plt.axis('image')
     plt.title('Full correlation')
+    plt.colorbar(shrink=0.5)
     
     plt.savefig(os.path.join(basedir,'rsfmri/adjmtx_sorted_modules.pdf'))
     
@@ -109,8 +110,9 @@ def mk_sorted_adjmatrices():
         plt.plot([0,630],[b,b],'r',linewidth=1.5)
         plt.plot([b,b],[0,630],'r',linewidth=1.5)
     plt.yticks(textlocs,netnames)
-    plt.axis('tight')
+    plt.axis('image')
     plt.title('L2-regularized partial correlation')
+    plt.colorbar(shrink=0.5)
     plt.savefig(os.path.join(basedir,'rsfmri/pcorr_l2_adjmtx_sorted_modules.pdf'))
     
     
@@ -124,8 +126,9 @@ def mk_sorted_adjmatrices():
         plt.plot([0,630],[b,b],'r',linewidth=1.5)
         plt.plot([b,b],[0,630],'r',linewidth=1.5)
     plt.yticks(textlocs,netnames)
-    plt.axis('tight')
+    plt.axis('image')
     plt.title('Task correlation')
+    plt.colorbar(shrink=0.5)
     plt.savefig(os.path.join(basedir,'taskfmri/taskcorr_adjmtx_sorted_modules.pdf'))
 
 if __name__ == "__main__":

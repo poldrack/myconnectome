@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-analysis for task002 - stop signal
+analysis for task002 - stop signal (now called task003)
 
 Created on Wed Jun 17 13:51:20 2015
 
@@ -34,7 +34,7 @@ for sess in range(len(sesscodes)):
     onsets=logdata[:,4] - logdata[:,2]
     duration=logdata[:,5]-logdata[:,3]
     data=numpy.hstack((onsets[:,None],duration[:,None],data))  
-    outfile=os.path.join(outdir,'%s/%s/%s/functional/%s_%s_task002_run001_events.tsv'%(outdir,subcode,
+    outfile=os.path.join(outdir,'%s/%s/%s/functional/%s_%s_task003_run001_events.tsv'%(outdir,subcode,
                                             sesscodes[sess],subcode,sesscodes[sess]))
     if not os.path.exists(os.path.dirname(outfile)):
         os.makedirs(os.path.dirname(outfile))

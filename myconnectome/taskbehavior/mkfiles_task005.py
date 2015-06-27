@@ -1,5 +1,5 @@
 """
-get onsets for superloc data
+get onsets for grid data - now called atsk006
 
 REGULAR timing:
 
@@ -44,14 +44,14 @@ for datafile in origfiles:
             resptime='%f'%float(l_s[-1])
             accuracy='%d'%int(l_s[-2])
         except:
-            resptime='NA'
-            accuracy='NA'
-        onsets.append(['%f'%onstime,'4.5',l_s[8],'NA','NA'])
+            resptime='n/a'
+            accuracy='n/a'
+        onsets.append(['%f'%onstime,'4.5',l_s[8],'n/a','n/a'])
         onsets.append(['%f'%probetime,'1',l_s[8]+'-probe',resptime,accuracy])
         #onsets.append(['%f'%probetime,])
     
   
-    outfile=os.path.join(outdir,'%s/%s/%s/functional/%s_%s_task005_run001_events.tsv'%(outdir,
+    outfile=os.path.join(outdir,'%s/%s/%s/functional/%s_%s_task006_run001_events.tsv'%(outdir,
                                 subcode,sesscode,subcode,sesscode))
 
     evdir=os.path.join(outdir,'%s/%s/%s/functional'%(outdir,subcode,sesscode))

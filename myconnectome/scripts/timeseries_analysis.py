@@ -7,6 +7,7 @@ import os
 from myconnectome.utils.run_shell_cmd import run_shell_cmd
 from myconnectome.utils.get_data import *
 from myconnectome.rsfmri import mk_participation_index_giftis
+from myconnectome.timeseries import add_timeseries_links
 
 filepath=os.path.dirname(os.path.abspath(__file__))
 basepath=os.path.dirname(filepath)
@@ -23,7 +24,7 @@ if not os.path.exists(tsdir):
     os.mkdir(tsdir)
 
 if not os.path.exists(os.path.join(tsdir,'tables')):
-    os.mkdir(os.path.join(tsdir,'tables'))
+    os.makedirs(os.path.join(tsdir,'tables'))
 
 behavdir=os.path.join(basedir,'behavior')
 
@@ -105,6 +106,7 @@ if not os.path.exists(os.path.join(tsdir,'Make_combined_timeseries_table.html'))
     f.close()
     run_shell_cmd('Rscript %s/knit_timeseries_table.R'%filepath)
 
+add_timeseries_links.add_timeseries_links()
 
 if not os.path.exists(os.path.join(basedir,'rsfmri/lh_PI.func.gii')):
     mk_participation_index_giftis.mk_participation_index_giftis()

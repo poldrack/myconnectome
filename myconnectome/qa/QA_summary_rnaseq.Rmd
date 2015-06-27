@@ -1,13 +1,13 @@
 ---
-title: "RNA-seq QA Overview"
+title: "MyConnectome RNA-seq QA Overview"
 output: html_document
 ---
 
-Quality assurance metrics were computed for each session of RNA-seq data using FastQC and Picard.  
+# MyConnectome RNA-seq QA Overview
 
-First, we load the relevant libraries and data
+Quality assurance metrics were computed for each session of RNA-seq data using [FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) and [Picard](http://broadinstitute.github.io/picard/).  
 
-```{r}
+```{r loadlibs,message=FALSE,echo=FALSE, warning=FALSE}
 library(knitr)
 basedir=Sys.getenv('MYCONNECTOME_DIR')
 if (!file.exists(basedir)) {
@@ -41,32 +41,35 @@ rnaseq_metrics$INCORRECT_STRAND_READS=NULL
 ```
 
 ### Print table of alignment metrics 
-(obtained using Picard::CollectAlignmentSummaryMetrics.jar)
+(obtained using Picard::CollectAlignmentSummaryMetrics.jar - metric definitions at https://broadinstitute.github.io/picard/picard-metric-definitions.html#AlignmentSummaryMetrics)
 
-```{r,results='asis'}
+```{r printalign,results='asis',message=FALSE,echo=FALSE, warning=FALSE}
 
 m=sapply(alignment_metrics,mean,na.rm=TRUE)
 sd=sapply(alignment_metrics,sd,na.rm=TRUE)
-df=as.data.frame(cbind(m,sd),col.names=c('Mean','SD'),row.names=names(m))
+df=as.data.frame(cbind(m,sd),row.names=names(m))
+names(df)=c('Mean','SD')
+
 kable(df)
 
 ```
 
 ### Print table of rnaseq metrics 
-(obtained using Picard::CollectRnaSeqMetrics.jar)
+(obtained using Picard::CollectRnaSeqMetrics.jar - metric definitions at https://broadinstitute.github.io/picard/picard-metric-definitions.html#RnaSeqMetrics)
 
-```{r,results='asis'}
+```{r printrnaseqmetrics,results='asis',message=FALSE,echo=FALSE, warning=FALSE}
 
 m=sapply(rnaseq_metrics,mean,na.rm=TRUE)
 sd=sapply(rnaseq_metrics,sd,na.rm=TRUE)
-df=as.data.frame(cbind(m,sd),col.names=c('Mean','SD'),row.names=names(m))
+df=as.data.frame(cbind(m,sd),row.names=names(m))
+names(df)=c('Mean','SD')
 kable(df)
 
 ```
 
 ### Plot RNA integrity number (RIN) across sessions
 
-```{r,results='asis',fig.width=8, fig.height=4}
+```{r plotrin,results='asis',fig.width=8, fig.height=4,message=FALSE,echo=FALSE, warning=FALSE}
 
 layMat <- matrix(seq(1,2), ncol=2,nrow=1, byrow=TRUE)
 layout(layMat) #, widths=c(5/7, 2/7)) #, heights=c(2/7, 5/7))
@@ -83,7 +86,7 @@ lines(seq(min(rin),max(rin),length.out=length(d$y)),d$y,lwd=1.5)
 
 ### Plot QA metrics across read positions
 
-```{r,results='asis',fig.width=8, fig.height=12}
+```{r plotreadpos,results='asis',fig.width=8, fig.height=12,message=FALSE,echo=FALSE, warning=FALSE}
 layMat <- matrix(seq(1,6), ncol=2,nrow=3, byrow=TRUE)
 layout(layMat) #, widths=c(5/7, 2/7)) #, heights=c(2/7, 5/7))
 readlabels=c()
@@ -104,7 +107,7 @@ plot(apply(pbnc,1,mean),type='l',xlab='Sessions',ylab='Mean per-base N content',
 
 ## Plot timeseries for QA variables across sessions with marginal histograms
 
-```{r,results='asis',fig.width=8, fig.height=16}
+```{r plotts,results='asis',fig.width=8, fig.height=16,message=FALSE,echo=FALSE, warning=FALSE}
 #par(mfrow=c(7,2))
 data_to_plot=subset(alignment_metrics,select=c("TOTAL_READS"))
 data_to_plot$PCT_HQ_ALIGNED_READS=alignment_metrics$PF_HQ_ALIGNED_READS/alignment_metrics$TOTAL_READS

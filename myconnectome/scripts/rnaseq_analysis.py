@@ -118,6 +118,20 @@ if not os.path.exists(os.path.join(rnaseqdir,'Make_rnaseq_table.html')):
     f.close()
     run_shell_cmd('Rscript %s/knit_rnaseq_table.R'%filepath)
 
+# make QA page
+if not os.path.exists(os.path.join(rnaseqdir,'QA_summary_rnaseq.html')):
+    f=open(os.path.join(filepath,'knit_rnaseq_qa.R'),'w')
+    f.write('# automatically generated knitr command file\n')
+    f.write('require(knitr)\n')
+    f.write('require(markdown)\n')
+    f.write('setwd("%s")\n'%rnaseqdir)
+    f.write("knit('%s/QA_summary_rnaseq.Rmd', '%s/QA_summary_rnaseq.md')\n"%
+        (filepath.replace('scripts','qa'),rnaseqdir))
+    f.write("markdownToHTML('%s/QA_summary_rnaseq.md', '%s/QA_summary_rnaseq.html')\n"%
+        (rnaseqdir,rnaseqdir))
+    f.close()
+    run_shell_cmd('Rscript %s/knit_rnaseq_qa.R'%filepath)
+
 # do snyderome preparation
 if not os.path.exists(os.path.join(rnaseqdir,'snyderome/Snyderome_data_preparation.html')):
     if not os.path.exists(os.path.join(rnaseqdir,'snyderome')):

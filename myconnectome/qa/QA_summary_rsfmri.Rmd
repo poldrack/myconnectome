@@ -3,6 +3,8 @@ title: "fMRI QA Overview"
 output: html_document
 ---
 
+# MyConnectome fMRI QA Overview
+
 Quality assurance metrics were computed as described by http://preprocessed-connectomes-project.github.io/quality-assessment-protocol/index.html using Chris Gorgolewski's enh branch https://github.com/chrisfilo/quality-assessment-protocol/tree/enh (note: descriptions of QA measures below are copied directly from the QAP web site).
 
 Data from my connectome project were compared to data for the CORR project obtained from https://raw.githubusercontent.com/preprocessed-connectomes-project/quality-assessment-protocol/master/poster_data/corr_func.csv
@@ -13,9 +15,8 @@ The following preprocesing was performed:
 2. compute mean functional from mcflirt output
 3. bet on mean functional to obtain functional brain mask
 
-First, we load the relevant libraries and data
 
-```{r}
+```{r loadData,message=FALSE,echo=FALSE, warning=FALSE}
 library(knitr)
 basedir=Sys.getenv('MYCONNECTOME_DIR')
 if (!file.exists(basedir)) {
@@ -43,9 +44,9 @@ names(corr_qadata)=c("Entopy Focus Criterion [EFC]","Foreground-Background Energ
   
 ```
 
-## Make table of summary statistics
+## Summary statistics
 
-```{r,results='asis'}
+```{r summStat,results='asis',message=FALSE,echo=FALSE, warning=FALSE}
 myc_mean=apply(myc_qadata,2,mean)
 myc_sd=apply(myc_qadata,2,sd)
 corr_mean=apply(corr_qadata,2,mean)
@@ -58,7 +59,7 @@ kable(summstats)
 
 ## Make timeseries plots for each variable across sessions with marginal histograms
 
-```{r,results='asis',fig.width=8, fig.height=16}
+```{r tsplot,results='asis',fig.width=8, fig.height=16,message=FALSE,echo=FALSE, warning=FALSE}
 #par(mfrow=c(7,2))
 lhist=40
 layMat <- matrix(seq(1,14), ncol=2,nrow=7, byrow=TRUE)

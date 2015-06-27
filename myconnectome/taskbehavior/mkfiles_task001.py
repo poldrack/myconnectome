@@ -1,5 +1,5 @@
 """
-set up behavioral files for task001 - working memory
+set up behavioral files for task002 - working memory (originally called task001 - but now rest is 001)
 """
 
 import os,glob,pickle
@@ -29,10 +29,11 @@ for infile in origfiles:
 
     sesscode='ses%03d'%sessnum
     
-    outfile=os.path.join(outdir,'%s/%s/%s/functional/%s_%s_task001_run001_events.tsv'%(outdir,subcode,sesscode,subcode,sesscode))
+    outfile=os.path.join(outdir,'%s/%s/%s/functional/%s_%s_task002_run001_events.tsv'%(outdir,subcode,sesscode,subcode,sesscode))
     if not os.path.exists(os.path.dirname(outfile)):
         os.makedirs(os.path.dirname(outfile))
     f=open(outfile,'w')
+    f.write(header+'\n')
     td=data['trialdata']
     try:
         assert len(td)==180
@@ -41,7 +42,7 @@ for infile in origfiles:
     for i in range(len(td)):
         hit=td[i]['match']==td[i]['nback']
         if not (td[i].has_key('response')):
-            td[i]['response']='0'
+            td[i]['response']='n/a'
         if not (td[i].has_key('rt')):
             td[i]['rt']=0.0
         if (hit and td[i]['response']=='4') or ((not hit) and td[i]['response']=='1'):
