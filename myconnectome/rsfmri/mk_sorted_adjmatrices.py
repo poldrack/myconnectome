@@ -28,7 +28,7 @@ def z_to_r(z):
 
 basedir=os.environ['MYCONNECTOME_DIR']
 
-def mk_sorted_adjmatrices():
+def mk_sorted_adjmatrices(dtidensity=None):
     utr=numpy.triu_indices(630,1)
     
     parceldata=load_parcel_data(os.path.join(basedir,'parcellation/parcel_data.txt'))
@@ -51,8 +51,24 @@ def mk_sorted_adjmatrices():
     dtidata=dtidata+dtidata.T
     tmp=dtidata[module_idx,:]
     dtidata_sorted=tmp[:,module_idx]
-    dtibin=dtidata>0
+    if not dtidensity:
+        dtithresh=0
+    else:
+        dtithresh=scipy.stats.scoreatpercentile(dtidata[utr],dtidensity)
     
+    dtibin=dtidata>dtithresh
+ 
+    dtidata_skyra=numpy.loadtxt(os.path.join(basedir,'diffusion/tracksumm_distcorr_skyra.txt'),skiprows=1)
+    dtidata_skyra=dtidata_skyra[:,1:]
+    dtidata_skyra=dtidata_skyra+dtidata_skyra.T
+    tmp=dtidata_skyra[module_idx,:]
+    dtidata_skyra_sorted=tmp[:,module_idx]
+    if not dtidensity:
+        dtithresh_skyra=0
+    else:
+        dtithresh_skyra=scipy.stats.scoreatpercentile(dtidata_skyra[utr],dtidensity)
+    dtibin_skyra=dtidata_skyra>0
+   
     bp=numpy.array(breakpoints)
     textlocs=numpy.mean(numpy.vstack((bp,numpy.hstack(([0],bp[:-1])))),0)
     
@@ -63,11 +79,24 @@ def mk_sorted_adjmatrices():
         plt.plot([b,b],[0,630],'r',linewidth=1.5)
     plt.yticks(textlocs,netnames)
     plt.axis('image')
-    plt.title('Diffusion tractography')
+    plt.title('Diffusion tractography - HARDI')
     
-    plt.savefig(os.path.join(basedir,'diffusion/adjmtx_binarized_sorted_modules.pdf'))
+    plt.savefig(os.path.join(basedir,'diffusion/adjmtx_binarized_sorted_modules_HARDI.pdf'))
     
+   
+    plt.figure(figsize=[12,12])
+    plt.imshow(dtidata_skyra_sorted,origin='upper',cmap='gray',vmin=0,vmax=scipy.stats.scoreatpercentile(dtidata_skyra,90))
+    for b in breakpoints:
+        plt.plot([0,630],[b,b],'r',linewidth=1.5)
+        plt.plot([b,b],[0,630],'r',linewidth=1.5)
+    plt.yticks(textlocs,netnames)
+    plt.axis('image')
+    plt.title('Diffusion tractography - Skyra')
     
+    plt.savefig(os.path.join(basedir,'diffusion/adjmtx_binarized_sorted_modules_Skyra.pdf'))
+    
+    dice=(2.0*numpy.sum(dtibin_skyra*dtibin))/float(numpy.sum(dtibin_skyra)+numpy.sum(dtibin))
+    print 'dice(HARDI,skyra)=',dice   
     
     rsfmridata=numpy.load(os.path.join(basedir,'rsfmri/corrdata.npy'))
     
@@ -114,7 +143,19 @@ def mk_sorted_adjmatrices():
     plt.title('L2-regularized partial correlation')
     plt.colorbar(shrink=0.5)
     plt.savefig(os.path.join(basedir,'rsfmri/pcorr_l2_adjmtx_sorted_modules.pdf'))
+
     
+    plt.figure(figsize=[12,12])
+    plt.imshow(combined_sorted,origin='upper',cmap='gray',vmin=0,vmax=scipy.stats.scoreatpercentile(dtidata,90))
+    for b in breakpoints:
+        plt.plot([0,630],[b,b],'r',linewidth=1.5)
+        plt.plot([b,b],[0,630],'r',linewidth=1.5)
+    plt.yticks(textlocs,netnames)
+    plt.axis('image')
+    plt.title('Combined - skyra DTI, hardi DTI, and L2 pcorr')
+    
+    plt.savefig(os.path.join(basedir,'diffusion/adjmtx_binarized_sorted_modules_combined.pdf'))
+
     
     taskdata=numpy.loadtxt(os.path.join(basedir,'taskfmri/task_connectome.txt'))
     tmp=taskdata[module_idx,:]
