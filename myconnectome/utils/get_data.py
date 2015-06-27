@@ -13,6 +13,8 @@ import urllib
 import re
 import datetime
 import hashlib
+import requests
+
 
 def timestamp():
     return datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
@@ -67,20 +69,26 @@ def get_file(f,dataurl,outdir,logfile=None,overwrite=False,verbose=False,failpas
             print 'file exists:',outfile
         
     if not os.path.exists(outfile) or overwrite:
-        data=[]
-        tries=0
+        chunk_size=1024
+        
         print 'getting file:',outfile
-
-        while not data and tries<10:
-            try:
-                data=urllib.urlopen(f).read()
-            except:
-                pass
-            tries+=1
-        if not data and not failpass:
-            raise RuntimeError('problem downloading:%s'%f)
-            
-        open(outfile,'wb').write(data)
+        r=requests.get(f,stream=True)
+        with open(outfile, 'wb') as fd:
+            for chunk in r.iter_content(chunk_size):
+                    fd.write(chunk)
+                    
+#        while not data and tries<10:
+#            try:
+#                #data=urllib.urlopen(f).read()
+#                r=requests.get(f,stream=True)
+#                data=
+#            except:
+#                pass
+#            tries+=1
+#        if not data and not failpass:
+#            raise RuntimeError('problem downloading:%s'%f)
+#            
+#        open(outfile,'wb').write(data)
         hash=hashfile(outfile)
         if logfile:
             open(logfile,'a').write('%s\t%s\t%s\n'%(outfile,timestamp(),hash))
