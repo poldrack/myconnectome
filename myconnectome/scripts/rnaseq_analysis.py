@@ -97,7 +97,7 @@ if not os.path.exists(os.path.join(rnaseqdir,'WGCNA/DAVID_thr8_prefilt_rin3PCreg
     except:
         print 'Environment variable DAVID_EMAIL is not set'
         print 'downloading precomputed results from S3'
-        get_directory('DAVID/',basedir)
+        get_directory('DAVID/',basedir,failpass=True)
 
     
 # do annotation using DAVID
