@@ -13,6 +13,7 @@ try:
 except:
     raise RuntimeError('you must first set the MYCONNECTOME_DIR environment variable')
 
+
 logdir=os.path.join(basedir,'logs')
 if not os.path.exists(logdir):
     os.mkdir(logdir)
@@ -22,8 +23,10 @@ filepath=os.path.dirname(os.path.abspath(__file__))
 
 get_base_data(logfile=logfile)
 
-if not os.path.exists(os.path.join(basedir,'rsfmri')):
-    os.mkdir(os.path.join(basedir,'rsfmri'))
+rsdir=os.path.join(basedir,'rsfmri')
+
+if not os.path.exists(rsdir):
+    os.mkdir(rsdir)
 
 # make renumbered parcel file
 if not os.path.exists(os.path.join(basedir,'parcellation/all_selected_L_new_parcel_renumbered.func.gii')):
@@ -72,4 +75,17 @@ if not os.path.exists(os.path.join(basedir,'diffusion/dti_connectome.pdf')):
 if not os.path.exists(os.path.join(basedir,'rsfmri/mean_similarity_plot.pdf')):
     connectome_similarity_timeseries.connectome_similarity_timeseries()
  
-   
+# make QA page
+if not os.path.exists(os.path.join(rsdir,'QA_summary_rnaseq.html')):
+    f=open(os.path.join(filepath,'knit_rsfmri_qa.R'),'w')
+    f.write('# automatically generated knitr command file\n')
+    f.write('require(knitr)\n')
+    f.write('require(markdown)\n')
+    f.write('setwd("%s")\n'%rsdir)
+    f.write("knit('%s/QA_summary_rsfmri.Rmd', '%s/QA_summary_rsfmri.md')\n"%
+        (filepath.replace('scripts','qa'),rsdir))
+    f.write("markdownToHTML('%s/QA_summary_rsfmri.md', '%s/QA_summary_rsfmri.html')\n"%
+        (rsdir,rsdir))
+    f.close()
+    run_shell_cmd('Rscript %s/knit_rsfmri_qa.R'%filepath)
+
