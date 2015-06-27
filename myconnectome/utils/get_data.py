@@ -58,7 +58,7 @@ def get_children(url,verbose=False):
                 children=children+c
     return children
 
-def get_file(f,dataurl,outdir,logfile=None,overwrite=False,verbose=False):
+def get_file(f,dataurl,outdir,logfile=None,overwrite=False,verbose=False,failpass=False):
     outfile=f.replace(dataurl,outdir)
     if not os.path.exists(os.path.dirname(outfile)):
         os.makedirs(os.path.dirname(outfile))
@@ -77,7 +77,7 @@ def get_file(f,dataurl,outdir,logfile=None,overwrite=False,verbose=False):
             except:
                 pass
             tries+=1
-        if not data:
+        if not data and not failpass:
             raise RuntimeError('problem downloading:%s'%f)
             
         open(outfile,'wb').write(data)
@@ -85,7 +85,7 @@ def get_file(f,dataurl,outdir,logfile=None,overwrite=False,verbose=False):
         if logfile:
             open(logfile,'a').write('%s\t%s\t%s\n'%(outfile,timestamp(),hash))
 
-def get_directory(dir,outdir,dataurl=dataurl,overwrite=False,logfile=None,verbose=False):
+def get_directory(dir,outdir,dataurl=dataurl,overwrite=False,logfile=None,verbose=False,failpass=False):
     if not outdir[-1]=='/':
         outdir=outdir+'/'
     if verbose:
@@ -94,7 +94,7 @@ def get_directory(dir,outdir,dataurl=dataurl,overwrite=False,logfile=None,verbos
     for file in c:
         if verbose:
             print 'getting',file
-        get_file(file,dataurl+dir,outdir,logfile=logfile,overwrite=overwrite,verbose=verbose)
+        get_file(file,dataurl+dir,outdir,logfile=logfile,overwrite=overwrite,verbose=verbose,failpass=failpass)
         
 def get_base_data(overwrite=False,logfile=None):
     """ 
