@@ -145,17 +145,6 @@ def mk_sorted_adjmatrices(dtidensity=None):
     plt.savefig(os.path.join(basedir,'rsfmri/pcorr_l2_adjmtx_sorted_modules.pdf'))
 
     
-    plt.figure(figsize=[12,12])
-    plt.imshow(combined_sorted,origin='upper',cmap='gray',vmin=0,vmax=scipy.stats.scoreatpercentile(dtidata,90))
-    for b in breakpoints:
-        plt.plot([0,630],[b,b],'r',linewidth=1.5)
-        plt.plot([b,b],[0,630],'r',linewidth=1.5)
-    plt.yticks(textlocs,netnames)
-    plt.axis('image')
-    plt.title('Combined - skyra DTI, hardi DTI, and L2 pcorr')
-    
-    plt.savefig(os.path.join(basedir,'diffusion/adjmtx_binarized_sorted_modules_combined.pdf'))
-
     
     taskdata=numpy.loadtxt(os.path.join(basedir,'taskfmri/task_connectome.txt'))
     tmp=taskdata[module_idx,:]
