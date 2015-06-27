@@ -46,10 +46,10 @@ for datafile in origfiles:
             rt='%f'%float(l_s[-1])
             acc='%d'%int(l_s[-2])
         except:
-            rt='NA'
-            acc='NA'
+            rt='n/a'
+            acc='n/a'
             
-        onsets.append(['%f'%float(ons_counter+0.3),'4.2',l_s[1],'NA','NA'])
+        onsets.append(['%f'%float(ons_counter+0.3),'4.2',l_s[1],'n/a','n/a'])
         onsets.append(['%f'%float(ons_counter+4.5),'1.0',l_s[1]+'-probe','%s'%rt,'%s'%acc])
         ons_counter+=6
 
