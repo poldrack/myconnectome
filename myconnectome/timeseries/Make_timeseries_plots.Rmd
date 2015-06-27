@@ -4,13 +4,11 @@ author: "Russ Poldrack"
 date: "November 2, 2014"
 output: html_document
 ---
+# Timeseries plots for MyConnectome dataset
 
 This code generates timeseries plots for each variable, and performs a test for linear and polynomial trends.
 
-NB: 
-First load the relevant libraries and data.
-
-```{r}
+```{r,echo=FALSE, results='hide',message=FALSE, warning=FALSE}
 library(forecast)
 library(knitr)
 basedir=Sys.getenv('MYCONNECTOME_DIR')
@@ -31,9 +29,9 @@ save_latex=TRUE
 
 ## Behavioral variables
 
-#### Get FDR-corrected p-values for trends
+### FDR-corrected p-values for trends
 
-```{r behavModel}
+```{r behavModel,echo=FALSE, message=FALSE, warning=FALSE}
 pvals=c()
 # first get fdr p-vals on trends
 for (varnum in 1:(dim(datamat)[2]-1)) {
@@ -70,6 +68,8 @@ pvals[,3:4]=p_fdr
 names(pvals)=c('mean','var(resid)','Linear trend (p-val)','Poly trend (p-val)')
 row.names(pvals)=names(datamat)[1:19]
 
+write.table(pvals,file=sprintf('%s/timeseries/behav_timeseries_stats.txt',basedir),row.names=FALSE,col.names=FALSE)
+
 kable(pvals)
 if (save_latex) {
   k=kable(pvals,format='latex',digits=3)
@@ -77,9 +77,8 @@ if (save_latex) {
 }
 ```
 
-#### Make plots
 
-```{r behavPlot}
+```{r behavPlot,echo=FALSE, results='hide',message=FALSE, warning=FALSE, fig.width = 10, fig.height = 4}
 for (varnum in 1:(dim(datamat)[2]-1)) {
   alldays = seq(min(datamat$date), max(datamat$date), by='1 day')
 	alldays_weekly=seq(min(datamat$date), max(datamat$date), by='1 week')
@@ -94,6 +93,7 @@ for (varnum in 1:(dim(datamat)[2]-1)) {
 	x_interp_nonan=na.approx(zoo(x[,varnum]),na.rm=TRUE)
 
 	lo <- loess(x_interp ~ seq(from=start(x_interp)[1],to=end(x_interp)[1],by=sample_spacing),span=0.5)
+  
 	plot(x_ts,xaxt='n',xlab='',ylab=varname,col='black')
 	points(seq(from=start(x_interp)[1],to=end(x_interp)[1],by=sample_spacing),x[,varnum],pch=18)
 	lines(seq(from=start(x_interp_nonan)[1],to=end(x_interp_nonan)[1],by=sample_spacing),lo$fitted,col='blue',lwd=3)
@@ -107,16 +107,14 @@ for (varnum in 1:(dim(datamat)[2]-1)) {
 
 ## Network measures
 
-#### Get p-values for trends
-```{r netdatModel}
+### FDR-corrected p-values for trends
+```{r netdatModel,echo=FALSE, message=FALSE, warning=FALSE}
 
 datamat=load_network_data() 
 meancorsim=read.table(sprintf("%s/rsfmri/corrsim_mean.txt",basedir))$V1
 datamat=cbind(datamat[,1:2],meancorsim,datamat$date)
 names(datamat)=c('modularity_weighted','eff_weighted','meancorrsim','date')
 
-head(datamat)
-#datamat=subset(datamat,select=c(modularity_weighted,eff_weighted,date))
 varname='netdat'
 sample_spacing=1
 
@@ -164,9 +162,7 @@ if (save_latex) {
 
 ```
 
-#### now make plots
-
-```{r netdatPlot}
+```{r netdatPlot,echo=FALSE, message=FALSE, warning=FALSE, fig.width = 10, fig.height = 4}
 for (varnum in 1:(dim(datamat)[2]-1)) {
 	alldays = seq(min(datamat$date), max(datamat$date), by='1 day')
 	alldays_weekly=seq(min(datamat$date), max(datamat$date), by='1 week')
@@ -190,13 +186,10 @@ for (varnum in 1:(dim(datamat)[2]-1)) {
 }
 ```
 
-
-
-
 ## Within-network connectivity 
 
-#### Get p-values for trends
-```{r wincorrModel}
+### FDR-corrected p-values for trends
+```{r wincorrModel,echo=FALSE, message=FALSE, warning=FALSE}
 datamat=load_fmri_data() 
 varname='wincorr'
 sample_spacing=1
@@ -235,7 +228,7 @@ pvals=as.data.frame(pvals)
 pvals[,3:4]=p_fdr
 names(pvals)=c('mean','var(resid)','Linear trend (p-val)','Poly trend (p-val)')
 row.names(pvals)=names(datamat)[1:12]
-write.table(pvals,file=sprintf('%s/timeseries/tables/wincorr_timeseries_stats.txt',basedir))
+write.table(pvals,file=sprintf('%s/timeseries/wincorr_timeseries_stats.txt',basedir),row.name=FALSE,col.names=FALSE)
 
 kable(pvals)
 if (save_latex) {
@@ -246,9 +239,7 @@ if (save_latex) {
 
 ```
 
-#### now make plots
-
-```{r wincorrPlot}
+```{r wincorrPlot,echo=FALSE, message=FALSE, warning=FALSE, fig.width = 10, fig.height = 4}
 for (varnum in 1:(dim(datamat)[2]-1)) {
 	alldays = seq(min(datamat$date), max(datamat$date), by='1 day')
 	alldays_weekly=seq(min(datamat$date), max(datamat$date), by='1 week')
@@ -273,8 +264,9 @@ for (varnum in 1:(dim(datamat)[2]-1)) {
 }
 ```
 
-#### Get p-values for trends
-```{r bwcorrModel}
+## Between-module correlations
+### FDR-corrected p-values for trends
+```{r bwcorrModel,echo=FALSE, message=FALSE, warning=FALSE}
 datamat=load_fmri_data(type='bwcorr') 
 varname='bwcorr'
 sample_spacing=1
@@ -312,8 +304,8 @@ p_fdr=matrix(p_fdr,length(p_fdr)/2,2)
 pvals=as.data.frame(pvals)
 pvals[,3:4]=p_fdr
 names(pvals)=c('mean','var(resid)','Linear trend (p-val)','Poly trend (p-val)')
-row.names(pvals)=names(datamat)[1:12]
-write.table(pvals,file=sprintf('%s/timeseries/tables/bwcorr_timeseries_stats.txt',basedir))
+row.names(pvals)=names(datamat)[1:66]
+write.table(pvals,file=sprintf('%s/timeseries/bwcorr_timeseries_stats.txt',basedir),row.names=FALSE,col.names=FALSE)
 kable(pvals)
 if (save_latex) {
   k=kable(pvals,format='latex',digits=4)
@@ -323,11 +315,12 @@ if (save_latex) {
 
 ```
 
-Skipping plots for bwcorr...
+#### Skipping plots for between-module correlations, too may variables
 
 ## RNA-seq
+### FDR-corrected p-values for trends
 
-```{r rnaseqModel}
+```{r rnaseqModel,echo=FALSE, message=FALSE, warning=FALSE, fig.width = 10, fig.height = 4}
 datamat=load_rnaseq_data()
 mod_des=read.table(sprintf('%s/rna-seq/WGCNA/module_descriptions.txt',basedir),sep='\t')
 data_names=c()
@@ -392,9 +385,8 @@ if (save_latex) {
 
 ```
 
-#### Generate plots
 
-```{r rnaseqPlot}
+```{r rnaseqPlot,echo=FALSE, message=FALSE, warning=FALSE, fig.width = 10, fig.height = 4}
 for (varnum in 1:(dim(datamat)[2]-1)) {
 	alldays = seq(min(datamat$date), max(datamat$date), by='1 week')
 	
@@ -423,11 +415,11 @@ for (varnum in 1:(dim(datamat)[2]-1)) {
 ```
 
 
-## Metabolites
+## Metabolite clusters
 
-#### Get p-values
+### FDR-corrected p-values for trends
 
-```{r metabModel}
+```{r metabModel,echo=FALSE, message=FALSE, warning=FALSE}
 datamat=load_metab_data() 
 varname='Metabolite eigenconcentration'
 sample_spacing=7
@@ -495,9 +487,7 @@ if (save_latex) {
 
 ```
 
-#### Make plots
-
-```{r metabPlot}
+```{r metabPlot,echo=FALSE, message=FALSE, warning=FALSE, fig.width = 10, fig.height = 4}
 for (varnum in 1:(dim(datamat)[2]-1)) {
 	
 	x=get_x_ts(datamat,alldays,scale=FALSE)
@@ -525,8 +515,9 @@ for (varnum in 1:(dim(datamat)[2]-1)) {
 ```
 
 ## ImmPort immune system pathways
+### FDR-corrected p-values for trends
 
-```{r immportModel}
+```{r immportModel,echo=FALSE, message=FALSE, warning=FALSE}
 datamat=load_ImmPort_data()
 
 varname='Eigengene expression'
@@ -580,10 +571,8 @@ if (save_latex) {
 
 ```
 
-#### Make plots
 
-
-```{r immportPlot}
+```{r immportPlot,echo=FALSE, message=FALSE, warning=FALSE, fig.width = 10, fig.height = 4}
 
 for (varnum in 1:(dim(datamat)[2]-1)) {
 	alldays = seq(min(datamat$date), max(datamat$date), by='1 week')
