@@ -118,7 +118,7 @@ if not os.path.exists(os.path.join(rnaseqdir,'Make_rnaseq_table.html')):
     f.close()
     run_shell_cmd('Rscript %s/knit_rnaseq_table.R'%filepath)
 
-# make table
+# make QA page
 if not os.path.exists(os.path.join(rnaseqdir,'QA_summary_rnaseq.html')):
     f=open(os.path.join(filepath,'knit_rnaseq_qa.R'),'w')
     f.write('# automatically generated knitr command file\n')
