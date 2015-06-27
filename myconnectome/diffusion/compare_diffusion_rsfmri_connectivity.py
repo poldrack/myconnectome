@@ -54,13 +54,16 @@ l2mean=z_to_r(numpy.mean(r_to_z(l2data),0))
 if use_abs_corr:
     l2mean=numpy.abs(l2mean)
 
-randshuffle=False
+randshuffle=True
 
 
 tvals=[0.005,0.01,0.025,0.05,0.075,0.1] #numpy.arange(0.001,0.5,0.005)
 tstr=['0.005','0.01','0.025','0.05','0.075','0.1']
 nrand=1000
 overlap={'rs-dti':numpy.zeros(len(tvals)),'rs-task':numpy.zeros(len(tvals)),
+      'dti-task':numpy.zeros(len(tvals)),'l1-dti':numpy.zeros(len(tvals)),
+    'l2-dti':numpy.zeros(len(tvals))}      
+dice={'rs-dti':numpy.zeros(len(tvals)),'rs-task':numpy.zeros(len(tvals)),
       'dti-task':numpy.zeros(len(tvals)),'l1-dti':numpy.zeros(len(tvals)),
     'l2-dti':numpy.zeros(len(tvals))}      
 overlap_rand={'rs-dti':numpy.zeros((len(tvals),nrand)),'rs-task':numpy.zeros((len(tvals),nrand)),
@@ -78,21 +81,25 @@ l1mean=z_to_r(numpy.mean(r_to_z(l1data),0))
 if use_abs_corr:
     l1mean=numpy.abs(l1mean)
 
+dtithresh=0
+
 for t in range(len(tvals)):        
-    dtibin=meandti>0
+    dtibin=meandti>dtithresh
     thresh=tvals[t]
     #l1data=numpy.load(os.path.join(basedir,'rsfmri/quic_utr_data_%s.npy'%tstr[t]))
     #l1mean=z_to_r(numpy.mean(r_to_z(l1data),0))
     rsthresh[t]=scipy.stats.scoreatpercentile(meancorr,100-100*thresh)
-    dtithresh[t]=scipy.stats.scoreatpercentile(meandti,100-100*thresh)
     taskthresh[t]=scipy.stats.scoreatpercentile(taskdata,100-100*thresh)
     l2thresh[t]=scipy.stats.scoreatpercentile(l2mean,100-100*thresh)
     l1thresh[t]=scipy.stats.scoreatpercentile(l1mean,100-100*thresh)
+    dice['rs-dti'][t]=(2*numpy.sum(dtibin[meancorr>rsthresh[t]]>0))/((numpy.sum(dtibin>0)+numpy.sum(meancorr>rsthresh[t]))*1.0)
+    
     overlap['rs-dti'][t]=numpy.mean(dtibin[meancorr>rsthresh[t]])
     overlap['dti-task'][t]=numpy.mean(dtibin[taskdata>taskthresh[t]])
     overlap['l1-dti'][t]=numpy.mean(dtibin[l1mean>l1thresh[t]])
     overlap['l2-dti'][t]=numpy.mean(dtibin[l2mean>l2thresh[t]])
-    for randruns in range(nrand):
+    if randshuffle:
+      for randruns in range(nrand):
         meandti_rand=meandti_rand[numpy.random.permutation(len(utr[0])).astype('int')]
         dtibin_rand=meandti_rand>0
         overlap_rand['rs-dti'][t,randruns]=numpy.mean(dtibin_rand[meancorr>rsthresh[t]])
