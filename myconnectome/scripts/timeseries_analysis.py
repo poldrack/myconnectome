@@ -24,7 +24,7 @@ if not os.path.exists(tsdir):
     os.mkdir(tsdir)
 
 if not os.path.exists(os.path.join(tsdir,'tables')):
-    os.mkdir(os.path.join(tsdir,'tables'))
+    os.makedirs(os.path.join(tsdir,'tables'))
 
 behavdir=os.path.join(basedir,'behavior')
 
