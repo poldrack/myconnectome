@@ -33,7 +33,7 @@ def get_base_data(logfile=None,overwrite=None):
         owcmd=''
     else:
         owcmd='-N'
-    cmd='wget -N -r -l inf --no-remove-listing -nH --cut-dirs=4 %s %s -R "index.html*","*.gif","robots.txt" -P %s %s/base/'%(owcmd,logcmd,basedir,dataurl)
+    cmd='wget -N -r -l inf --no-remove-listing --no-parent -nH --cut-dirs=4 %s %s -R "index.html*","*.gif","robots.txt" -P %s %s/base/'%(owcmd,logcmd,basedir,dataurl)
     run_shell_cmd(cmd)
   
 def get_directory(d,logfile=None,overwrite=None):
@@ -45,7 +45,7 @@ def get_directory(d,logfile=None,overwrite=None):
         owcmd=''
     else:
         owcmd='-N'
-    cmd='wget -N -r -l inf --no-remove-listing -nH --cut-dirs=4 %s %s -R "index.html*","*.gif","robots.txt" -P %s %s/%s/'%(owcmd,logcmd,basedir,dataurl,d)
+    cmd='wget -N -r -l inf --no-remove-listing --no-parent -nH --cut-dirs=4 %s %s -R "index.html*","*.gif","robots.txt" -P %s %s/%s/'%(owcmd,logcmd,basedir,dataurl,d)
     run_shell_cmd(cmd)
   
  
