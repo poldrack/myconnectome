@@ -5,11 +5,11 @@ date: "November 1, 2014"
 output: html_document
 ---
 
+# Gene network analysis for MyConnectome data
 
-This code loads the variance stabilized data (residualized against RIN and the first 3 PCs across subjects) and performs weighted gene coexpression network analysis (WGCNA).
+This code loads the variance stabilized data (residualized against RIN and the first 3 PCs across subjects) and performs weighted gene coexpression network analysis (WGCNA).  See [the WGCNA page at UCLA](http://labs.genetics.ucla.edu/horvath/CoexpressionNetwork/) for more info on this technique.
 
-First load the library:
-```{r setup}
+```{r setup, echo=FALSE,message=FALSE,warning=FALSE,error=FALSE}
 library(WGCNA)
 allowWGCNAThreads(2)
 options(stringsAsFactors = FALSE);
@@ -19,29 +19,30 @@ basedir=Sys.getenv('MYCONNECTOME_DIR')
 save_data=TRUE
 
 outdir=sprintf("%s/rna-seq/WGCNA",basedir)
-```
 
 ####Load the data
-```{r loadData}
 vsdata=read.table(sprintf('%s/rna-seq/varstab_data_prefiltered_rin_3PC_regressed.txt',basedir) )
 datExpr=t(vsdata)
 ```
 
 
+```{r pickThresh, echo=FALSE,message=FALSE}
 #### Call the network topology analysis function
 
-```{r pickThresh}
 powers = c(c(1:10), seq(from = 12, to=20, by=2))
-
-sft = pickSoftThreshold(datExpr, powerVector = powers, verbose = 5)
+if (file.exists(sprintf('%s/sft.Rdata',outdir))) {
+  load(sprintf('%s/sft.Rdata',outdir))
+} else {
+  sft = pickSoftThreshold(datExpr, powerVector = powers, verbose = 5)
+  if (save_data) {
+    save(sft,file=sprintf('%s/sft.Rdata',outdir))
+  }
+}
 ```
 
-#### Plot the results to examine the scale-free topology metric:
+#### Plot of network topology results to examine the scale-free topology metric:
 
-
-
-```{r plotPickThresh}
-sizeGrWindow(9, 5)
+```{r plotPickThresh, echo=FALSE,message=FALSE,warning=FALSE,error=FALSE}
 par(mfrow = c(1,2));
 
 cex1 = 0.9;
@@ -64,39 +65,37 @@ text(sft$fitIndices[,1], sft$fitIndices[,5], labels=powers, cex=cex1,col="red")
 
 Based on these results, we choose power=8 to obtain fit of r^2~0.8
 
-####Run WGCNA estimation
 
-```{r runWGCNA}
-
-net = blockwiseModules(datExpr, power = 8,corType='bicor',
-TOMType = "unsigned", minModuleSize = 20,
-reassignThreshold = 1e-6, mergeCutHeight = 0.15,
-numericLabels = TRUE, pamRespectsDendro = FALSE,
-saveTOMs = FALSE,
-verbose = 3,maxBlockSize=4000)
-
-```
-
-#### Save the data
-This can be turned on by setting save_data=TRUE
-
-```{r saveData}
-
-if (save_data) {
-  save(net,file=sprintf('%s/net-thr8-prefilt-rinPCreg-48sess.Rdata',outdir))
-  write.table(net$MEs, file=sprintf('%s/MEs-thr8-prefilt-rinPCreg-48sess.txt',outdir),row.names=FALSE,col.names=TRUE)
+```{r runWGCNA, echo=FALSE,message=FALSE,warning=FALSE,error=FALSE}
+##Run WGCNA estimation
+if (!file.exists(sprintf('%s/net-thr8-prefilt-rinPCreg-48sess.Rdata',outdir))) {
+  net = blockwiseModules(datExpr, power = 8,corType='bicor',
+  TOMType = "unsigned", minModuleSize = 20,
+  reassignThreshold = 1e-6, mergeCutHeight = 0.15,
+  numericLabels = TRUE, pamRespectsDendro = FALSE,
+  saveTOMs = FALSE,
+  verbose = 3,maxBlockSize=4000)
+  if (save_data) {
+    save(net,file=sprintf('%s/net-thr8-prefilt-rinPCreg-48sess.Rdata',outdir))
+    write.table(net$MEs, file=sprintf('%s/MEs-thr8-prefilt-rinPCreg-48sess.txt',outdir),row.names=FALSE,col.names=TRUE)
+  }
+} else {
+  load(sprintf('%s/net-thr8-prefilt-rinPCreg-48sess.Rdata',outdir))
 }
+
+
 ```
 
 #### Plot WGCNA results
 
-```{r plotResults}
+```{r plotResults, echo=FALSE,message=FALSE,warning=FALSE,error=FALSE}
 
 mergedColors = labels2colors(net$colors)
 plotDendroAndColors(net$dendrograms[[1]], mergedColors[net$blockGenes[[1]]],
 "Module colors",
 dendroLabels = FALSE, hang = 0.03,
 addGuide = TRUE, guideHang = 0.05)
+
 pdf(sprintf('%s/wgcna_tree.pdf',outdir))
 mergedColors = labels2colors(net$colors)
 plotDendroAndColors(net$dendrograms[[1]], mergedColors[net$blockGenes[[1]]],
@@ -108,9 +107,9 @@ dev.off()
 ```
 
 
-#### Save module assignments per gene
 
-```{r saveModAssn}
+```{r saveModAssn, echo=FALSE,message=FALSE,warning=FALSE,error=FALSE}
+#### Save module assignments per gene
 modules=as.data.frame(net$colors)
 row.names(modules)=row.names(vsdata)
 if (save_data) {
@@ -120,7 +119,7 @@ if (save_data) {
 
 #### get hub genes using module membership (KME)
 
-```{r saveHubGenes}
+```{r saveHubGenes,results='asis', echo=FALSE,message=FALSE,warning=FALSE,error=FALSE}
 skme=signedKME(datExpr,net$MEs)
 hubgenes=c()
 nhubs=5
