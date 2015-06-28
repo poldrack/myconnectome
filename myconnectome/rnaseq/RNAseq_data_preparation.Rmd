@@ -48,12 +48,12 @@ write.table(vsdata,sprintf('%s/rna-seq/varstab_data_prefiltered.txt',basedir))
 
 ## Dispersion estimates
 
-```{r plotDispEsts,echo=FALSE}
+```{r plotDispEsts,echo=FALSE, fig.width=12, fig.height=12}
 plotDispEsts( cdsBlind )
 ```
 
 ## SD vs. count before and after correction
-```{r plotSD,echo=FALSE}
+```{r plotSD,echo=FALSE, fig.width=12, fig.height=12}
 par(mfrow=c(1,2))
 notAllZero = (rowSums(counts(cds))>0)
 meanSdPlot(log2(counts(cds)[notAllZero, ] + 1), ylim = c(0,2.5))
@@ -62,14 +62,14 @@ meanSdPlot(vsd[notAllZero, ], ylim = c(0,2.5))
 
 
 ## Clusters of genes/sessions
-```{r plotClustGenes,echo=FALSE}
+```{r plotClustGenes,echo=FALSE, fig.width=12, fig.height=12}
 select = order(rowMeans(counts(cdsBlind)), decreasing=TRUE)[1:30]
 hmcol = colorRampPalette(brewer.pal(9, "GnBu"))(100)
 heatmap.2(exprs(vsd)[select,], col = hmcol, trace="none", margin=c(10, 6))
 ```
 
 ## Clusters of sessions - to look for outliers
-```{r plotClustSessions,echo=FALSE}
+```{r plotClustSessions,echo=FALSE, fig.width=12, fig.height=12}
 dists = dist( t( exprs(vsd) ) )
 mat = as.matrix( dists )
 heatmap.2(mat, trace="none", col = rev(hmcol), margin=c(13, 13))
