@@ -5,16 +5,18 @@ date: "May 18, 2015"
 output: html_document
 ---
 
+# Commparison of MyConnectome to Snyderome RNA-seq data
 
-```{r setup}
+The Snyderome RNA-seq data were obtained from [GEO](http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE33029).  
+
+## First prepare Snyderome data
+
+```{r setup, echo=FALSE,message=FALSE}
 basedir=Sys.getenv('MYCONNECTOME_DIR')
+if (basedir==''){basedir='/Users/poldrack/data_unsynced/myconnectome'}
 
 library(DESeq)
 
-```
-
-
-```{r loadData}
 filenames=read.table('http://s3.amazonaws.com/openfmri/ds031/RNA-seq/snyderome/htcount_files.txt')
 filenames=as.character(filenames$V1)
 htcount_files=c()
@@ -27,7 +29,7 @@ cdsFull = estimateSizeFactors( cdsFull )
 
 ```
 
-```{r cleanup}
+```{r cleanup, echo=FALSE,message=FALSE}
 # get mean expression for each gene across sesssions
 rs = rowMeans ( counts ( cdsFull ))
 allgenes=rownames(counts(cdsFull))
@@ -40,7 +42,7 @@ usedgenes=rownames(counts(cds))
 ```
 
 
-```{r varstab}
+```{r varstab, echo=FALSE,message=FALSE}
 # generate variance-stabilized count data and save to file
 
 cdsBlind = estimateDispersions( cds, method="blind" ,fitType='local')
@@ -51,7 +53,10 @@ write.table(vsdata,sprintf('%s/rna-seq/snyderome/varstab_data.txt',basedir))
 
 ```
 
-```{r plotDispEsts}
+## Diagnostic figures
+
+### Dispersion estimates
+```{r plotDispEsts, echo=FALSE,message=FALSE, fig.width=16, fig.height=12}
 # plot some diagnostic figures
 
 plotDispEsts( cdsBlind )
@@ -59,7 +64,8 @@ plotDispEsts( cdsBlind )
 
 ```
 
-```{r plotSD}
+### SD vs. count before and after correction
+```{r plotSD, echo=FALSE,message=FALSE, fig.width=16, fig.height=12}
 #plot SD vs. count before and after correction
 library(vsn)
 par(mfrow=c(1,2))
@@ -69,7 +75,9 @@ meanSdPlot(vsd[notAllZero, ], ylim = c(0,2.5))
 
 ```
 
-```{r plotGeneClust}
+### Clusters of genes/sessions
+
+```{r plotGeneClust,results='asis', echo=FALSE,message=FALSE,warning=FALSE,error=FALSE, fig.width=16, fig.height=12}
 # plot clusters of genes/subjects
 library("RColorBrewer")
 library("gplots")
@@ -79,11 +87,41 @@ heatmap.2(exprs(vsd)[select,], col = hmcol, trace="none", margin=c(10, 6))
 
 ```
 
-```{r plotSubClust}
+### Plot clusters of sessions - to look for outliers
+
+```{r plotSubClust,results='asis', echo=FALSE,message=FALSE,warning=FALSE,error=FALSE, fig.width=16, fig.height=12}
 # plot clusters of subjects - to look for outliers
 dists = dist( t( exprs(vsd) ) )
 mat = as.matrix( dists )
 heatmap.2(mat, trace="none", col = rev(hmcol), margin=c(13, 13))
 
 
+```
+
+## Compare expression to MyConnectome
+
+```{r compare, echo=FALSE,message=FALSE,warning=FALSE,error=FALSE, fig.width=16, fig.height=16}
+
+mycdata=read.table(sprintf('%s/rna-seq/varstab_data_prefiltered.txt',basedir))
+mycmean=apply(mycdata,1,mean)
+snymean=apply(vsdata,1,mean)
+
+cat(sprintf('Snyderome: %d genes\n',length(snymean)))
+cat(sprintf('MyConnectome: %d genes\n',length(mycmean)))
+mycgenes=names(mycmean)
+snygenes=names(snymean)
+mycmatch=mycgenes %in% snygenes
+snymatch=snygenes %in% mycgenes
+
+mycmean_match=mycmean[mycmatch]
+snymean_match=snymean[snymatch]
+cat(sprintf('Overlap: %d genes\n',length(snymean_match)))
+if (sum(names(mycmean_match)==names(snymean_match)) != length(snymean_match)) {
+  cat('there is a problem with gene name mismatch')
+}
+
+cat(sprintf('Correlation between datasets = %f\n',cor(mycmean_match,snymean_match)))
+
+
+plot(mycmean_match,snymean_match,main='MyConnectome vs. Snyderome',xlab='MyConnectome expression',ylab='Snyderome expression')
 ```
