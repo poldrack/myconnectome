@@ -44,7 +44,7 @@ def get_base_data(logfile=None,overwrite=None):
     else:
         owcmd='-N'
     cmd='wget -N -r -l inf --no-remove-listing -nH --cut-dirs=4 %s %s -R "index.html*","*.gif","robots.txt" -P %s %s/base/'%(owcmd,logcmd,basedir,dataurl)
-    run_shell_cmd.run_shell_cmd(cmd)
+    run_shell_cmd(cmd)
     
 # my kludgey code requires the base dir to end in a slash
 if not basedir[-1]=='/':
