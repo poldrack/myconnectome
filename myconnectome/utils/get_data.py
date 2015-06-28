@@ -30,7 +30,7 @@ def hashfile(fname, blocksize=65536):
     return hasher.hexdigest()
 
    
-basedir=os.environ['MYCONNECTOME_DIR']+'-base'
+basedir=os.environ['MYCONNECTOME_DIR']
 
 dataurl='http://web.stanford.edu/group/poldracklab/myconnectome-data'
 
