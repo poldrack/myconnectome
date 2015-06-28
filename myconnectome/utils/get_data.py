@@ -14,7 +14,7 @@ import re
 import datetime
 import hashlib
 import requests
-from run_shell_cmd import run_shell_cmd
+from from myconnectome.utils.run_shell_cmd import run_shell_cmd
 
 def timestamp():
     return datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
