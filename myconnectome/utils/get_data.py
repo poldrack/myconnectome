@@ -14,7 +14,7 @@ import re
 import datetime
 import hashlib
 import requests
-
+from run_shell_cmd import run_shell_cmd
 
 def timestamp():
     return datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
@@ -30,11 +30,22 @@ def hashfile(fname, blocksize=65536):
     return hasher.hexdigest()
 
    
-basedir=os.environ['MYCONNECTOME_DIR']
+basedir=os.environ['MYCONNECTOME_DIR']+'-base'
 
-dataurl='http://web.stanford.edu/group/poldracklab/myconnectome-data/'
+dataurl='http://web.stanford.edu/group/poldracklab/myconnectome-data'
 
-
+def get_base_data(logfile=None,overwrite=None):
+    if logfile:
+        logcmd='-a %s'%logfile
+    else:
+        logcmd=''
+    if overwrite:
+        owcmd=''
+    else:
+        owcmd='-N'
+    cmd='wget -N -r -l inf --no-remove-listing -nH --cut-dirs=4 %s %s -R "index.html*","*.gif","robots.txt" -P %s %s/base/'%(owcmd,logcmd,basedir,dataurl)
+    run_shell_cmd.run_shell_cmd(cmd)
+    
 # my kludgey code requires the base dir to end in a slash
 if not basedir[-1]=='/':
     basedir=basedir+'/'
@@ -109,7 +120,7 @@ def get_directory(dir,outdir,dataurl=dataurl,overwrite=False,logfile=None,verbos
             print 'getting',file
         get_file(file,dataurl+dir,outdir,logfile=logfile,overwrite=overwrite,verbose=verbose,failpass=failpass)
         
-def get_base_data(overwrite=False,logfile=None):
+def get_base_data_old(overwrite=False,logfile=None):
     """ 
     grab all necessary data from S3
     note that right now, it doesn't check to make sure all files are there, just the directory
