@@ -5,7 +5,7 @@ output: html_document
 
 ## Combined timeseries table for the MyConnectome study
 
-The 40 strongest associations between variables in the Myconnectome data set are listed here, in order of increasing FDR-corrected p-value derived from the ARIMA model.  Associations were excluded if they had an absolute Pearson r $<$ 0.3, which likely reflected degeneracy of the timeseries mode. In addition,  associations were excluded within variable sets for WGCNA, metabolomics, and between-network connectivity due to high numbers of associations within those variable sets, in order to focus more clearly on candidate relationships between variable sets.  
+This table lists associations between variables in the Myconnectome data set that passed a stringent Bonferroni correction of p < 0.05.  Associations were also excluded if they had an absolute Pearson r $<$ 0.3, which likely reflected degeneracy of the timeseries mode. In addition,  associations were excluded within variable sets for WGCNA, metabolomics, and between-network connectivity due to high numbers of associations within those variable sets, in order to focus more clearly on candidate relationships between variable sets.  
 
 ```{r, results='asis',echo=FALSE}
 
