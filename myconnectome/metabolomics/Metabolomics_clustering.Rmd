@@ -5,52 +5,42 @@ date: "November 1, 2014"
 output: html_document
 ---
 
-This is code for preprocessing of the metabolomics data for the MyConnectome study.
+## Metabolomics clustering for the MyConnectome study.
 
-First, load the functions that will provide the data:
 
-```{r setup}
+```{r setup,echo=FALSE,message=FALSE}
 
+# First, load the functions that will provide the data:
 
 basedir=Sys.getenv('MYCONNECTOME_DIR')
 
 dataurl='http://web.stanford.edu/group/poldracklab/myconnectome-data/base/metabolomics'
 save_data=TRUE
-```
 
-Load the data:
-
-```{r loadData}
 metab=load_metab_data(use_clustered_data=FALSE)
 metab$date=NULL
 metab=scale(metab)
-```
 
-The annotation tool that we will use requires PubChem IDs, so load those:
+#The annotation tool that we will use requires PubChem IDs, so load those:
 
-```{r loadCIDs}
 cids=read.table(sprintf('%s/pubmed_cids.txt',dataurl))$V1
-```
 
 
-Set up the clustering tool:
+#Set up the clustering tool:
 
-```{r setupAP}
 library(apcluster)
 sim=corSimMat()
-```
 
-Run the clustering:
+#Run the clustering:
 
-```{r runAP}
 ap=apcluster(sim,t(metab))
 
 ap
 ```
 
-Save the clustering data and pubchem IDs for each cluster, for later use in annotation with Impala (set save_data=TRUE and change directory location to enable this)
+We save the clustering data and pubchem IDs for each cluster, for later use in annotation with Impala (set save_data=TRUE and change directory location to enable this)
 
-```{r saveData}
+```{r saveData,echo=FALSE,message=FALSE}
 
 if (save_data) {
   for (i in 1:length(ap@clusters)) {
@@ -66,11 +56,9 @@ if (save_data) {
   	}
   save(ap,file=sprintf('%s/metabolomics/apclust.Rdata',basedir))
 }
-```
 
-Compute eigenconcentrations for each cluster
+#Compute eigenconcentrations for each cluster
 
-```{r getEigenConc}
 
 eigenconc=c()
 meanconc=c()
