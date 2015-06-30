@@ -63,7 +63,7 @@ text(sft$fitIndices[,1], sft$fitIndices[,5], labels=powers, cex=cex1,col="red")
 
 ```
 
-Based on these results, we choose power=8 to obtain fit of r^2~0.8
+Based on these results, we choose power=8 to obtain fit of r^2~0.9
 
 
 ```{r runWGCNA, echo=FALSE,message=FALSE,warning=FALSE,error=FALSE}
