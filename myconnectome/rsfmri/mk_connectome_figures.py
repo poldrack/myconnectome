@@ -105,7 +105,7 @@ def mk_connectome_figures(use_abs_corr=False,thresh=0.0025):
     dtiadj_reduced=tmp[:,dti_sum>0]
     #dtiadj_reduced=dtiadj_reduced+dtiadj_reduced.T
     nilearn.plotting.plot_connectome(dtiadj_reduced,coords[dti_sum>0,:],node_size=2,
-                                     output_file=os.path.join(basedir,'diffusion/dti_connectome.pdf'))
+                                     output_file=os.path.join(basedir,'diffusion/dti_connectome_thresh%f.pdf'%thresh))
     rs_sum=numpy.sum(rsadj,0)
     rsadj_match=rsadj*0.01 + rsadj*dtibin*0.8 # add one to matches to change edge color
     tmp=rsadj_match[rs_sum>0,:]
@@ -113,7 +113,7 @@ def mk_connectome_figures(use_abs_corr=False,thresh=0.0025):
     #rsadj_reduced=rsadj_reduced+rsadj_reduced.T
     nilearn.plotting.plot_connectome(rsadj_reduced,coords[rs_sum>0,:],node_size=2,
                                      edge_vmin=0,edge_vmax=1,edge_cmap='seismic',edge_kwargs={'linewidth':1},
-                                     output_file=os.path.join(basedir,'rsfmri/rsfmri_corr_connectome.pdf'))
+                                     output_file=os.path.join(basedir,'rsfmri/rsfmri_corr_connectome_thresh%f.pdf'%thresh))
     
     
     l2_sum=numpy.sum(l2adj,0)
@@ -123,7 +123,7 @@ def mk_connectome_figures(use_abs_corr=False,thresh=0.0025):
     #l2adj_reduced=l2adj_reduced+l2adj_reduced.T
     nilearn.plotting.plot_connectome(l2adj_reduced,coords[l2_sum>0,:],node_size=2,
                                      edge_vmin=0,edge_vmax=1,edge_cmap='seismic',edge_kwargs={'linewidth':1},
-                                     output_file=os.path.join(basedir,'rsfmri/rsfmri_l2_connectome.pdf'))
+                                     output_file=os.path.join(basedir,'rsfmri/rsfmri_l2_connectome_thresh%f.pdf'%thresh))
     
     task_sum=numpy.sum(taskadj,0)
     taskadj_match=taskadj*0.01 +  taskadj*dtibin*0.8 # add one to matches to change edge color
@@ -132,7 +132,7 @@ def mk_connectome_figures(use_abs_corr=False,thresh=0.0025):
     #taskadj_reduced=taskadj_reduced+taskadj_reduced.T
     nilearn.plotting.plot_connectome(taskadj_reduced,coords[task_sum>0,:],node_size=2,
                                      edge_vmin=0,edge_vmax=1,edge_cmap='seismic',edge_kwargs={'linewidth':1},
-                                     output_file=os.path.join(basedir,'taskfmri/task_connectome.pdf'))
+                                     output_file=os.path.join(basedir,'taskfmri/task_connectome_thresh%f.pdf'%thresh))
 
 
 if __name__ == "__main__":
