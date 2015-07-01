@@ -17,14 +17,14 @@ if (basedir==''){basedir='/Users/poldrack/data_unsynced/myconnectome'}
 
 library(DESeq)
 
-filenames=read.table('http://s3.amazonaws.com/openfmri/ds031/RNA-seq/snyderome/htcount_files.txt')
+filenames=read.table('http://web.stanford.edu/group/poldracklab/myconnectome-data/snyderome/htcount_files.txt')
 filenames=as.character(filenames$V1)
 htcount_files=c()
 for (i in 1:length(filenames)){
   htcount_files=rbind(htcount_files,c(filenames[i],filenames[i],i))
 }
 cdsFull=newCountDataSetFromHTSeqCount(htcount_files,
-          directory="http://s3.amazonaws.com/openfmri/ds031/RNA-seq/snyderome")
+          directory="http://web.stanford.edu/group/poldracklab/myconnectome-data/snyderome")
 cdsFull = estimateSizeFactors( cdsFull )
 
 ```
