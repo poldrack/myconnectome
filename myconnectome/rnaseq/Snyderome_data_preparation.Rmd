@@ -5,7 +5,7 @@ date: "May 18, 2015"
 output: html_document
 ---
 
-# Commparison of MyConnectome to Snyderome RNA-seq data
+# Comparison of MyConnectome to Snyderome RNA-seq data
 
 The Snyderome RNA-seq data were obtained from [GEO](http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE33029).  
 
