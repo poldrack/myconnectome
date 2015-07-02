@@ -7,6 +7,8 @@ output: html_document
 
 # Timeseries analyses for MyConnectome dataset
 
+Code available at: [https://github.com/poldrack/myconnectome/blob/master/myconnectome/timeseries/timeseries_analyses.Rmd](https://github.com/poldrack/myconnectome/blob/master/myconnectome/timeseries/timeseries_analyses.Rmd)
+
 This notebook runs all of the timeseries analyses presented in the MyConnectome paper. The tables list all tests that survived at FDR-corrected p < 0.1, correcting within each set of tests.  
 
 The variables listed in each table are:

@@ -7,6 +7,7 @@ output: html_document
 
 ## Timeseries heatmap figures for the MyConnectome dataset
 
+Code available at: [https://github.com/poldrack/myconnectome/blob/master/myconnectome/timeseries/Make_Timeseries_Heatmaps.Rmd](https://github.com/poldrack/myconnectome/blob/master/myconnectome/timeseries/Make_Timeseries_Heatmaps.Rmd)
 
 ```{r setup, message=FALSE,echo=FALSE, warning=FALSE}
 basedir=Sys.getenv('MYCONNECTOME_DIR')

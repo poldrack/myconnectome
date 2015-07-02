@@ -6,6 +6,8 @@ output: html_document
 ---
 # Timeseries plots for MyConnectome dataset
 
+Code available at: [https://github.com/poldrack/myconnectome/blob/master/myconnectome/timeseries/Make_timeseries_plots.Rmd](https://github.com/poldrack/myconnectome/blob/master/myconnectome/timeseries/Make_timeseries_plots.Rmd)
+
 This code generates timeseries plots for each variable, and performs a test for linear and polynomial trends.
 
 ```{r,echo=FALSE, results='hide',message=FALSE, warning=FALSE}
