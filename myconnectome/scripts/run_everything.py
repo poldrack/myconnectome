@@ -11,12 +11,13 @@ except:
     sys.exit(0)
 
 from myconnectome.utils import run_shell_cmd
+from myconnectome.utils.log_time import init_timefile
 
 good_to_go=True
 # check for environment variables
 
 ## 1 for required, 0 for recommended
-envvars={'MYCONNECTOME_DIR':1,'WORKBENCH_BIN_DIR':1,'DAVID_EMAIL':0}
+envvars={'MYCONNECTOME_DIR':1,'WORKBENCH_BIN_DIR':1,'DAVID_EMAIL':0,'TIME_LOG_FILE':1}
 
 messages=[]
 for v in envvars.keys():
@@ -61,6 +62,9 @@ if not good_to_go:
 filepath=os.path.dirname(os.path.abspath(__file__))
 basepath=os.path.dirname(filepath)
 
+# Initialize timing file
+timefile = os.environ["TIME_LOG_FILE"]
+init_timefile(timefile)    
 
 execfile('%s/scripts/rsfmri_analysis.py'%basepath)
 
