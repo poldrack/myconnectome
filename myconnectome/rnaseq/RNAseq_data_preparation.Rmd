@@ -7,6 +7,8 @@ output: html_document
 
 # RNA-seq data preparation
 
+Code available at: [https://github.com/poldrack/myconnectome/blob/master/myconnectome/rnaseq/RNAseq_data_preparation.Rmd](https://github.com/poldrack/myconnectome/blob/master/myconnectome/rnaseq/RNAseq_data_preparation.Rmd)
+
 This code loads the gene-level read count data and performs a variance-stabilizing transform using DESeq, and saves the resulting data for further analysis. 
 
 ``` {r setup, echo=FALSE,message=FALSE}
