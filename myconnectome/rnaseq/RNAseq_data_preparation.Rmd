@@ -16,7 +16,10 @@ library("RColorBrewer")
 library("gplots")
 
 basedir=Sys.getenv('MYCONNECTOME_DIR')
-dataurl='http://web.stanford.edu/group/poldracklab/myconnectome-data/base/rna-seq'
+if (basedir=='') {
+  basedir='/Users/poldrack/data_unsynced/myconnectome'
+}
+dataurl=sprintf('%s/rna-seq/',basedir)
 
 ####Load the data from the cloud and estimate size factors for correction
 ### use data that have been filtered for abundance (4>mean<10000) and removed snoRNAs
