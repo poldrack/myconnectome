@@ -83,7 +83,7 @@ def add_timeseries_links():
             
         for r in netnames:
                if l.find(r)>-1:
-                   img=os.path.join(basedir,'rsfmri/network_plots/network%s.png'%netnames[r][0])
+                   img='network_plots/network%s.png'%netnames[r][0]
                    l=l.replace(r,
           "<a onmouseover=\"nhpup.popup('%s: <br/><br/> <img src=&quot;%s&quot;/>', {'width': 250});\">%s</a>"%(netnames[r][1],img,r))
         if l.find('<h3>Behavioral variables vs. each other:</h3>')>-1:
