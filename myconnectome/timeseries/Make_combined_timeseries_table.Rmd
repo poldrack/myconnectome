@@ -22,7 +22,7 @@ for (f in dir(tsdir)) {
 
 data=c()
 for (r in resultfiles) {
-  if (!grepl('wgcna_wgcna',r) & !grepl('metab_metab',r) & !grepl('bwcorr_bwcorr',r)  & !grepl('pindex',r)) {
+  if (!grepl('wgcna_wgcna',r) & !grepl('metab_metab',r) & !grepl('bwcorr_bwcorr',r)  & !grepl('pindex',r) & !grepl('netdat',r)) {
     df=read.table(sprintf('%s/%s',tsdir,r),header=TRUE)
     vars=strsplit(strsplit(r,'\\.')[[1]][3],'_')[[1]]
     df$xvartype=vars[1]
