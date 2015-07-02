@@ -98,7 +98,10 @@ for filename in files_to_load:
     if len(data[f])<1:
         print 'no significant results for',f
         continue
-            
+    
+    if 'netdat' in datatypes:
+        continue
+    
     for k in data[f].keys():
         print k
         if data[f][k][1]<0 and filter_negatives:
@@ -155,9 +158,9 @@ for i in degree.iterkeys():
         graph.remove_node(i)
 
 
-h=nx.hits(graph)[0]
-for k in h.iterkeys():
-    graph.node[k]['hub']=h[k]
+#h=nx.hits(graph)[0]
+#for k in h.iterkeys():
+#    graph.node[k]['hub']=h[k]
     
 #for k in graph.obj_dict['nodes'].iterkeys():
 #    print graph.obj_dict['nodes'][k]
