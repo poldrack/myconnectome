@@ -7,6 +7,8 @@ output: html_document
 
 ## Metabolomics clustering for the MyConnectome study.
 
+Code available at: [https://github.com/poldrack/myconnectome/blob/master/myconnectome/metabolomics/Metabolomics_clustering.Rmd](https://github.com/poldrack/myconnectome/blob/master/myconnectome/metabolomics/Metabolomics_clustering.Rmd)
+
 
 ```{r setup,echo=FALSE,message=FALSE}
 
