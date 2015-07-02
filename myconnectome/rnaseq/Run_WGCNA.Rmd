@@ -7,6 +7,8 @@ output: html_document
 
 # Gene network analysis for MyConnectome data
 
+Code available at: [https://github.com/poldrack/myconnectome/blob/master/myconnectome/rnaseq/Run_WGCNA.Rmd](https://github.com/poldrack/myconnectome/blob/master/myconnectome/rnaseq/Run_WGCNA.Rmd)
+
 This code loads the variance stabilized data (residualized against RIN and the first 3 PCs across subjects) and performs weighted gene coexpression network analysis (WGCNA).  See [the WGCNA page at UCLA](http://labs.genetics.ucla.edu/horvath/CoexpressionNetwork/) for more info on this technique.
 
 ```{r setup, echo=FALSE,message=FALSE,warning=FALSE,error=FALSE}
