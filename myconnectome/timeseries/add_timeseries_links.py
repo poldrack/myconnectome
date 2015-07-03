@@ -66,6 +66,9 @@ def add_timeseries_links():
       background-color: #777;
       color: white;
       font-size: 0.95em;
+      top: 200px;
+      left:200px;
+
     }
     
     
