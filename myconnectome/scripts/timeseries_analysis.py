@@ -19,6 +19,11 @@ try:
 except:
     raise RuntimeError('you must first set the MYCONNECTOME_DIR environment variable')
 
+try:
+    timefile = os.environ["TIME_LOG_FILE"]
+except:
+    raise RuntimeError('you must first set the TIME_LOG_FILE environment variable')
+
 tsdir=os.path.join(basedir,'timeseries')
 if not os.path.exists(tsdir):
     os.mkdir(tsdir)
@@ -42,6 +47,7 @@ f.close()
 run_shell_cmd('Rscript %s/check_depends.R'%filepath)
 
 if not os.path.exists(os.path.join(tsdir,'timeseries_analyses.html')):
+    starttime = get_time()
     f=open(os.path.join(filepath,'knit_timeseries.R'),'w')
     f.write('# automatically generated knitr command file\n')
     f.write('require(knitr)\n')
@@ -56,8 +62,11 @@ if not os.path.exists(os.path.join(tsdir,'timeseries_analyses.html')):
         (tsdir,tsdir))
     f.close()
     run_shell_cmd('Rscript %s/knit_timeseries.R'%filepath)
+    endtime = get_time()
+    log_time(timefile,starttime,endtime,os.path.join(tsdir,'timeseries_analyses.html'))
 
 if not os.path.exists(os.path.join(tsdir,'Make_timeseries_plots.html')):
+    starttime = get_time()
     f=open(os.path.join(filepath,'knit_timeseries_plots.R'),'w')
     f.write('# automatically generated knitr command file\n')
     f.write('require(knitr)\n')
@@ -73,8 +82,11 @@ if not os.path.exists(os.path.join(tsdir,'Make_timeseries_plots.html')):
         (tsdir,tsdir))
     f.close()
     run_shell_cmd('Rscript %s/knit_timeseries_plots.R'%filepath)
+    endtime = get_time()
+    log_time(timefile,starttime,endtime,os.path.join(tsdir,'Make_timeseries_plots.html'))
 
 if not os.path.exists(os.path.join(tsdir,'Make_Timeseries_Heatmaps.html')):
+    starttime = get_time()
     f=open(os.path.join(filepath,'knit_timeseries_heatmaps.R'),'w')
     f.write('# automatically generated knitr command file\n')
     f.write('require(knitr)\n')
@@ -89,8 +101,12 @@ if not os.path.exists(os.path.join(tsdir,'Make_Timeseries_Heatmaps.html')):
         (tsdir,tsdir))
     f.close()
     run_shell_cmd('Rscript %s/knit_timeseries_heatmaps.R'%filepath)
+    endtime = get_time()
+    log_time(timefile,starttime,endtime,os.path.join(tsdir,'Make_Timeseries_Heatmaps.html'))
+
 
 if not os.path.exists(os.path.join(tsdir,'Make_combined_timeseries_table.html')):
+    starttime = get_time()
     f=open(os.path.join(filepath,'knit_timeseries_table.R'),'w')
     f.write('# automatically generated knitr command file\n')
     f.write('require(knitr)\n')
@@ -105,8 +121,13 @@ if not os.path.exists(os.path.join(tsdir,'Make_combined_timeseries_table.html'))
         (tsdir,tsdir))
     f.close()
     run_shell_cmd('Rscript %s/knit_timeseries_table.R'%filepath)
+    endtime = get_time()
+    log_time(timefile,starttime,endtime,os.path.join(tsdir,'Make_combined_timeseries_table.html'))
 
 add_timeseries_links.add_timeseries_links()
 
 if not os.path.exists(os.path.join(basedir,'rsfmri/lh_PI.func.gii')):
+    starttime = get_time()
     mk_participation_index_giftis.mk_participation_index_giftis()
+    endtime = get_time()
+    log_time(timefile,starttime,endtime,os.path.join(basedir,'rsfmri/lh_PI.func.gii'))
