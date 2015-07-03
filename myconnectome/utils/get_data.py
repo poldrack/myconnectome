@@ -65,7 +65,7 @@ def get_list_data(listfileurl,logfile=None,overwrite=False,verbose=False):
 def get_directory(dirname):
     get_list_data(dataurl+'/'+dirname)
     
-def get_base_data():
+def get_base_data(overwrite=False):
          
     logdir=os.path.join(basedir,'logs')
     if not os.path.exists(logdir):
