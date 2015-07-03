@@ -126,8 +126,7 @@ if not os.path.exists(os.path.join(rnaseqdir,'WGCNA/module_descriptions')):
     starttime = get_time()
     get_module_descriptions.get_module_descriptions()
     endtime = get_time()
-    log_time(timefile,starttime,endtime,os.path.join(os.path.join(rnaseqdir,'WGCNA/module_descriptions')))
-    
+    log_time(timefile,starttime,endtime,os.path.join(rnaseqdir,'WGCNA/module_descriptions'))
     
 # make table
 if not os.path.exists(os.path.join(rnaseqdir,'Make_rnaseq_table.html')):
