@@ -25,7 +25,7 @@ except:
 try:
     timefile = os.environ["TIME_LOG_FILE"]
 except:
-    raise RuntimeError('you must first set the TIME_LOG_FILE environmental variable')
+    timefile = os.path.join(basedir,'.timing.txt')
 
 
 rnaseqdir=os.path.join(basedir,'rna-seq')

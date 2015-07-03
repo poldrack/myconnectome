@@ -22,7 +22,8 @@ except:
 try:
     timefile = os.environ["TIME_LOG_FILE"]
 except:
-    raise RuntimeError('you must first set the TIME_LOG_FILE environment variable')
+    timefile = os.path.join(basedir,'.timing.txt')
+
 
 tsdir=os.path.join(basedir,'timeseries')
 if not os.path.exists(tsdir):

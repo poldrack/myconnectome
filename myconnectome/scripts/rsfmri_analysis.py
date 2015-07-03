@@ -21,7 +21,11 @@ logfile=os.path.join(logdir,'data_downloads.log')
 
 filepath=os.path.dirname(os.path.abspath(__file__))
 
-timefile = os.environ["TIME_LOG_FILE"]
+try:
+    timefile = os.environ["TIME_LOG_FILE"]
+except:
+    timefile = os.path.join(basedir,'.timing.txt')
+
 
 get_base_data()
 

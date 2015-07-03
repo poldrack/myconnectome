@@ -12,7 +12,12 @@ filepath=os.path.dirname(os.path.abspath(__file__))
 basepath=os.path.dirname(filepath)
 
 basedir=os.environ['MYCONNECTOME_DIR']
-timefile = os.environ["TIME_LOG_FILE"]
+
+try:
+    timefile = os.environ["TIME_LOG_FILE"]
+except:
+    timefile = os.path.join(basedir,'.timing.txt')
+
 metabdir=os.path.join(basedir,'metabolomics')
 if not os.path.exists(metabdir):
     os.mkdir(metabdir)
