@@ -25,7 +25,7 @@ except:
 try:
     timefile = os.environ["TIME_LOG_FILE"]
 except:
-    raise RuntimeError('you must first set the TIME_LOG_FILE environmental variable')
+    timefile = os.path.join(basedir,'.timing.txt')
 
 
 rnaseqdir=os.path.join(basedir,'rna-seq')
@@ -117,7 +117,7 @@ if not os.path.exists(os.path.join(rnaseqdir,'WGCNA/DAVID_thr8_prefilt_rin3PCreg
     except:
         print 'Environment variable DAVID_EMAIL is not set'
         print 'downloading precomputed results from S3'
-        get_directory('DAVID/',basedir)
+        get_directory('david')
     endtime = get_time()
     log_time(timefile,starttime,endtime,os.path.join(rnaseqdir,'WGCNA/DAVID_thr8_prefilt_rin3PCreg_GO_set063.txt'))
     

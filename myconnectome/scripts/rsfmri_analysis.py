@@ -21,9 +21,13 @@ logfile=os.path.join(logdir,'data_downloads.log')
 
 filepath=os.path.dirname(os.path.abspath(__file__))
 
-timefile = os.environ["TIME_LOG_FILE"]
+try:
+    timefile = os.environ["TIME_LOG_FILE"]
+except:
+    timefile = os.path.join(basedir,'.timing.txt')
 
-get_base_data(logfile=logfile)
+
+get_base_data()
 
 rsdir=os.path.join(basedir,'rsfmri')
 
@@ -83,7 +87,7 @@ if not os.path.exists(os.path.join(basedir,'rsfmri/geff_pos.txt')):
   else:
       print 'MATLAB not available, downloading BCT results from repository'
       starttime = get_time()
-      get_directory('bct/',basedir)
+      get_directory('bct')
       endtime = get_time()
       log_time(timefile,starttime,endtime,os.path.join(basedir,'rsfmri/geff_pos.txt'))
       

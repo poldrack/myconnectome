@@ -17,7 +17,7 @@ good_to_go=True
 # check for environment variables
 
 ## 1 for required, 0 for recommended
-envvars={'MYCONNECTOME_DIR':1,'WORKBENCH_BIN_DIR':1,'DAVID_EMAIL':0,'TIME_LOG_FILE':1}
+envvars={'MYCONNECTOME_DIR':1,'WORKBENCH_BIN_DIR':1,'DAVID_EMAIL':0}
 
 messages=[]
 for v in envvars.keys():
@@ -31,6 +31,11 @@ for v in envvars.keys():
             print 'environment variable %s recommended but not required'%v
 if good_to_go:
     print 'all environment variables present'
+
+try:
+    timefile = os.environ["TIME_LOG_FILE"]
+except:
+    timefile = os.path.join(os.environ['MYCONNECTOME_DIR'],'.timing.txt')
 
 
 # check for suitable version of R
@@ -63,7 +68,7 @@ filepath=os.path.dirname(os.path.abspath(__file__))
 basepath=os.path.dirname(filepath)
 
 # Initialize timing file
-timefile = os.environ["TIME_LOG_FILE"]
+
 init_timefile(timefile)    
 
 execfile('%s/scripts/rsfmri_analysis.py'%basepath)
