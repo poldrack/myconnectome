@@ -1,9 +1,9 @@
 ---
-title: "Table S2: Metabolomics clusters"
+#title: "Table S2: Metabolomics clusters"
 output: html_document
 ---
 
-Table showing clusters of metabolites and enriched pathways generated using Impala.
+**Table S2**. A listing of clusters of metabolites and enriched pathways generated using Impala.
 
 ```{r, results='asis',echo=FALSE}
 
@@ -38,6 +38,7 @@ for (cluster in 1:15) {
                              cat('\n')}
   else {
     enr=subset(enrichment,select=c(pathway_name,pathway_source,Q_metabolites))
+    names(enr)=c('Pathway name','Pathway source','q')
     print(kable(enr))
     cat('\n')
     all_enrichments=c(all_enrichments,as.character(enr[,1]))

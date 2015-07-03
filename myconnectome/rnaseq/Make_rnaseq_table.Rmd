@@ -1,9 +1,9 @@
 ---
-title: "Table S1: Gene expression modules"
+#title: "Table S1: Gene expression modules"
 output: html_document
 ---
 
-Table showing clusters of metabolites and enriched pathways generated using DAVID.
+**Table S1**.  A listing of gene modules and enriched pathways generated using DAVID. Q denotes false discovery rate for enrichment computed using the Benjamini-Hochberg method.
 
 ```{r, results='asis',echo=FALSE}
 
