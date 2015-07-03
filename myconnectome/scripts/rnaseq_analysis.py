@@ -117,7 +117,7 @@ if not os.path.exists(os.path.join(rnaseqdir,'WGCNA/DAVID_thr8_prefilt_rin3PCreg
     except:
         print 'Environment variable DAVID_EMAIL is not set'
         print 'downloading precomputed results from S3'
-        get_directory('DAVID/',basedir)
+        get_directory('david')
     endtime = get_time()
     log_time(timefile,starttime,endtime,os.path.join(rnaseqdir,'WGCNA/DAVID_thr8_prefilt_rin3PCreg_GO_set063.txt'))
     
