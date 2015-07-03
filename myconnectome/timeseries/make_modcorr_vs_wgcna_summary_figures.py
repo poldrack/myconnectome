@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 make summary figures for within/between network connectivity vs expression
+- ultimately this was not used for the figures, but was used to make the 
+inputs to the R program used for the figures (mk_bwcorr_expression_figure.R)
 Created on Sun Jun 21 18:03:58 2015
 
 @author: poldrack
