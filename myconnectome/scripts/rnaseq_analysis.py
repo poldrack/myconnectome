@@ -126,7 +126,8 @@ if not os.path.exists(os.path.join(rnaseqdir,'WGCNA/module_descriptions')):
     starttime = get_time()
     get_module_descriptions.get_module_descriptions()
     endtime = get_time()
-    log_time(timefile,starttime,endtime,os.path.join(os.path.join(rnaseqdir,'WGCNA/module_descriptions'))
+    log_time(timefile,starttime,endtime,os.path.join(os.path.join(rnaseqdir,'WGCNA/module_descriptions')))
+    
     
 # make table
 if not os.path.exists(os.path.join(rnaseqdir,'Make_rnaseq_table.html')):
@@ -160,7 +161,7 @@ if not os.path.exists(os.path.join(rnaseqdir,'QA_summary_rnaseq.html')):
     f.close()
     run_shell_cmd('Rscript %s/knit_rnaseq_qa.R'%filepath)
     endtime = get_time()
-    log_time(timefile,starttime,endtime,os.path.join(os.path.join(rnaseqdir,'QA_summary_rnaseq.html'))
+    log_time(timefile,starttime,endtime,os.path.join(os.path.join(rnaseqdir,'QA_summary_rnaseq.html')))
 
 # do snyderome preparation
 if not os.path.exists(os.path.join(rnaseqdir,'snyderome/Snyderome_data_preparation.html')):
