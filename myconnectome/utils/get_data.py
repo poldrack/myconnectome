@@ -21,8 +21,8 @@ from myconnectome.utils.download_file import DownloadFile
 def timestamp():
     return datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
 
-#dataurl='http://s3-us-west-2.amazonaws.com/myconnectome/base'
-dataurl='http://d2bmty58oscepi.cloudfront.net'
+#dataurl='http://d2bmty58oscepi.cloudfront.net'
+dataurl='http://s3-us-west-2.amazonaws.com/myconnectome/base'
 
 basefileurl=dataurl+'/basefilelist_md5.txt'
 
