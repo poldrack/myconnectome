@@ -29,7 +29,8 @@ basefile=os.path.join(basedir,'basefilelist_md5.txt')
 
 #dataurl='http://web.stanford.edu/group/poldracklab/myconnectome-data'
 
-
+dirname_listdict={'bct':'https://s3-us-west-2.amazonaws.com/myconnectome/base/bctlist_md5.txt',
+                  'david':'https://s3-us-west-2.amazonaws.com/myconnectome/base/davidfilelist_md5.txt'}
 
 def get_list_data(listfileurl,logfile=None,overwrite=False,verbose=False):
 
@@ -54,16 +55,16 @@ def get_list_data(listfileurl,logfile=None,overwrite=False,verbose=False):
 
         print 'downloading',b[0]
         DownloadFile(dataurl+'/'+b[0].replace('+','%2B'),os.path.join(basedir,b[0]))
-        try:
-            assert getmd5sum(os.path.join(basedir,b))==b[1]
-        except:
-            print 'md5sum does not match for ',b[0]
+        ds_md5=getmd5sum(os.path.join(basedir,b[0]))
+        if not ds_md5==b[1]:
+            print 'md5sum does not match for ',b[0],ds_md5
         if logfile:
             open(logfile,'a').write('%s\n'%'\t'.join(b))
 
  
-def get_directory(dirname):
-    get_list_data(dataurl+'/'+dirname)
+def get_directory(d):
+    assert dirname_listdict.has_key(d)
+    get_list_data(dirname_listdict[d])
     
 def get_base_data(overwrite=False):
          
