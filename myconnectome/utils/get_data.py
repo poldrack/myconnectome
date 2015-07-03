@@ -61,7 +61,10 @@ def get_list_data(listfileurl,logfile=None,overwrite=False,verbose=False):
         if logfile:
             open(logfile,'a').write('%s\n'%'\t'.join(b))
 
-  
+ 
+def get_directory(dirname):
+    get_list_data(dataurl+'/'+dirname)
+    
 def get_base_data():
          
     logdir=os.path.join(basedir,'logs')
