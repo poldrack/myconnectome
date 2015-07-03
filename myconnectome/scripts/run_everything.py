@@ -35,7 +35,7 @@ if good_to_go:
 try:
     timefile = os.environ["TIME_LOG_FILE"]
 except:
-    timefile = os.path.join(basedir,'.timing.txt')
+    timefile = os.path.join(os.environ['MYCONNECTOME_DIR'],'.timing.txt')
 
 
 # check for suitable version of R
@@ -68,7 +68,7 @@ filepath=os.path.dirname(os.path.abspath(__file__))
 basepath=os.path.dirname(filepath)
 
 # Initialize timing file
-timefile = os.environ["TIME_LOG_FILE"]
+
 init_timefile(timefile)    
 
 execfile('%s/scripts/rsfmri_analysis.py'%basepath)
