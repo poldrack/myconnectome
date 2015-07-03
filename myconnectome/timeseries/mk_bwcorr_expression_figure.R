@@ -44,7 +44,7 @@ bwcorr.wgcna.t[bwcorr.wgcna.t > 5]=5
 bwcorr.wgcna.t[bwcorr.wgcna.t < -5]=-5
 
 heatmap.2(as.matrix(bwcorr.wgcna.t),margins=c(16,14),key=TRUE,
-          trace='none',dendrogram='both', col=my_palette,
-          cellnote=cellnotes,notecol='black',notecex=1.2,density='none',srtCol=45)
+          trace='none',dendrogram='col', col=my_palette,Rowv='none',
+          cellnote=cellnotes,notecol='white',notecex=1.2,density='none',srtCol=45)
           #symm=F,symkey=F,symbreaks=T, scale="none")
 dev.off()
