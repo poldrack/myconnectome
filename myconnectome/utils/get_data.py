@@ -62,7 +62,15 @@ def get_list_data(listfileurl,logfile=None,overwrite=False,verbose=False):
             open(logfile,'a').write('%s\n'%'\t'.join(b))
 
   
- 
+ def get_base_data():
+         
+    logdir=os.path.join(basedir,'logs')
+    if not os.path.exists(logdir):
+        os.mkdir(logdir)
+    logfile=os.path.join(logdir,'data_downloads.log')
+    print 'getting data for main analysis...'
+    get_list_data(basefileurl,logfile=logfile,overwrite=overwrite)
+
   
 def usage():
     """Print the docstring and exit with error."""
