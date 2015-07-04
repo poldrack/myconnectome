@@ -3,7 +3,7 @@
 output: html_document
 ---
 
-**Table S2**. A listing of clusters of metabolites and enriched pathways generated using Impala.
+**Table S3**. A listing of clusters of metabolites and enriched pathways generated using Impala.
 
 ```{r, results='asis',echo=FALSE}
 
