@@ -77,7 +77,7 @@ f.write('source("%s/utils/pkgTest.R")\n'%basepath)
 for d in R_dependencies:
     f.write('pkgTest("%s")\n'%d)
 f.close()
-run_shell_cmd('Rscript %s/check_depends.R'%filepath)
+run_shell_cmd.run_shell_cmd('Rscript %s/check_depends.R'%filepath)
 
 
 # Initialize timing file
