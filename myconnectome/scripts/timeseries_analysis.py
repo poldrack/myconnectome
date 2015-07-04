@@ -8,6 +8,7 @@ from myconnectome.utils.run_shell_cmd import run_shell_cmd
 from myconnectome.utils.get_data import *
 from myconnectome.rsfmri import mk_participation_index_giftis
 from myconnectome.timeseries import add_timeseries_links
+from myconnectome.utils.log_time import log_time, get_time
 
 filepath=os.path.dirname(os.path.abspath(__file__))
 basepath=os.path.dirname(filepath)

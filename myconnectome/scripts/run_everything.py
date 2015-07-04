@@ -67,6 +67,19 @@ if not good_to_go:
 filepath=os.path.dirname(os.path.abspath(__file__))
 basepath=os.path.dirname(filepath)
 
+# check R dependencies
+
+R_dependencies=['knitr','WGCNA','DESeq','RColorBrewer','vsn','gplots']
+
+f=open(os.path.join(filepath,'check_depends.R'),'w')
+f.write('# automatically generated knitr command file\n')
+f.write('source("%s/utils/pkgTest.R")\n'%basepath)
+for d in R_dependencies:
+    f.write('pkgTest("%s")\n'%d)
+f.close()
+run_shell_cmd.run_shell_cmd('Rscript %s/check_depends.R'%filepath)
+
+
 # Initialize timing file
 
 init_timefile(timefile)    

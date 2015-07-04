@@ -35,18 +35,6 @@ if not os.path.exists(rnaseqdir):
 
 
 
-# check R dependencies
-
-R_dependencies=['knitr','WGCNA','DESeq','RColorBrewer','vsn','gplots']
-
-f=open(os.path.join(filepath,'check_depends.R'),'w')
-f.write('# automatically generated knitr command file\n')
-f.write('source("%s/utils/pkgTest.R")\n'%basepath)
-for d in R_dependencies:
-    f.write('pkgTest("%s")\n'%d)
-f.close()
-run_shell_cmd('Rscript %s/check_depends.R'%filepath)
-
 
 
 # do variance stabilization
