@@ -1,40 +1,33 @@
 """
 get_data.py: functions to download data for myconnectome project from cloudfront archive
 Options:
-    --all: get all basic data needed for analysis
-    --rawfunc: get raw fMRI data
-    --diffusion: get raw diffusion data
-    --anatomy: get raw anatomical data
+    -b/--base: get base data for analysis
+    -a/--all: get base data and results from analysis
     -h: print this help message
 """
 
 import os,getopt,sys
-import urllib
-import re
 import datetime
 import tempfile
 
 from getmd5sum import getmd5sum
-from myconnectome.utils.run_shell_cmd import run_shell_cmd
 from myconnectome.utils.download_file import DownloadFile
 
 def timestamp():
     return datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
 
-#dataurl='http://d2bmty58oscepi.cloudfront.net'
-dataurl='http://s3-us-west-2.amazonaws.com/myconnectome/base'
+dataurl='https://s3.amazonaws.com/openfmri/ds031/myconnectome-vm'
 
 basefileurl=dataurl+'/basefilelist_md5.txt'
 
 basedir=os.environ['MYCONNECTOME_DIR']
+
 basefile=os.path.join(basedir,'basefilelist_md5.txt')
 
-#dataurl='http://web.stanford.edu/group/poldracklab/myconnectome-data'
+dirname_listdict={'bct':'https://s3.amazonaws.com/openfmri/ds031/myconnectome-vm/bctlist_md5.txt',
+                  'david':'https://s3.amazonaws.com/openfmri/ds031/myconnectome-vm/davidfilelist_md5.txt'}
 
-dirname_listdict={'bct':'https://s3-us-west-2.amazonaws.com/myconnectome/base/bctlist_md5.txt',
-                  'david':'https://s3-us-west-2.amazonaws.com/myconnectome/base/davidfilelist_md5.txt'}
-
-def get_list_data(listfileurl,logfile=None,overwrite=False,verbose=False):
+def get_list_data(listfileurl,dataurl=dataurl,logfile=None,overwrite=False,verbose=False):
 
     # get base list
     tmpfile=tempfile.mkstemp()
@@ -86,7 +79,8 @@ def usage():
 def main(argv):
     
         
-        
+    global dataurl
+    global basefileurl
     try:
         assert os.path.exists(basedir)
     except:
@@ -96,7 +90,7 @@ def main(argv):
     overwrite=False
     try:
         # right now only the base option is implemented
-        opts, args = getopt.getopt(argv,"bo",['base'])
+        opts, args = getopt.getopt(argv,"bao",['base','all'])
     except getopt.GetoptError:
         usage()
     if len(opts)==0:
@@ -108,8 +102,10 @@ def main(argv):
         if opt == '-o':
             overwrite=True
             print 'overwriting older data'
-        if opt == '--base':
+        if opt == '--base' or opt == '-b':
             data_to_get.append('base')
+        if opt == '--all' or opt=='-a':
+            data_to_get.append('all')
     
     logdir=os.path.join(basedir,'logs')
     if not os.path.exists(logdir):
@@ -117,8 +113,13 @@ def main(argv):
     logfile=os.path.join(logdir,'data_downloads.log')
     
     if 'base' in data_to_get:
-        print 'getting data for main analysis...'
-        get_list_data(basefileurl,logfile=logfile,overwrite=overwrite)
+        print 'getting base starting data for main analysis...'
+        get_list_data(basefileurl,dataurl,logfile=logfile,overwrite=overwrite)
+        
+    if 'all' in data_to_get:
+        basefileurl=dataurl+'/myconnectome_md5.txt'
+        print 'getting all data and results for main analysis...'
+        get_list_data(basefileurl,dataurl,logfile=logfile,overwrite=overwrite)
         
 if __name__ == "__main__":
    main(sys.argv[1:])
