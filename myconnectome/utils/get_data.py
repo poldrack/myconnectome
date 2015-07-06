@@ -28,7 +28,7 @@ dirname_listdict={'bct':'https://s3.amazonaws.com/openfmri/ds031/myconnectome-vm
                   'david':'https://s3.amazonaws.com/openfmri/ds031/myconnectome-vm/davidfilelist_md5.txt'}
 
 def get_list_data(listfileurl,dataurl,logfile=None,
-                  skip_rsfmri_data=False,overwrite=False,verbose=False):
+                  skip=[],overwrite=False,verbose=False):
 
     if not logfile:
         print 'no logging..'
@@ -41,10 +41,13 @@ def get_list_data(listfileurl,dataurl,logfile=None,
     os.remove(tmpfile[1])
     
     for b in basefiles:
-        if skip_rsfmri_data and b[0].find('combined_data_scrubbed')>-1:
-            print 'skipping',b[0]
+        skipfile=False
+        for s in skip:
+            if  b[0].find(s)>-1:
+                print 'skipping',b[0]
+                skipfile=True
+        if skipfile:
             continue
-        
         if os.path.exists(os.path.join(basedir,b[0])) and not overwrite:            
             md5sum=getmd5sum(os.path.join(basedir,b[0]))
             if verbose:
@@ -94,11 +97,11 @@ def main(argv):
     except:
         print 'creating base directory:',basedir
         os.mkdir(basedir)
-    skip_rsfmri_data=False
+    skip=[]
     overwrite=False
     try:
         # right now only the base option is implemented
-        opts, args = getopt.getopt(argv,"baos",['base','all'])
+        opts, args = getopt.getopt(argv,"bao",['base','all','skip-htcount','skip-rsfmri'])
     except getopt.GetoptError:
         usage()
     if len(opts)==0:
@@ -110,9 +113,12 @@ def main(argv):
         if opt == '-o':
             overwrite=True
             print 'overwriting older data'
-        if opt == '-s':
-            skip_rsfmri_data=True
+        if opt == '--skip-rsfmri':
+            skip.append('combined_data_scrubbed')
             print 'skipping rsfmri timeseries data'
+        if opt == '--skip-htcount':
+            skip.append('htcount')
+            print 'skipping htcount data'
         if opt == '--base' or opt == '-b':
             data_to_get.append('base')
         if opt == '--all' or opt=='-a':
@@ -125,12 +131,12 @@ def main(argv):
     
     if 'base' in data_to_get:
         print 'getting base starting data for main analysis...'
-        get_list_data(basefileurl,dataurl,logfile,skip_rsfmri_data,overwrite)
+        get_list_data(basefileurl,dataurl,logfile,skip,overwrite)
         
     if 'all' in data_to_get:
         basefileurl=dataurl+'/myconnectome_md5.txt'
         print 'getting all data and results for main analysis...'
-        get_list_data(basefileurl,dataurl,logfile,skip_rsfmri_data,overwrite)
+        get_list_data(basefileurl,dataurl,logfile,skip,overwrite)
         
 if __name__ == "__main__":
    main(sys.argv[1:])
