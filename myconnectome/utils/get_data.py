@@ -68,9 +68,9 @@ def get_list_data(listfileurl,dataurl,logfile=None,
             print 'problem with logging...'
 
  
-def get_directory(d):
+def get_directory(d,dataurl=dataurl,logfile=os.path.join(basedir,'logs'),skip=[],overwrite=False):
     assert dirname_listdict.has_key(d)
-    get_list_data(dirname_listdict[d])
+    get_list_data(dirname_listdict[d],dataurl,logfile,skip,overwrite))
     
 def get_base_data(overwrite=False):
          
