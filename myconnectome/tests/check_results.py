@@ -3,15 +3,12 @@ compare results from myconnectome analysis to saved results on S3
 """
 
 import numpy
-import os,glob
+import os,glob,sys
 import urllib
+import argparse
 from myconnectome.utils.load_dataframe import load_dataframe,load_wgcna_module_assignments
 
-basedir=os.environ['MYCONNECTOME_DIR']
-
-dataurl='https://s3.amazonaws.com/openfmri/ds031/myconnectome-vm'
-
-rtol=atol=1e-06
+rtol=atol=1e-04
 
 # from http://stackoverflow.com/questions/3462143/get-difference-between-two-lists
 
@@ -34,7 +31,7 @@ def load_varstab_data(infile):
         data.append([float(x) for x in ls[1:]])
     return numpy.array(data),genes
 
-def compare_matrices(localdata,remotedata,infile,atol=1e-06,rtol=1e-06):
+def compare_matrices(localdata,remotedata,infile,atol=1e-04,rtol=1e-04):
     if numpy.allclose(localdata,remotedata,rtol,atol):
         print 'PASS:',infile
     else:
@@ -60,7 +57,36 @@ def check_text_file(infile):
     else:
         maxdiff=numpy.max(localdata - remotedata,0)
         print 'FAIL:',infile,'maxdiff =',maxdiff
+
+def usage():
+    """Print the docstring and exit with error."""
+    sys.stdout.write(__doc__)
+    sys.exit(2)
+
+def parse_arguments():
+    # parse command line arguments
+    # setting testing flag to true will turn off required flags
+    # to allow manually running without command line flags
+
+    parser = argparse.ArgumentParser(description='check_results')
+
+    parser.add_argument('-b', dest='basedir',
+        default=os.environ['MYCONNECTOME_DIR'],help='local base dir')
+    parser.add_argument('-r',dest='remotebase',
+        default='myconnectome-vm',help='remote base')
+    return parser.parse_args()
     
+basedir=os.environ['MYCONNECTOME_DIR']
+
+dataurl='https://s3.amazonaws.com/openfmri/ds031/myconnectome-vm'
+
+args=parse_arguments()
+basedir=args.basedir
+dataurl='https://s3.amazonaws.com/openfmri/ds031/'+args.remotebase
+
+print 'BASEDIR:',basedir
+print 'REMOTEBASE:',dataurl
+
 # first load download log and get list of downloaded files
 try:
     downloads=[i.strip().split('\t')[0] for i in open(os.path.join(basedir,'logs/data_downloads.log')).readlines()]
@@ -84,6 +110,7 @@ if not'rna-seq/WGCNA/MEs-thr8-prefilt-rinPCreg-48sess.txt' in downloads:
     compare_matrices(local,remote,'rna-seq/WGCNA/MEs-thr8-prefilt-rinPCreg-48sess.txt')
 else:
     print 'SKIPPING DOWNLOADED FILE:   rna-seq/WGCNA/MEs-thr8-prefilt-rinPCreg-48sess.txt'  
+    
 if not 'rna-seq/WGCNA/module_assignments_thr8_prefilt_rinPCreg.txt' in downloads:
     local,local_genes=load_wgcna_module_assignments(os.path.join(basedir,'rna-seq/WGCNA/module_assignments_thr8_prefilt_rinPCreg.txt'))
     remote,remote_genes=load_wgcna_module_assignments('%s/rna-seq/WGCNA/module_assignments_thr8_prefilt_rinPCreg.txt'%dataurl)
@@ -98,6 +125,12 @@ if not 'metabolomics/apclust_eigenconcentrations.txt' in downloads:
     compare_matrices(local,remote,'metabolomics/apclust_eigenconcentrations.txt')
 else:
     print 'SKIPPING DOWNLOADED FILE:  metabolomics/apclust_eigenconcentrations.txt'
+
+print '#### BCT analyses'
+for f in ['PIpos_weighted_louvain_bct.txt','modularity_weighted_louvain_bct.txt','geff_pos.txt']:
+    local=numpy.genfromtxt(os.path.join(basedir,'rsfmri',f))
+    remote=numpy.genfromtxt('%s/rsfmri/%s'%(dataurl,f))
+    compare_matrices(local,remote,'rsfmri/%s'%f)
     
 print '#### Timeseries analysis Results'
 
