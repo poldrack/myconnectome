@@ -11,6 +11,7 @@ import numpy
 import os
 import matplotlib.pyplot as plt
 from myconnectome.timeseries.load_myconnectome_data import load_behav_data,load_fullcorr_data
+import scipy.stats
 
 def r_to_z(r):
     # fisher transform
@@ -26,12 +27,16 @@ def z_to_r(z):
 
 basedir=os.environ['MYCONNECTOME_DIR']
 
-def connectome_similarity_timeseries():
+def connectome_similarity_timeseries(use_spearman=False):
     behavdata=load_behav_data()
     dates=behavdata[2]
+    if use_spearman:
+        spearman_flag='_spearman'
+    else:
+        spearman_flag=''
     try:
-        corrsim_all=numpy.loadtxt(os.path.join(basedir,'rsfmri/corrsim_all.txt'))
-        corrsim_mean=numpy.loadtxt(os.path.join(basedir,'rsfmri/corrsim_mean.txt'))
+        corrsim_all=numpy.loadtxt(os.path.join(basedir,'rsfmri/corrsim_all%s.txt'%spearman_flag))
+        corrsim_mean=numpy.loadtxt(os.path.join(basedir,'rsfmri/corrsim_mean%s.txt'%spearman_flag))
     except:
         corrdata,subcodes=load_fullcorr_data()
         corrdata=r_to_z(corrdata)
@@ -48,18 +53,28 @@ def connectome_similarity_timeseries():
         corrsim_l2_all=numpy.zeros((corrdata.shape[0],corrdata.shape[0]))
         
         for sess in range(corrdata.shape[0]):
-            corrsim_mean[sess]=numpy.corrcoef(meancorrdata,corrdata[sess,:])[0,1]
-            corrsim_l2_mean[sess]=numpy.corrcoef(meanl2data,l2data[sess,:])[0,1]
+            if use_spearman:
+                corrsim_mean[sess]=scipy.stats.spearmanr(meancorrdata,corrdata[sess,:])[0]
+                corrsim_l2_mean[sess]=scipy.stats.spearmanr(meanl2data,l2data[sess,:])[0]
+                
+            else:
+                corrsim_mean[sess]=numpy.corrcoef(meancorrdata,corrdata[sess,:])[0,1]
+                corrsim_l2_mean[sess]=numpy.corrcoef(meanl2data,l2data[sess,:])[0,1]
             for s2 in range(corrdata.shape[0]):
                 if sess==s2:
                     continue
-                corrsim_all[sess,s2]=numpy.corrcoef(corrdata[sess,:],corrdata[s2,:])[0,1]
-                corrsim_l2_all[sess,s2]=numpy.corrcoef(l2data[sess,:],l2data[s2,:])[0,1]
+                if use_spearman:
+                    corrsim_all[sess,s2]=scipy.stats.spearmanr(corrdata[sess,:],corrdata[s2,:])[0]
+                    corrsim_l2_all[sess,s2]=scipy.stats.spearmanr(l2data[sess,:],l2data[s2,:])[0]
+                    
+                else:
+                    corrsim_all[sess,s2]=numpy.corrcoef(corrdata[sess,:],corrdata[s2,:])[0,1]
+                    corrsim_l2_all[sess,s2]=numpy.corrcoef(l2data[sess,:],l2data[s2,:])[0,1]
             
-        numpy.savetxt(os.path.join(basedir,'rsfmri/corrsim_all.txt'),corrsim_all)
-        numpy.savetxt(os.path.join(basedir,'rsfmri/corrsim_mean.txt'),corrsim_mean)
-        numpy.savetxt(os.path.join(basedir,'rsfmri/l2sim_all.txt'),corrsim_l2_all)
-        numpy.savetxt(os.path.join(basedir,'rsfmri/l2sim_mean.txt'),corrsim_l2_mean)
+        numpy.savetxt(os.path.join(basedir,'rsfmri/corrsim_all%s.txt'%spearman_flag),corrsim_all)
+        numpy.savetxt(os.path.join(basedir,'rsfmri/corrsim_mean%s.txt'%spearman_flag),corrsim_mean)
+        numpy.savetxt(os.path.join(basedir,'rsfmri/l2sim_all%s.txt'%spearman_flag),corrsim_l2_all)
+        numpy.savetxt(os.path.join(basedir,'rsfmri/l2sim_mean%s.txt'%spearman_flag),corrsim_l2_mean)
     
     corrsim_all[numpy.diag_indices(corrsim_all.shape[0])]=corrsim_mean
     
@@ -68,8 +83,8 @@ def connectome_similarity_timeseries():
     plt.plot(corrsim_mean,linewidth=2)
     #plt.ylabel('Correlation with mean connectivity',fontsize=18)
     plt.xticks(range(0,84,9),[dates[i] for i in range(0,84,9)],rotation=45)
-    plt.axis([0,83,0.7,0.9])
-    plt.savefig(os.path.join(basedir,'rsfmri/mean_similarity_plot.pdf'),bbox_inches='tight')
+    plt.axis([0,83,0.65,0.9])
+    plt.savefig(os.path.join(basedir,'rsfmri/mean_similarity_plot%s.pdf'%spearman_flag),bbox_inches='tight')
 
     
     plt.figure(figsize=[12,12])
@@ -82,7 +97,8 @@ def connectome_similarity_timeseries():
         bottom='off',      # ticks along the bottom edge are off
         top='off',         # ticks along the top edge are off
         labelbottom='off') # labels along the bottom edge are off
-    plt.savefig(os.path.join(basedir,'rsfmri/session_corr_similarity_heatmap.pdf'))
+    plt.savefig(os.path.join(basedir,'rsfmri/session_corr_similarity_heatmap%s.pdf'%spearman_flag))
 
 if __name__ == "__main__":
     connectome_similarity_timeseries()
+    connectome_similarity_timeseries(True)
