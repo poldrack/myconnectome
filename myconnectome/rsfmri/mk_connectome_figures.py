@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 make images for connnectivity adjmtx
+also compute within/between hemisphere stats
 
 Created on Sun Jun 21 09:19:06 2015
 
@@ -12,6 +13,7 @@ import numpy
 import nilearn.plotting
 import scipy.stats
 from myconnectome.utils.get_parcel_coords import get_parcel_coords
+import matplotlib.pyplot as plt
 
 def get_mean_connection_distance(input):
     from scipy.spatial.distance import euclidean
@@ -92,7 +94,41 @@ def mk_connectome_figures(use_abs_corr=False,thresh=0.0025):
     taskadj=taskadj+taskadj.T
     
     coords=get_parcel_coords()
-     
+    hemis=numpy.zeros((630,630))
+    
+    # get inter/intrahemispheric marker - 1=intra, -1=inter
+    for i in range(630):
+        for j in range(i+1,630):
+            if numpy.sign(coords[i,0])==numpy.sign(coords[j,0]):
+                hemis[i,j]=1
+            else:
+                hemis[i,j]=-1
+    hemisutr=hemis[utr]
+    inter=numpy.where(hemisutr==-1)
+    intra=numpy.where(hemisutr==1)
+    densities=[0.001,0.005,0.01,0.025,0.05,0.075,0.1]
+    hemisdata=numpy.zeros((len(densities),5))
+    
+    for d in range(len(densities)):
+        rsthresh=meancorr > scipy.stats.scoreatpercentile(meancorr,100-100*densities[d])
+        hemisdata[d,0]=numpy.sum(rsthresh[inter])/float(numpy.sum(rsthresh))
+        dtithresh=meandti > scipy.stats.scoreatpercentile(meandti,100-100*densities[d])
+        hemisdata[d,1]=numpy.sum(dtithresh[inter])/float(numpy.sum(dtithresh))
+        taskthresh=taskdata > scipy.stats.scoreatpercentile(taskdata,100-100*densities[d])
+        hemisdata[d,2]=numpy.sum(taskthresh[inter])/float(numpy.sum(taskthresh))
+        l2thresh=l2mean > scipy.stats.scoreatpercentile(l2mean,100-100*densities[d])
+        hemisdata[d,3]=numpy.sum(l2thresh[inter])/float(numpy.sum(l2thresh))
+        l1thresh=l1mean > scipy.stats.scoreatpercentile(l1mean,100-100*densities[d])
+        hemisdata[d,4]=numpy.sum(l1thresh[inter])/float(numpy.sum(l1thresh))
+    print hemisdata
+    
+    plt.plot(hemisdata,linewidth=2)
+    plt.legend(['Full correlation','DTI','Task','L1 partial','L2 partial'],loc=5)
+    plt.xticks(range(len(densities)),densities*100)
+    plt.xlabel('Density (proportion of possible connections)',fontsize=14)
+    plt.ylabel('Proportion of interhemispheric connections',fontsize=14)
+    plt.savefig(os.path.join(basedir,'rsfmri/interhemispheric_connection_plot.pdf'))
+    
     print 'mean connection distances (%0.04f density)'%thresh
     print 'fullcorr:',get_mean_connection_distance(rsadj)
     print 'l1 pcorr:',get_mean_connection_distance(l1adj)
@@ -136,5 +172,5 @@ def mk_connectome_figures(use_abs_corr=False,thresh=0.0025):
 
 
 if __name__ == "__main__":
-    mk_connectome_figures.mk_connectome_figures()
+    mk_connectome_figures()
     
