@@ -16,7 +16,7 @@ from myconnectome.utils.download_file import DownloadFile
 def timestamp():
     return datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
 
-dataurl='https://s3.amazonaws.com/openfmri/ds031/myconnectome-vm'
+dataurl='http://s3.amazonaws.com/openfmri/ds031/myconnectome-vm'
 
 basefileurl=dataurl+'/basefilelist_md5.txt'
 
@@ -24,8 +24,8 @@ basedir=os.environ['MYCONNECTOME_DIR']
 
 basefile=os.path.join(basedir,'basefilelist_md5.txt')
 
-dirname_listdict={'bct':'https://s3.amazonaws.com/openfmri/ds031/myconnectome-vm/bctlist_md5.txt',
-                  'david':'https://s3.amazonaws.com/openfmri/ds031/myconnectome-vm/davidfilelist_md5.txt'}
+dirname_listdict={'bct':'http://s3.amazonaws.com/openfmri/ds031/myconnectome-vm/bctlist_md5.txt',
+                  'david':'http://s3.amazonaws.com/openfmri/ds031/myconnectome-vm/davidfilelist_md5.txt'}
 
 def get_list_data(listfileurl,dataurl,logfile=None,
                   skip=[],overwrite=False,verbose=False):
