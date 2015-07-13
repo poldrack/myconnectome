@@ -32,6 +32,9 @@ for v in envvars.keys():
 if good_to_go:
     print 'all environment variables present'
 
+if not os.path.exists(os.environ['MYCONNECTOME_DIR']):
+    os.mkdir(os.environ['MYCONNECTOME_DIR'])
+
 try:
     timefile = os.environ["TIME_LOG_FILE"]
 except:

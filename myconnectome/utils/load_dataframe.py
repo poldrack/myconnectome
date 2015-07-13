@@ -85,7 +85,10 @@ def load_wgcna_module_assignments(filename):
 
 
 def load_dataframe(filename,thresh=0.1):
-    f=open(filename)
+    if not filename.find('http')==0:
+        f=open(filename)
+    else:
+        f=urllib.urlopen(filename)
     # return p value, t stat, and correlation
     
     header=f.readline()

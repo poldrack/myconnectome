@@ -15,8 +15,10 @@ exclude_metab=False
 exclude_metab_metab=True
 exclude_gene_gene=True
 filter_gene_modules=False # only include first cluster in each module
-thresh=0.1000000001
+thresh=0.05 #0.1000000001
 degree_thresh=1
+
+use_infomap=True
 
 exclude_unenriched=False
 exclude_classes=['fd','psoriasis','pindex','fullmetab','bwcorr']
@@ -191,18 +193,24 @@ nx.write_graphml(graph,'/tmp/tmp.graphml')
 
 import igraph
 G=igraph.read('/tmp/tmp.graphml')
-#c=G.community_infomap()
 
-c=G.community_multilevel()
+if use_infomap:
+    c=G.community_infomap()
+    infomap_ext='_infomap'
+else:
+    c=G.community_multilevel()
+    infomap_ext='multilevel'
+
 labels=c.membership
 print 'modularity:',c.modularity
 
 for i in range(len(G.vs)):
     graph.node[G.vs[i]['id']]['module']=labels[i]
 
-nx.write_gexf(graph,os.path.join(basedir,'timeseries/graph_thresh%.02f%s.gexf'%(thresh,filt)))
-nx.write_gml(graph,os.path.join(basedir,'timeseries/graph_thresh%.02f%s.gml'%(thresh,filt)))
-nx.write_graphml(graph,os.path.join(basedir,'timeseries/graph_thresh%.02f%s.graphml'%(thresh,filt)))
+
+nx.write_gexf(graph,os.path.join(basedir,'timeseries/graph_thresh%.02f%s%s.gexf'%(thresh,filt,infomap_ext)))
+nx.write_gml(graph,os.path.join(basedir,'timeseries/graph_thresh%.02f%s%s.gml'%(thresh,filt,infomap_ext)))
+nx.write_graphml(graph,os.path.join(basedir,'timeseries/graph_thresh%.02f%s%s.graphml'%(thresh,filt,infomap_ext)))
 
 for i in numpy.unique(labels):
     print ''
