@@ -19,7 +19,7 @@ def DownloadFile(url,local_filename):
     s=requests.Session()
     s.mount('http://',HTTPAdapter(max_retries=Retry(total=5,status_forcelist=[500])))
     
-    connect_timeout = 4.0
+    connect_timeout = 10.0
 
     r = s.get(url=url,timeout=(connect_timeout, 10.0))
     #except requests.exceptions.ConnectTimeout:
