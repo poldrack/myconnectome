@@ -17,7 +17,7 @@ def DownloadFile(url,local_filename):
     if not os.path.exists(os.path.dirname(local_filename)):
         os.makedirs(os.path.dirname(local_filename))
     s=requests.Session()
-    s.mount('http://',HTTPAdapter(max_retries=Retry(total=5,status_forcelist=[500])))
+    s.mount('http://',HTTPAdapter(max_retries=Retry(total=10,status_forcelist=[500])))
     
     connect_timeout = 10.0
 
