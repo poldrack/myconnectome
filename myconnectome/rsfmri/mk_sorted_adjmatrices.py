@@ -77,10 +77,10 @@ def mk_sorted_adjmatrices(dtidensity=None):
     for b in breakpoints:
         plt.plot([0,630],[b,b],'r',linewidth=1.5)
         plt.plot([b,b],[0,630],'r',linewidth=1.5)
-    plt.yticks(textlocs,netnames)
-    plt.xticks(textlocs,netnames)
+    plt.yticks(textlocs,netnames,fontsize=14)
+    plt.xticks(textlocs,netnames,fontsize=14,rotation=90)
     plt.axis('image')
-    plt.title('Diffusion tractography - HARDI')
+    plt.title('Diffusion tractography - HARDI',fontsize=18)
 
     plt.savefig(os.path.join(basedir,'diffusion/adjmtx_binarized_sorted_modules_HARDI.pdf'))
 
@@ -90,10 +90,10 @@ def mk_sorted_adjmatrices(dtidensity=None):
     for b in breakpoints:
         plt.plot([0,630],[b,b],'r',linewidth=1.5)
         plt.plot([b,b],[0,630],'r',linewidth=1.5)
-    plt.yticks(textlocs,netnames)
-    plt.xticks(textlocs,netnames)
+    plt.yticks(textlocs,netnames,fontsize=14)
+    plt.xticks(textlocs,netnames,fontsize=14,rotation=90)
     plt.axis('image')
-    plt.title('Diffusion tractography - Skyra')
+    plt.title('Diffusion tractography - Skyra',fontsize=18)
 
     plt.savefig(os.path.join(basedir,'diffusion/adjmtx_binarized_sorted_modules_Skyra.pdf'))
 
@@ -116,10 +116,10 @@ def mk_sorted_adjmatrices(dtidensity=None):
     for b in breakpoints:
         plt.plot([0,630],[b,b],'r',linewidth=1.5)
         plt.plot([b,b],[0,630],'r',linewidth=1.5)
-    plt.yticks(textlocs,netnames)
-    plt.xticks(textlocs,netnames)
+    plt.yticks(textlocs,netnames,fontsize=14)
+    plt.xticks(textlocs,netnames,fontsize=14,rotation=90)
     plt.axis('image')
-    plt.title('Full correlation')
+    plt.title('Full correlation',fontsize=18)
     plt.colorbar(shrink=0.5)
 
     plt.savefig(os.path.join(basedir,'rsfmri/adjmtx_sorted_modules.pdf'))
@@ -141,10 +141,10 @@ def mk_sorted_adjmatrices(dtidensity=None):
     for b in breakpoints:
         plt.plot([0,630],[b,b],'r',linewidth=1.5)
         plt.plot([b,b],[0,630],'r',linewidth=1.5)
-    plt.yticks(textlocs,netnames)
-    plt.xticks(textlocs,netnames)
+    plt.yticks(textlocs,netnames,fontsize=14)
+    plt.xticks(textlocs,netnames,fontsize=14,rotation=90)
     plt.axis('image')
-    plt.title('L2-regularized partial correlation')
+    plt.title('L2-regularized partial correlation',fontsize=18)
     plt.colorbar(shrink=0.5)
     plt.savefig(os.path.join(basedir,'rsfmri/pcorr_l2_adjmtx_sorted_modules.pdf'))
 
@@ -159,10 +159,10 @@ def mk_sorted_adjmatrices(dtidensity=None):
     for b in breakpoints:
         plt.plot([0,630],[b,b],'r',linewidth=1.5)
         plt.plot([b,b],[0,630],'r',linewidth=1.5)
-    plt.yticks(textlocs,netnames)
-    plt.xticks(textlocs,netnames)
+    plt.yticks(textlocs,netnames,fontsize=14)
+    plt.xticks(textlocs,netnames,fontsize=14,rotation=90)
     plt.axis('image')
-    plt.title('Task correlation')
+    plt.title('Task correlation',fontsize=18)
     plt.colorbar(shrink=0.5)
     plt.savefig(os.path.join(basedir,'taskfmri/taskcorr_adjmtx_sorted_modules.pdf'))
 
