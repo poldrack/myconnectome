@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 """
 set up behavioral files for task003 (object localizer) - now called task004
@@ -9,17 +10,18 @@ Created on Wed Jun 17 16:52:44 2015
 import os,glob
 import numpy
 
-basedir=os.environ['MYCONNECTOME_DIR']
-datadir=os.path.join(basedir,'task_behavior/task003')
+datadir=os.path.join('/corral-repl/utexas/poldracklab/data/selftracking/task_behavior/task003')
 origfilesdir=os.path.join(datadir,'origfiles')
-outdir=os.path.join(basedir,'taskbehav')
+outdir=os.path.join('/scratch/01329/poldrack/selftracking/ds031')
+
+
 if not os.path.exists(outdir):
     os.mkdir(outdir)
    
 origdirs=glob.glob(os.path.join(origfilesdir,'sess*'))
 origdirs.sort()
 
-subcode='sub00001'
+subcode='sub-01'
 
 
 for o in origdirs:
@@ -36,12 +38,12 @@ for o in origdirs:
                     cond.append(condition)
             rundata_array=numpy.array(rundata)
             idx=numpy.argsort(rundata_array[:,0])
-            sesscode=os.path.basename(o).replace('sess','ses')
-            odir=os.path.join(outdir,'%s/%s/%s/functional'%(outdir,subcode,
+            sesscode=os.path.basename(o).replace('sess','ses-')
+            odir=os.path.join(outdir,'%s/%s/%s/func'%(outdir,subcode,
                                             sesscode))
             if not os.path.exists(odir):
                 os.makedirs(odir)
-            outfile=os.path.join(odir,'%s_%s_task004_run%03d_events.tsv'%(subcode,sesscode,r))
+            outfile=os.path.join(odir,'%s_%s_task-objects_run-%03d_events.tsv'%(subcode,sesscode,r))
 
             f=open(outfile,'w')
             f.write('onset\tduration\tcondition\n')
