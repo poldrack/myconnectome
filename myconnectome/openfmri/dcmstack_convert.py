@@ -8,7 +8,7 @@ import glob
 import nibabel
 
 
-dicomdir='/scratch/01329/poldrack/dicoms'
+dicomdir='/corral-repl/utexas/poldracklab/data/selftracking/dicom'
 outdir='/scratch/01329/poldrack/selftracking/dcmstack'
 
 dicomdirs=glob.glob(os.path.join(dicomdir,'s*'))
