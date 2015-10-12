@@ -11,7 +11,7 @@ basedirs=['vc39556','vc39556_2']
 
 outdir='/scratch/01329/poldrack/selftracking/ds031/sub00001/ses105/functional'
 
-runctr={'task001':1,'task008':1}
+runctr={'task001':1,'task009':1}
 
 for b in range(len(basedirs)):
     basedir=os.path.join(washubase,basedirs[b])
@@ -22,7 +22,7 @@ for b in range(len(basedirs)):
 
         seriesnum=int(r.split('Slicess')[1].split('a')[0])
         if r.find('EO')>-1:
-            eo='task008'
+            eo='task009'
             taskname='rest - eyes open'
             cogat='http://cognitiveatlas.org/task/id/trm_4c8a834779883'
             
