@@ -54,6 +54,7 @@ for i in range(len(dirnames)):
     jsfile=glob.glob(os.path.join(basedir,'9697_%s_1_dicoms/dti*.json'%dirnames[i]))
     jsflat=flatten_js(load_json(jsfile[0]))
     jsflat['GradientEncodingDirection']=directions[i]
+    jsflat['EffectiveEchoSpacing']=0.7520/1000.
     write_json(os.path.join(diffdir,'sub-01_ses-106_run-%03d_dwi.json'%int(i+1)),jsflat)
 
     nifile=glob.glob(os.path.join(niftidir,'9697_%d_*/*.nii.gz'%dirnames[i]))[0]
