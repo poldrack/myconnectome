@@ -10,7 +10,9 @@ import json
 import numpy
 from flatten_js import flatten_js
 import nibabel
-    
+import pickle
+
+slicetiming=pickle.load(open('/corral-repl/utexas/poldracklab/data/selftracking/slicetiming.pkl','rb'))
 
 outdir='/scratch/01329/poldrack/selftracking/ds031/sub-01'
 indir='/scratch/01329/poldrack/selftracking/dcmstack'
@@ -35,6 +37,7 @@ def load_json(j):
     
 indirs=glob.glob(os.path.join(indir,'ses*'))
 indirs.sort()
+
 
 if os.path.exists('copy_dcmstack_files.sh'):
 	os.remove('copy_dcmstack_files.sh')
@@ -105,6 +108,8 @@ for i in indirs:
             if jsflat['dcmmeta_shape'][3]<400:
                 #print 'skipping ',j
                 continue
+	    jsflat['SliceTiming']=slicetiming[sescode][sn][0]
+	    jsflat['MultibandAccelerationFactor']=slicetiming[sescode][sn][1]
             jsflat['TaskName']='rest - eyes closed'
             jsflat['TaskCogatlasId']=task_cogatlas[0]
 	    if jsflat['RepetitionTime']>100:
@@ -147,6 +152,8 @@ for i in indirs:
 		if jsflat['RepetitionTime']>100:
 			# heuristic to change from ms to secs
 			jsflat['RepetitionTime']=jsflat['RepetitionTime']/1000.0
+		jsflat['SliceTiming']=slicetiming[sescode][sn][0]
+		jsflat['MultibandAccelerationFactor']=slicetiming[sescode][sn][1]
                 jsflat['TaskName']=task_names[t]
                 jsflat['TaskCogatlasId']=task_cogatlas[tasknum-1]
                 jsflat['TaskDescription']=task_details[t]
