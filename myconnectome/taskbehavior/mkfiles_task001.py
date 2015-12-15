@@ -5,14 +5,14 @@ set up behavioral files for task002 - working memory (originally called task001 
 import os,glob,pickle
 import numpy
 
-basedir=os.environ['MYCONNECTOME_DIR']
-datadir=os.path.join(basedir,'task_behavior/task001')
+
+datadir=os.path.join('/corral-repl/utexas/poldracklab/data/selftracking/task_behavior/task001')
 origfilesdir=os.path.join(datadir,'origfiles')
-outdir=os.path.join(basedir,'taskbehav')
+outdir=os.path.join('/scratch/01329/poldrack/selftracking/ds031')
 if not os.path.exists(outdir):
     os.mkdir(outdir)
    
-subcode='sub00001'
+subcode='sub-01'
 
 origfiles=glob.glob(os.path.join(origfilesdir,'*pkl'))
 
@@ -27,9 +27,9 @@ for infile in origfiles:
     infile=infile.replace('elf-tracking','elf_tracking')
     sessnum=int(os.path.basename(infile).split('_')[2])
 
-    sesscode='ses%03d'%sessnum
+    sesscode='ses-%03d'%sessnum
     
-    outfile=os.path.join(outdir,'%s/%s/%s/functional/%s_%s_task002_run001_events.tsv'%(outdir,subcode,sesscode,subcode,sesscode))
+    outfile=os.path.join(outdir,'%s/%s/%s/func/%s_%s_task-nback_run-001_events.tsv'%(outdir,subcode,sesscode,subcode,sesscode))
     if not os.path.exists(os.path.dirname(outfile)):
         os.makedirs(os.path.dirname(outfile))
     f=open(outfile,'w')

@@ -10,16 +10,17 @@ Created on Wed Jun 17 13:51:20 2015
 import os,glob
 import numpy
 
-basedir=os.environ['MYCONNECTOME_DIR']
-datadir=os.path.join(basedir,'task_behavior/task002')
+datadir=os.path.join('/corral-repl/utexas/poldracklab/data/selftracking/task_behavior/task002')
 origfilesdir=os.path.join(datadir,'origfiles')
-outdir=os.path.join(basedir,'taskbehav')
+outdir=os.path.join('/scratch/01329/poldrack/selftracking/ds031')
+
+
 if not os.path.exists(outdir):
     os.mkdir(outdir)
    
-subcode='sub00001'
+subcode='sub-01'
 
-sesscodes=['ses083','ses084','ses085','ses086','ses088','ses089','ses091','ses092','ses093']
+sesscodes=['ses-083','ses-084','ses-085','ses-086','ses-088','ses-089','ses-091','ses-092','ses-093']
 
 loghdr=['SesNo','Trial','BlockAncher','PrepOn','StimOn','StimOff']
 datahdr=['onset','duration','TrialType','Coherence','Response','ResponseTime','Correct','CorrStop','SSD']
@@ -34,7 +35,7 @@ for sess in range(len(sesscodes)):
     onsets=logdata[:,4] - logdata[:,2]
     duration=logdata[:,5]-logdata[:,3]
     data=numpy.hstack((onsets[:,None],duration[:,None],data))  
-    outfile=os.path.join(outdir,'%s/%s/%s/functional/%s_%s_task003_run001_events.tsv'%(outdir,subcode,
+    outfile=os.path.join(outdir,'%s/%s/%s/func/%s_%s_task-dotstop_run001_events.tsv'%(outdir,subcode,
                                             sesscodes[sess],subcode,sesscodes[sess]))
     if not os.path.exists(os.path.dirname(outfile)):
         os.makedirs(os.path.dirname(outfile))

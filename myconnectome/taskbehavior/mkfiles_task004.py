@@ -16,21 +16,20 @@ fixations last 18 seconds
 import os,sys,glob
 import numpy
 
-
-basedir=os.environ['MYCONNECTOME_DIR']
-datadir=os.path.join(basedir,'task_behavior/task004')
+datadir=os.path.join('/corral-repl/utexas/poldracklab/data/selftracking/task_behavior/task004')
 origfilesdir=os.path.join(datadir,'origfiles')
-outdir=os.path.join(basedir,'taskbehav')
+outdir=os.path.join('/scratch/01329/poldrack/selftracking/ds031')
+
 if not os.path.exists(outdir):
     os.mkdir(outdir)
    
-subcode='sub00001'
+subcode='sub-01'
 
 origfiles=glob.glob(os.path.join(origfilesdir,'*csv'))
 
 for datafile in origfiles:
     subnum=int(datafile.split('_')[-2])
-    sesscode='ses%03d'%subnum
+    sesscode='ses-%03d'%subnum
     onsets=[]
     
     ons_counter=0.0
@@ -55,13 +54,9 @@ for datafile in origfiles:
 
     events=[]
   
-    outfile=os.path.join(outdir,'%s/%s/%s/functional/%s_%s_task005_run001_events.tsv'%(outdir,
-                                    subcode,sesscode,subcode,sesscode))
+    outfile=os.path.join(outdir,'%s/%s/func/%s_%s_task-languagewm_run-001_events.tsv'%(subcode,sesscode,subcode,sesscode))
+    print outfile
 
-    evdir=os.path.join(outdir,'%s/%s/%s/functional'%(outdir,subcode,sesscode))
-
-    if not os.path.exists(evdir):
-        os.makedirs(evdir)
     
     f=open(outfile,'w')
     f.write('onset\tduration\tcondition\trt\taccuracy\n')
