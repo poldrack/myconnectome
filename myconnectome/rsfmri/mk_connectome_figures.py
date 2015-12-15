@@ -126,7 +126,7 @@ def mk_connectome_figures(use_abs_corr=False,thresh=0.0025):
     plt.legend(['Full correlation','DTI','Task','L1 partial','L2 partial'],loc=5)
     plt.xticks(range(len(densities)),densities*100)
     plt.xlabel('Density (proportion of possible connections)',fontsize=14)
-    plt.ylabel('Proportion of interhemispheric connections',fontsize=14)
+    plt.ylabel('Proportion of connections that are interhemispheric',fontsize=14)
     plt.savefig(os.path.join(basedir,'rsfmri/interhemispheric_connection_plot.pdf'))
     
     print 'mean connection distances (%0.04f density)'%thresh
