@@ -16,7 +16,7 @@ from myconnectome.utils.download_file import DownloadFile
 def timestamp():
     return datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
 
-dataurl='http://s3-us-west-2.amazonaws.com/myconnectome/base'
+dataurl='http://myconnectome.s3.amazonaws.com/base'
 
 basefileurl=dataurl+'/basefilelist_md5.txt'
 
@@ -24,8 +24,8 @@ basedir=os.environ['MYCONNECTOME_DIR']
 
 basefile=os.path.join(basedir,'basefilelist_md5.txt')
 
-dirname_listdict={'bct':'http://s3-us-west-2.amazonaws.com/myconnectome/base/bctlist_md5.txt',
-                  'david':'http://s3-us-west-2.amazonaws.com/myconnectome/base/davidfilelist_md5.txt'}
+dirname_listdict={'bct':'http://myconnectome.s3.amazonaws.com/base/bctlist_md5.txt',
+                  'david':'http://myconnectome.s3.amazonaws.com/base/davidfilelist_md5.txt'}
 
 def get_list_data(listfileurl,dataurl,logfile=None,
                   skip=[],overwrite=False,verbose=False):
