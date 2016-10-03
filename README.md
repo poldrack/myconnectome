@@ -1,5 +1,7 @@
 # myconnectome
 
+[![DOI](https://zenodo.org/badge/21547922.svg)](https://zenodo.org/badge/latestdoi/21547922)
+
 Data analysis code for the [myconnectome project](http://www.myconnectome.org/)
 
 The goal of this project is to demonstrate reproducible analysis for a large and complex dataset.  The package provides a set of scripts that will implement all of the statistical analyses and some of the preprocessing steps for the data from the MyConnectome study, as reported by Poldrack et al. (submitted).  Code is not currently included for the cortical parcellation steps that were performed at Washington University, which is available [here] (http://www.nil.wustl.edu/labs/petersen/Resources_files/Surface_parcellation_distribute.zip). 
