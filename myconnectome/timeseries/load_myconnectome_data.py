@@ -100,7 +100,7 @@ def load_behav_data(subcodes_limit=None,xvars=None,allsubs=False):
         try:
             assert len(subcodes)==len(subcodes_limit)
         except:
-            print 'there is a problem: subcodes do not match subcodes_limit'
+            print('there is a problem: subcodes do not match subcodes_limit')
     if xvars:
         xvar_nums=[]
         for name in xvars:
