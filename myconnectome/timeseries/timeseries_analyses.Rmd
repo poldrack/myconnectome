@@ -27,6 +27,7 @@ The variables listed in each table are:
 ```{r setup,message=FALSE,echo=FALSE, warning=FALSE}
 library(forecast)
 library(knitr)
+library(zoo)
 
 
 basedir=Sys.getenv('MYCONNECTOME_DIR')
