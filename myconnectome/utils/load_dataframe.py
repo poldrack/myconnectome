@@ -5,8 +5,9 @@ Created on Sat May  2 15:40:44 2015
 @author: poldrack
 """
 
+from __future__ import absolute_import
 import os,glob
-import urllib
+import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
 import numpy
 
 def dequote_string(l):
@@ -35,7 +36,7 @@ def load_R_dataframe(filename):
         f=filename
     except:
         if filename.find('http')==0:
-            f=urllib.urlopen(filename)
+            f=six.moves.urllib.request.urlopen(filename)
         else:
             f=open(filename)
     
@@ -64,7 +65,7 @@ def load_wgcna_module_assignments(filename):
         f=filename
     except:
         if filename.find('http')==0:
-            f=urllib.urlopen(filename)
+            f=six.moves.urllib.request.urlopen(filename)
         else:
             f=open(filename)
     
@@ -88,7 +89,7 @@ def load_dataframe(filename,thresh=0.1):
     if not filename.find('http')==0:
         f=open(filename)
     else:
-        f=urllib.urlopen(filename)
+        f=six.moves.urllib.request.urlopen(filename)
     # return p value, t stat, and correlation
     
     header=f.readline()

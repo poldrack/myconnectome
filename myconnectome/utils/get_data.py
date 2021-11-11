@@ -6,11 +6,13 @@ Options:
     -h: print this help message
 """
 
+from __future__ import absolute_import
+from __future__ import print_function
 import os,getopt,sys
 import datetime
 import tempfile
 
-from getmd5sum import getmd5sum
+from .getmd5sum import getmd5sum
 from myconnectome.utils.download_file import DownloadFile
 
 def timestamp():
@@ -31,7 +33,7 @@ def get_list_data(listfileurl,dataurl,logfile=None,
                   skip=[],overwrite=False,verbose=False):
 
     if not logfile:
-        print 'no logging..'
+        print('no logging..')
     # get base list
     tmpfile=tempfile.mkstemp()
     os.close(tmpfile[0])
@@ -44,32 +46,32 @@ def get_list_data(listfileurl,dataurl,logfile=None,
         skipfile=False
         for s in skip:
             if  b[0].find(s)>-1:
-                print 'skipping',b[0]
+                print('skipping',b[0])
                 skipfile=True
         if skipfile:
             continue
         if os.path.exists(os.path.join(basedir,b[0])) and not overwrite:            
             md5sum=getmd5sum(os.path.join(basedir,b[0]))
             if verbose:
-                print 'existing file',b[0],md5sum,b[1]
+                print('existing file',b[0],md5sum,b[1])
             if md5sum==b[1]:
                 if verbose:
-                    print 'using existing file:',b[0]
+                    print('using existing file:',b[0])
                 continue
 
-        print 'downloading',b[0]
+        print('downloading',b[0])
         DownloadFile(dataurl+'/'+b[0].replace('+','%2B'),os.path.join(basedir,b[0]))
         ds_md5=getmd5sum(os.path.join(basedir,b[0]))
         if not ds_md5==b[1]:
-            print 'md5sum does not match for ',b[0],ds_md5
+            print('md5sum does not match for ',b[0],ds_md5)
         try:
             open(logfile,'a').write('%s\n'%'\t'.join(b))
         except:
-            print 'problem with logging...'
+            print('problem with logging...')
 
  
 def get_directory(d,dataurl=dataurl,logfile=os.path.join(basedir,'logs'),skip=[],overwrite=False,verbose=False):
-    assert dirname_listdict.has_key(d)
+    assert d in dirname_listdict
     get_list_data(dirname_listdict[d],dataurl,logfile,skip,overwrite,verbose)
     
 def get_base_data(overwrite=False):
@@ -78,7 +80,7 @@ def get_base_data(overwrite=False):
     if not os.path.exists(logdir):
         os.mkdir(logdir)
     logfile=os.path.join(logdir,'data_downloads.log')
-    print 'getting data for main analysis...'
+    print('getting data for main analysis...')
     get_list_data(basefileurl,dataurl,logfile)
 
   
@@ -95,7 +97,7 @@ def main(argv):
     try:
         assert os.path.exists(basedir)
     except:
-        print 'creating base directory:',basedir
+        print('creating base directory:',basedir)
         os.mkdir(basedir)
     skip=[]
     overwrite=False
@@ -112,13 +114,13 @@ def main(argv):
             usage()
         if opt == '-o':
             overwrite=True
-            print 'overwriting older data'
+            print('overwriting older data')
         if opt == '--skip-rsfmri':
             skip.append('combined_data_scrubbed')
-            print 'skipping rsfmri timeseries data'
+            print('skipping rsfmri timeseries data')
         if opt == '--skip-htcount':
             skip.append('htcount')
-            print 'skipping htcount data'
+            print('skipping htcount data')
         if opt == '--base' or opt == '-b':
             data_to_get.append('base')
         if opt == '--all' or opt=='-a':
@@ -130,12 +132,12 @@ def main(argv):
     logfile=os.path.join(logdir,'data_downloads.log')
     
     if 'base' in data_to_get:
-        print 'getting base starting data for main analysis...'
+        print('getting base starting data for main analysis...')
         get_list_data(basefileurl,dataurl,logfile,skip,overwrite)
         
     if 'all' in data_to_get:
         basefileurl=dataurl+'/myconnectome_md5.txt'
-        print 'getting all data and results for main analysis...'
+        print('getting all data and results for main analysis...')
         get_list_data(basefileurl,dataurl,logfile,skip,overwrite)
         
 if __name__ == "__main__":

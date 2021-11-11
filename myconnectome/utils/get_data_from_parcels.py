@@ -2,11 +2,14 @@
 map nifti image images to surface and extract parcels
 """
 
+from __future__ import absolute_import
+from __future__ import print_function
 import os,sys,glob,shutil
-from run_shell_cmd import run_shell_cmd
+from .run_shell_cmd import run_shell_cmd
 import tempfile
 import nibabel.gifti.giftiio
 import numpy
+from six.moves import range
 
 basedir=os.environ['MYCONNECTOME_DIR']
 
@@ -30,18 +33,18 @@ def get_data_from_parcels(volfile,outfile,save_gii=True):
         tmpfile=tempfile.mkstemp(suffix='.%s.func.gii'%hemis)
         os.close(tmpfile[0])
         outfile=tmpfile[1]
-        print outfile
+        print(outfile)
 
         wb_command='wb_command -volume-to-surface-mapping %s %s %s -ribbon-constrained %s %s'%(volfile,
                 surfaces['midthickness'][hemis],outfile,surfaces['white'][hemis],surfaces['pial'][hemis])
-        print wb_command
+        print(wb_command)
         run_shell_cmd(wb_command)
         if hemis=='L':
                 structure='CORTEX_LEFT'
         else:
                 structure='CORTEX_RIGHT'
         wb_command='wb_command -set-structure %s %s'%(outfile,structure)
-        print wb_command
+        print(wb_command)
         run_shell_cmd(wb_command)
 
         surfdata=nibabel.gifti.giftiio.read(outfile)
@@ -62,8 +65,8 @@ def get_data_from_parcels(volfile,outfile,save_gii=True):
             os.remove(outfile)
 
     nparcs=len(parceldata)
-    ntp=len(parceldata[parceldata.keys()[0]])
-    parcs=numpy.unique(parceldata.keys())
+    ntp=len(parceldata[list(parceldata.keys())[0]])
+    parcs=numpy.unique(list(parceldata.keys()))
     parcs.sort()
 
     parcmtx=numpy.zeros((nparcs,ntp))

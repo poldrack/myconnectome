@@ -2,11 +2,13 @@
 extract parcel data from gifti
 """
 
+from __future__ import absolute_import
 import os,sys,glob,shutil
-from run_shell_cmd import run_shell_cmd
+from .run_shell_cmd import run_shell_cmd
 import tempfile
 import nibabel.gifti.giftiio
 import numpy
+from six.moves import range
 
 basedir=os.environ['MYCONNECTOME_DIR']
 
@@ -41,8 +43,8 @@ def extract_parcel_data(infile):
 
 
     nparcs=len(parceldata)
-    ntp=len(parceldata[parceldata.keys()[0]])
-    parcs=numpy.unique(parceldata.keys())
+    ntp=len(parceldata[list(parceldata.keys())[0]])
+    parcs=numpy.unique(list(parceldata.keys()))
     parcs.sort()
 
     parcmtx=numpy.zeros((nparcs,ntp))

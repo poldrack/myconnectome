@@ -2,6 +2,7 @@
 utils to convert between r and z values
 """
 
+from __future__ import absolute_import
 import numpy
 
 def r_to_z(r):

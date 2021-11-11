@@ -3,7 +3,9 @@ extract data from 333 washu space using aparc+aseg from freesurfer
 
 """
 
+from __future__ import absolute_import
 import os,nibabel,numpy,sys
+from six.moves import range
 
 
 
@@ -24,7 +26,7 @@ def get_subcortical_data(datafile,basedir='/corral-repl/utexas/poldracklab/data/
         asegfields[int(l_s[0])]=l_s[1]
     f.close()
     
-    asegkeys=asegfields.keys()
+    asegkeys=list(asegfields.keys())
     asegkeys.sort()
     if len(data.shape)==3:
         ntp=1

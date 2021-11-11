@@ -5,6 +5,7 @@ Created on Fri Jul  3 09:40:16 2015
 @author: poldrack
 """
 
+from __future__ import absolute_import
 import hashlib
 
 def getmd5sum(fname, blocksize=65536):

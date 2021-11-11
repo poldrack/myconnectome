@@ -2,10 +2,12 @@
 write array over vertices to gifti file
 """
 
+from __future__ import absolute_import
 import nibabel.gifti.giftiio
 import numpy
 import os
 from myconnectome.utils.set_structure import set_structure
+from six.moves import range
 nvert=32492
 
 

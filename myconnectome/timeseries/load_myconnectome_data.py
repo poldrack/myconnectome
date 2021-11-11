@@ -3,12 +3,12 @@ import os
 
 basedir=os.environ['MYCONNECTOME_DIR']
 
-    
+
 def get_matching_datasets(d1,d2,s1,s2):
     """
     get_matching_datasets(d1,d2,s1,s2)
     """
-    
+
     joint_subs=set(s1).intersection(s2)
     s1_idx=[i for i in range(len(s1)) if s1[i] in joint_subs]
     s2_idx=[i for i in range(len(s2)) if s2[i] in joint_subs]
@@ -30,8 +30,8 @@ def load_immport_data():
     data=numpy.array(lines).T
     subcodes=[i.strip() for i in open(os.path.join(basedir,'rna-seq/pathsubs.txt')).readlines()]
     return data,gene_names,subcodes
-    
-    
+
+
 def load_rnaseq_data(use_wgcna=True):
     if use_wgcna:
         f=open(os.path.join(basedir,'rna-seq/WGCNA/MEs-thr8-rinreg-48sess.txt'))
@@ -47,9 +47,9 @@ def load_rnaseq_data(use_wgcna=True):
         data=numpy.array(lines)
         subcodes=[i.strip() for i in open(os.path.join(basedir,'rna-seq/pathsubs.txt')).readlines()]
     else:  # use full data
-        f=open(os.path.join(basedir,'rna-seq/varstab_data_rinregressed.txt'))
+        f=open(os.path.join(basedir,'rna-seq/varstab_data_prefiltered_rin_3PC_regressed.txt'))
         subcodes=[i.replace('"','') for i in f.readline().strip().split(' ')]
-        
+
         lines=[]
         gene_names=[]
         for line in f.readlines():
@@ -67,13 +67,13 @@ def load_behav_data(subcodes_limit=None,xvars=None,allsubs=False):
     """
     load behavioral data - pass dates to limit to specific subcodes
     """
-    
+
     if allsubs:
         f=open(os.path.join(basedir,'behavior/trackingdata.txt'))
     else:
         f=open(os.path.join(basedir,'behavior/trackingdata_goodscans.txt'))
     header=[i for i in f.readline().strip().split('\t')]
-    variables=header[2:]  # remove 
+    variables=header[2:]  # remove
     lines=[]
     for line in f.readlines():
         l_s=line.strip().split('\t')
@@ -83,7 +83,7 @@ def load_behav_data(subcodes_limit=None,xvars=None,allsubs=False):
         lines.append(l_s)
 
     f.close()
-    
+
     behavdata=numpy.zeros((len(lines),len(variables)))
     dates=[]
     subcodes=[]
@@ -108,7 +108,7 @@ def load_behav_data(subcodes_limit=None,xvars=None,allsubs=False):
             xvar_nums.append(varnum[0])
         behavdata=behavdata[:,xvar_nums]
         variables=[variables[i] for i in xvar_nums]
-    
+
     return behavdata,variables,dates,subcodes
 
 def load_food_data():
@@ -152,17 +152,17 @@ def load_wincorr_data():
               '5_Dorsal_Attention','7_Ventral_Attention',
               '8_Salience','9_Cingulo-opercular','10_Somatomotor','11.5_Frontal-Parietal_Other',
               '15_Media_Parietal','16_Parieto-Occipital']
-    
+
     subcodes=[i.strip() for i in open(os.path.join(basedir,'subcodes.txt')).readlines()]
     return wincorr,netnames,subcodes
 
 def load_bwcorr_data():
     wincorr=numpy.loadtxt(os.path.join(basedir,'rsfmri/module_between_corr.txt'))
     labels=[i.strip().replace('\t','-') for i in open(os.path.join(basedir,'rsfmri/bwmod_corr_labels.txt')).readlines()]
-    
+
     subcodes=[i.strip() for i in open(os.path.join(basedir,'subcodes.txt')).readlines()]
     return wincorr,labels,subcodes
-    
+
 def load_fullcorr_data():
     fullcorr=numpy.load(os.path.join(basedir,'rsfmri/corrdata.npy'))
     subcodes=[i.strip() for i in open(os.path.join(basedir,'subcodes.txt')).readlines()]
@@ -171,7 +171,7 @@ def load_fullcorr_data():
 
 #def load_partialcorr_data(cross_thresh=False,thresh=0.05):
 #    thresh_dict={0.01:0,0.025:1,0.05:2,0.075:3,0.1:4}
-#    
+#
 #    partialcorr=numpy.load('/Users/poldrack/Dropbox/data/selftracking/rsfmri/huge_adj.npy')
 #    subcodes=[i.strip() for i in open('/Users/poldrack/Dropbox/data/selftracking/rsfmri/subcodes.txt').readlines()]
 #    if not cross_thresh:

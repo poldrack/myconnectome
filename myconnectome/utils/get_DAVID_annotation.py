@@ -1,4 +1,7 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import sys
+from six.moves import range
 sys.path.append('../')
 
 import logging
@@ -31,7 +34,7 @@ def get_DAVID_annotation(infile='',genes=[],outfile='',fdr_thresh=0.1,thd=0.1,co
     assert len(genes)>0
     
     g2e,e2g=get_entrez_dict()
-    all_genes=g2e.keys()
+    all_genes=list(g2e.keys())
     all_genes.sort()
     
     
@@ -40,7 +43,7 @@ def get_DAVID_annotation(infile='',genes=[],outfile='',fdr_thresh=0.1,thd=0.1,co
     setup_logging()
     logging.getLogger('suds.client').setLevel(logging.DEBUG)
     url = 'http://david.abcc.ncifcrf.gov/webservice/services/DAVIDWebService?wsdl'  
-    print 'url=%s' % url
+    print('url=%s' % url)
     
     #
     # create a service client using the wsdl.
@@ -50,10 +53,10 @@ def get_DAVID_annotation(infile='',genes=[],outfile='',fdr_thresh=0.1,thd=0.1,co
     #
     # print the service (introspection)
     #
-    print client
+    print(client)
     
     #authenticate user email 
-    print client.service.authenticate('poldrack@utexas.edu')
+    print(client.service.authenticate('poldrack@utexas.edu'))
     
     
     
@@ -68,12 +71,12 @@ def get_DAVID_annotation(infile='',genes=[],outfile='',fdr_thresh=0.1,thd=0.1,co
         try:
             entrez_list.append(g2e[g])
         except:
-            print g,'not in dictionary, trying mygene'
+            print(g,'not in dictionary, trying mygene')
             mg=mygene.MyGeneInfo()
             entrez=[]
             result=mg.query(g,species='human')
             for h in result['hits']:
-                    if h.has_key('entrezgene'):
+                    if 'entrezgene' in h:
                         updateDict=True
                         g2e[g]='%d'%h['entrezgene']
                         e2g['%d'%h['entrezgene']]=g
@@ -81,12 +84,12 @@ def get_DAVID_annotation(infile='',genes=[],outfile='',fdr_thresh=0.1,thd=0.1,co
                         break
     
     if update_dict:
-        print 'updating entrez dict'
+        print('updating entrez dict')
         save_entrez_dict(g2e)
     
     inputIds=','.join(entrez_list)
     
-    print client.service.addList(inputIds, idType, listName, listType)
+    print(client.service.addList(inputIds, idType, listName, listType))
     client.service.setCategories(cats)
     #client.service.setCurrentSpecies(1)
     

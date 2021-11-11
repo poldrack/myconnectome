@@ -1,5 +1,7 @@
 
+from __future__ import absolute_import
 import numpy
+from six.moves import range
 
 
 def ts_shuffle(y,nblocks=4,min_block_size=5):
@@ -11,7 +13,7 @@ def ts_shuffle(y,nblocks=4,min_block_size=5):
         nvars=y.shape[1]
     good_set=False
     while not good_set:
-        idx=range(ntp)
+        idx=list(range(ntp))
         numpy.random.shuffle(idx)
         boundaries=numpy.sort(idx[:(nblocks-1)])
         boundaries=numpy.hstack((boundaries,[ntp]))
@@ -27,7 +29,7 @@ def ts_shuffle(y,nblocks=4,min_block_size=5):
             indices[i]=numpy.max(numpy.where(boundaries <= i)[0])+1
         except:
             pass
-    blockorder=range(nblocks)
+    blockorder=list(range(nblocks))
     numpy.random.shuffle(blockorder)
     shuffled_data=numpy.array([])
     if nvars==1:

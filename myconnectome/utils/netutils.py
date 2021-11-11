@@ -7,6 +7,8 @@ Created on Sun Mar 29 12:44:11 2015
 @author: poldrack
 """
 
+from __future__ import absolute_import
+from __future__ import print_function
 import numpy
 
 def participation_index(W,Ci):
@@ -105,7 +107,7 @@ def dist_inv_wei(graph):
             else:
                 line.append(v);
         if (len(line)==1):
-            val=np.argmax(sorted(graph.nodes())==col.keys()[0])
+            val=np.argmax(sorted(graph.nodes())==list(col.keys())[0])
             zerospos.append(val);
         else:
             mat.append(line);
@@ -152,7 +154,7 @@ def efficiency(G,wei_loc=None):
             avg *= 1.0/(n*(n-1));
         else:
             mat=dist_inv_wei(graph);
-            print mat;
+            print(mat);
             e=np.multiply(mat,wei_loc)**(1/3.0);
             e_all=np.matrix(e).ravel().tolist();
             avg = sum(e_all[0]);
@@ -197,7 +199,7 @@ def local_efficiency(G):
                 GuV=[];
                 GVu=[];
                 GWDegree=nx.to_numpy_matrix(G);
-                print GWDegree;
+                print(GWDegree);
                 for neighbor in neighbors:
                     GuV.append(GWDegree[node,neighbor]);
                     GVu.append(GWDegree[neighbor,node]);

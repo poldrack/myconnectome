@@ -140,8 +140,6 @@ def mk_connectome_figures(use_abs_corr=False,thresh=0.0025):
     tmp=dtiadj[dti_sum>0,:]
     dtiadj_reduced=tmp[:,dti_sum>0]
     #dtiadj_reduced=dtiadj_reduced+dtiadj_reduced.T
-    nilearn.plotting.plot_connectome(dtiadj_reduced,coords[dti_sum>0,:],node_size=2,
-                                     output_file=os.path.join(basedir,'diffusion/dti_connectome_thresh%f.pdf'%thresh))
     rs_sum=numpy.sum(rsadj,0)
     rsadj_match=rsadj*0.01 + rsadj*dtibin*0.8 # add one to matches to change edge color
     tmp=rsadj_match[rs_sum>0,:]

@@ -5,6 +5,7 @@ Created on Sun May  3 15:10:44 2015
 @author: poldrack
 """
 
+from __future__ import absolute_import
 import numpy
 
 def get_hubs(degree,P):

@@ -3,9 +3,11 @@ load parcel data and get coordinates
 """
 
 
+from __future__ import absolute_import
 import os
 import numpy
 from myconnectome.utils.load_parcel_data import load_parcel_data
+from six.moves import range
 
 basedir=os.environ['MYCONNECTOME_DIR']
 

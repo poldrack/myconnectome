@@ -6,6 +6,7 @@ Created on Fri Jul  3 09:13:04 2015
 
 @author: poldrack
 """
+from __future__ import absolute_import
 import requests
 import os
 from requests.packages.urllib3.util import Retry

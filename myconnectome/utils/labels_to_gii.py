@@ -7,10 +7,12 @@ Created on Fri Apr 24 16:53:08 2015
 @author: poldrack
 """
 
+from __future__ import absolute_import
 import nibabel.gifti.giftiio
 import os
 import numpy
 import unittest
+from six.moves import range
 
 
 

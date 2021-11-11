@@ -3,6 +3,7 @@ send status log to s3
 """
 
 
+from __future__ import absolute_import
 import boto
 from uuid import getnode as get_mac
 import time

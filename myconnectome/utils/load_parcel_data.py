@@ -3,7 +3,9 @@ utility function to load parcel data
 """
 
 
+from __future__ import absolute_import
 import numpy
+from six.moves import range
 
 def load_parcel_data(infile):
     f=open(infile)
