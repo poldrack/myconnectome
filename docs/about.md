@@ -21,6 +21,6 @@ The assessment after every scanning session included a mood questionnaire and a 
 
 With this plan in place, we began data collection on September 25, 2012.  We treated the first month as a pilot period, and made some changes to the imaging protocol to optimize data collection, beginning the production period on October 22, 2012.  The final regular data collection session was collected on March 11, 2014; a number of scan sessions have been collected in the subsequent decade.
 
-For details regarding the data acquisition and analysis, visit the [Detailed Protocol](detailed_protocol.md) page.
+For details regarding the data acquisition and analysis, visit the [Detailed Protocol](detailed-protocol.md) page.
 
  
