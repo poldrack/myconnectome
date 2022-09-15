@@ -1,9 +1,6 @@
-# The MyConnectome Project
-
-
 People change.  And when they do, their brains change too.
 
-The MyConnectome project has characterized how the brain of one person changes over the course of more than one year.  It is almost certainly the most ambitious study of a single living person’s brain ever attempted. The data will provide new insights into the dynamics of brain activity and their relationship to bodily metabolism and psychological function.  The project is also openly sharing a large amount of biological data for future reuse.
+The MyConnectome project characterized how the brain of one person changed over the course of more than one year.  When completed, it was the most ambitious study to date of a single living person’s brain ever attempted. The data have provided new insights into the dynamics of brain activity and their relationship to bodily metabolism and psychological function.  The project is also openly sharing a large amount of biological data for future reuse.
 
 See media coverage of the project at the [Dana Foundation](http://www.dana.org/News/Making-the-Connectome-Personal/), [Priceonomics](http://priceonomics.com/the-first-quantified-brain/), [MIT Tech Review](https://www.technologyreview.com/2013/05/31/178257/the-quantified-brain-of-a-self-tracking-neuroscientist/), [Discover Magazine](https://www.discovermagazine.com/health/a-mind-in-time), and [KUT](https://www.kut.org/science/2013-07-01/this-austin-scientist-is-scanning-his-own-brain-over-100-times).
 
@@ -34,7 +31,7 @@ The data from this study have already resulted in a number of academic papers:
 22.  [Hinrich, J. L., Nielsen, S. F. V., Riis, N. A. B., Eriksen, C., Frøsig, J., Kristensen, M. D. F., Schmidt, M. N., Madsen, K. H., & Mørup, M. (2017). Scalable group level probabilistic sparse factor analysis. In Proceedings of 2017 IEEE International Conference on Acoustics, Speech and Signal Processing (pp. 6314-6318). IEEE. International Conference on Acoustics, Speech and Signal Processing. Proceedings](https://doi.org/10.1109/ICASSP.2017.7953371) 
 23.  [St-Jean S, De Luca A, Tax CMW, Viergever MA, Leemans A. (2020). Automated characterization of noise distributions in diffusion MRI data. Med Image Anal.](https://pubmed.ncbi.nlm.nih.gov/32599491/)
 24.  [Nielsen SFV, Schmidt MN, Madsen KH, Mørup M. (2018). Predictive assessment of models for dynamic functional connectivity. Neuroimage.](https://pubmed.ncbi.nlm.nih.gov/29292135/)
-25.  [Ghassami AE et al. (2020). Characterizing Distribution Equivalence and Structure Learning for Cyclic and Acyclic Directed Graphs. ICML.](https://proceedings.icml.cc/static/paper_files/icml/2020/4241-Paper.pdf)
+25.  [Ghassami AE et al. (2020). Characterizing Distribution Equivalence and Structure Learning for Cyclic and Acyclic Directed Graphs. ICML.](http://proceedings.mlr.press/v119/ghassami20a/ghassami20a.pdf)
 26.  [Ghassami A, Kiyavash N, Huang B, Zhang K. (2018). Multi-domain Causal Structure Learning in Linear Systems.. Adv Neural Inf Process Syst.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6453575/)
 27.  [Huang B, Zhang K, Xie P,  Gong M,  Xing E, Glymour C (2019). Specific and Shared Causal Relation Modeling and Mechanism-Based Clustering.  NIPS2019.](http://papers.nips.cc/paper/9506-specific-and-shared-causal-relation-modeling-and-mechanism-based-clustering)
 28.  [Aslan S, Hocke L, Schwarz N, Frederick B (2019). Extraction of the cardiac waveform from simultaneous multislice fMRI data using slice sorted averaging and a deep learning reconstruction filter. Neuroimage,  198: p. 303-316](https://pubmed.ncbi.nlm.nih.gov/31129302/)
