@@ -58,6 +58,6 @@ The data from this study have already resulted in a number of academic papers:
 
 ### Data Sharing
 
-[How to access data](datasharing.md)
+[How to access data](data-sharing.md)
 
 A project of the [Poldrack Lab](http://www.poldracklab.org) at  [Stanford University](http://www.stanford.edu)
