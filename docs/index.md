@@ -44,7 +44,16 @@ The data from this study have already resulted in a number of academic papers:
 35. [Richard F. Betzel, Sarah A. Cutts, Sarah Greenwell, Joshua Faskowitz, Olaf Sporns, Individualized event structure drives individual differences in whole-brain functional connectivity, NeuroImage, Volume 252, 2022, 118993,](https://doi.org/10.1016/j.neuroimage.2022.118993)
 36. [Charles J. Lynch, Jonathan D. Power, Matthew A. Scult, Marc Dubin, Faith M. Gunning, Conor Liston. Rapid Precision Functional Mapping of Individuals Using Multi-Echo fMRI, Cell Reports, Volume 33, Issue 12, 2020, 108540, ](https://doi.org/10.1016/j.celrep.2020)
 37.  [Monti, R.P., Zhang, K. &amp; Hyvärinen, A.. (2020). Causal Discovery with General Non-Linear Relationships using Non-Linear ICA. <i>Proceedings of The 35th Uncertainty in Artificial Intelligence Conference</i>, in <i>Proceedings of Machine Learning Research</i> 115:186-195](https://proceedings.mlr.press/v115/monti20a.html).
-
+38. [Zhang, R., Shokri-Kojori, E. & Volkow, N.D. Seasonal effect—an overlooked factor in neuroimaging research. Transl Psychiatry 13, 238 (2023).](https://doi.org/10.1038/s41398-023-02530-2)
+39. [Dimitriadis, S.I. Assessing the Repeatability of Multi-Frequency Multi-Layer Brain Network Topologies Across Alternative Researcher’s Choice Paths. Neuroinform 21, 71–88 (2023).](https://doi.org/10.1007/s12021-022-09610-6)
+40. [Shammi More, Georgios Antonopoulos, Felix Hoffstaedter, Julian Caspers, Simon B. Eickhoff, Kaustubh R. Patil (2023).
+Brain-age prediction: A systematic comparison of machine learning workflows. NeuroImage, Volume 270, 119947.](https://doi.org/10.1016/j.neuroimage.2023.119947)
+41. [Li, A., Liu, H., Lei, X. et al. Hierarchical fluctuation shapes a dynamic flow linked to states of consciousness. Nat Commun 14, 3238 (2023).](https://doi.org/10.1038/s41467-023-38972-x)
+42. [Ashishi Puri, Snehlata Shakya, Sanjeev Kumar, (2023). A fractional order-based mixture of central Wishart (FMoCW) model for reconstructing white matter fibers from diffusion MRI. Psychiatry Research: Neuroimaging, Volume 333, 111673.](https://doi.org/10.1016/j.pscychresns.2023.111673).
+43. [Ashishi Puri , Sanjeev Kumar, A generalized order mixture model for tracing connectivity of white matter fascicles complexity in brain from diffusion MRI, Mathematical Medicine and Biology: A Journal of the IMA, 2023;, dqad002](https://doi.org/10.1093/imammb/dqad002)
+44. [Arnone, E., Negri, L., Panzica, F., & Sangalli, L. M. (2023). Analyzing data in complicated 3D domains: Smoothing, semiparametric regression, and functional principal component analysis. Biometrics.](https://doi.org/10.1111/biom.13845)
+45. [Puri, A., Kumar, S. (2023) An iterative algorithm for computing gradient directions for white matter fascicles detection in brain MRI. Phys Eng Sci Med 46, 165–178 ](https://doi.org/10.1007/s13246-022-01207-2)
+46. [Richard F. Betzel, Sarah A. Cutts, Jacob Tanner, Sarah A. Greenwell, Thomas Varley, Joshua Faskowitz, Olaf Sporns; Hierarchical organization of spontaneous co-fluctuations in densely sampled individuals using fMRI. Network Neuroscience 2023](doi: https://doi.org/10.1162/netn_a_00321)
 
 
 
