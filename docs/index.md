@@ -53,9 +53,12 @@ Brain-age prediction: A systematic comparison of machine learning workflows. Neu
 43. [Ashishi Puri , Sanjeev Kumar, A generalized order mixture model for tracing connectivity of white matter fascicles complexity in brain from diffusion MRI, Mathematical Medicine and Biology: A Journal of the IMA, 2023;, dqad002](https://doi.org/10.1093/imammb/dqad002)
 44. [Arnone, E., Negri, L., Panzica, F., & Sangalli, L. M. (2023). Analyzing data in complicated 3D domains: Smoothing, semiparametric regression, and functional principal component analysis. Biometrics.](https://doi.org/10.1111/biom.13845)
 45. [Puri, A., Kumar, S. (2023) An iterative algorithm for computing gradient directions for white matter fascicles detection in brain MRI. Phys Eng Sci Med 46, 165–178 ](https://doi.org/10.1007/s13246-022-01207-2)
-46. [Richard F. Betzel, Sarah A. Cutts, Jacob Tanner, Sarah A. Greenwell, Thomas Varley, Joshua Faskowitz, Olaf Sporns; Hierarchical organization of spontaneous co-fluctuations in densely sampled individuals using fMRI. Network Neuroscience 2023](doi: https://doi.org/10.1162/netn_a_00321)
+46. [Richard F. Betzel, Sarah A. Cutts, Jacob Tanner, Sarah A. Greenwell, Thomas Varley, Joshua Faskowitz, Olaf Sporns; Hierarchical organization of spontaneous co-fluctuations in densely sampled individuals using fMRI. Network Neuroscience 2023](https://doi.org/10.1162/netn_a_00321)
 47. [Huckins G, Poldrack RA (2024).  Generative dynamical models for classification of rsfMRI data.  Network Neuroscience 1–21.](https://doi.org/10.1162/netn_a_00412)
 48.  [Lynch CJ, et al. (2024). Frontostriatal salience network expansion in individuals in depression.  Nature, 633, 624-633](https://doi.org/10.1038/s41586-024-07805-2)
+49. [Hiba Sheheitli, Robert Hermosillo, Gracie Grimsrud, Thomas Madison, Oscar Miranda Dominguez, Steven Nelson, Damien Fair, Ziad Nahas; Metastability of resting-state Bold fMRI as a reliable biomarker of individual brain dynamics: an interrogation of within-subject variability as a function of total acquisition time. Network Neuroscience 2025](https://doi.org/10.1162/NETN.a.537)
+50. [Frontostriatal salience network expands as executive networks contract in Obsessive-Compulsive Disorder. Matilde M. Vaghi, Martin Norgaard, Sunjae Shim, Jaime Ali H. Rios, Patrick G. Bissett, Carolyn I. Rodriguez, Russell A. Poldrack. bioRxiv 2025.05.21.654808](https://doi.org/10.1101/2025.05.21.654808)
+
 
 
 
